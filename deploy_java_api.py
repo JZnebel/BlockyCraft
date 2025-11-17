@@ -20,7 +20,13 @@ from resource_pack_generator import ResourcePackGenerator
 from recipe_generator import RecipeGenerator
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Paths
 TEMPLATE_PATH = '/home/jordan/blockcraft-mod-template'
