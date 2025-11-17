@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "blockcraftloader",
+  "version": "1.0.0",
+  "name": "BlocklyCraft Loader",
+  "description": "Automatically downloads and updates BlocklyCraft mods from your server",
+  "authors": [
+    "BlocklyCraft"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/blockcraftloader/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.blockcraft.loader.BlocklyCraftLoader"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21"
+  }
+}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install BlocklyCraft Loader
+Comment=One-click installer for BlocklyCraft mod auto-updater
+Exec=bash -c 'cd /tmp && curl -o "$HOME/.minecraft/mods/blockcraft-loader-1.0.0.jar" "http://10.248.110.111:8888/blockcraft-loader-1.0.0.jar" && mkdir -p "$HOME/.minecraft/mods" && zenity --info --title="BlocklyCraft Installer" --text="✅ SUCCESS!\n\nBlocklyCraft Loader installed to:\n$HOME/.minecraft/mods/\n\nStart Minecraft to auto-download mods!" --width=400 2>/dev/null || (echo "SUCCESS! BlocklyCraft Loader installed!"; read -p "Press Enter to exit...")'
+Icon=application-x-executable
+Terminal=true
+Categories=Utility;

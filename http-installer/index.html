@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlocklyCraft Mods - Download</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            margin: 10px;
+        }
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        .download-btn:active {
+            transform: translateY(-1px);
+        }
+        .download-btn.secondary {
+            background: #6c757d;
+            box-shadow: 0 10px 30px rgba(108, 117, 125, 0.3);
+            font-size: 1em;
+            padding: 15px 30px;
+        }
+        .download-btn.secondary:hover {
+            box-shadow: 0 15px 40px rgba(108, 117, 125, 0.5);
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .os-detected {
+            color: #28a745;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .other-downloads {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .other-downloads h4 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .terminal-command {
+            background: #2d2d2d;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+            text-align: left;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        .copy-btn.copied {
+            background: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🎮</div>
+        <h1>BlocklyCraft Mods</h1>
+        <p class="subtitle">One-Click Auto-Installer</p>
+        
+        <p class="os-detected" id="os-detected"></p>
+        
+        <div id="primary-download"></div>
+        
+        <div class="instructions">
+            <h3>📋 How to Install (One Time Only!)</h3>
+            <ol id="install-steps">
+                <li><span class="step-number">1.</span> Click the download button above</li>
+                <li><span class="step-number">2.</span> Open the downloaded file</li>
+                <li><span class="step-number">3.</span> The installer will do everything automatically!</li>
+                <li><span class="step-number">4.</span> Start Minecraft - all mods will auto-download!</li>
+            </ol>
+            <p style="margin-top: 15px; color: #28a745; font-weight: bold;">
+                ✨ That's it! You'll never need to manually download mods again!
+            </p>
+        </div>
+
+        <div class="other-downloads">
+            <h4>Other Operating Systems:</h4>
+            <a href="install-blocklycraft.bat" class="download-btn secondary" download>
+                Windows (.bat)
+            </a>
+            <a href="install-blocklycraft.command" class="download-btn secondary" download>
+                Mac (.command)
+            </a>
+            <a href="install-blocklycraft.sh" class="download-btn secondary" download>
+                Linux (.sh)
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text, btnId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById(btnId);
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Detect OS and show appropriate download button
+        function detectOS() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const platform = navigator.platform.toLowerCase();
+            
+            let os = 'unknown';
+            let downloadFile = '';
+            let downloadLabel = '';
+            
+            if (userAgent.indexOf('win') !== -1 || platform.indexOf('win') !== -1) {
+                os = 'Windows';
+                downloadFile = 'install-blocklycraft.bat';
+                downloadLabel = '⬇️ Download for Windows';
+            } else if (userAgent.indexOf('mac') !== -1 || platform.indexOf('mac') !== -1) {
+                os = 'Mac';
+                downloadFile = 'install-blocklycraft.command';
+                downloadLabel = '⬇️ Download for Mac';
+            } else if (userAgent.indexOf('linux') !== -1 || platform.indexOf('linux') !== -1) {
+                os = 'Linux';
+                
+                // For Linux, show terminal command instead
+                document.getElementById('primary-download').innerHTML = `
+                    <div style="margin: 20px 0;">
+                        <p style="margin-bottom: 10px; color: #667eea; font-weight: bold;">Copy & paste this command in Terminal:</p>
+                        <div class="terminal-command">
+                            <button class="copy-btn" id="copy-btn" onclick="copyToClipboard('mkdir -p ~/.minecraft/mods && curl -o ~/.minecraft/mods/blockcraft-loader-1.0.0.jar http://10.248.110.111:8888/blockcraft-loader-1.0.0.jar && echo SUCCESS! BlocklyCraft Loader installed!', 'copy-btn')">Copy</button>
+                            mkdir -p ~/.minecraft/mods && curl -o ~/.minecraft/mods/blockcraft-loader-1.0.0.jar http://10.248.110.111:8888/blockcraft-loader-1.0.0.jar && echo "SUCCESS! BlocklyCraft Loader installed!"
+                        </div>
+                    </div>
+                `;
+                
+                // Update instructions for Linux
+                document.getElementById('install-steps').innerHTML = `
+                    <li><span class="step-number">1.</span> Click the "Copy" button above</li>
+                    <li><span class="step-number">2.</span> Open Terminal (Ctrl+Alt+T)</li>
+                    <li><span class="step-number">3.</span> Paste the command (Ctrl+Shift+V) and press Enter</li>
+                    <li><span class="step-number">4.</span> Start Minecraft - all mods will auto-download!</li>
+                `;
+                
+                // Show detected OS
+                document.getElementById('os-detected').textContent = `✓ Detected: ${os}`;
+                return; // Don't create download button for Linux
+            } else {
+                // Default to manual download
+                downloadFile = 'blockcraft-loader-1.0.0.jar';
+                downloadLabel = '⬇️ Download JAR File';
+            }
+            
+            // Show detected OS
+            if (os !== 'unknown') {
+                document.getElementById('os-detected').textContent = `✓ Detected: ${os}`;
+            }
+            
+            // Create primary download button
+            const downloadBtn = document.createElement('a');
+            downloadBtn.href = downloadFile;
+            downloadBtn.className = 'download-btn';
+            downloadBtn.download = '';
+            downloadBtn.textContent = downloadLabel;
+            
+            document.getElementById('primary-download').appendChild(downloadBtn);
+        }
+        
+        // Run detection on page load
+        detectOS();
+    </script>
+</body>
+</html>
