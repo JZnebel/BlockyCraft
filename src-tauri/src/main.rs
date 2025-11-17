@@ -21,11 +21,19 @@ fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
     #[cfg(debug_assertions)]
     {
         // In development, start Python API from project root
-        let project_root = std::env::current_dir().ok()?;
+        // Tauri runs from src-tauri, so go up one level to find deploy_java_api.py
+        let mut project_root = std::env::current_dir().ok()?;
+
+        // If we're in src-tauri, go up one level
+        if project_root.ends_with("src-tauri") {
+            project_root = project_root.parent()?.to_path_buf();
+        }
+
         let python_script = project_root.join("deploy_java_api.py");
 
         if !python_script.exists() {
-            eprintln!("Warning: deploy_java_api.py not found at {:?}", python_script);
+            eprintln!("❌ deploy_java_api.py not found at {:?}", python_script);
+            eprintln!("   Current dir: {:?}", std::env::current_dir().ok());
             return None;
         }
 
