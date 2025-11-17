@@ -17,7 +17,7 @@ use std::sync::Mutex;
 use std::process::{Command, Child};
 use tauri::{Manager, AppHandle};
 
-fn start_python_api(app_handle: &AppHandle) -> Option<Child> {
+fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
     #[cfg(debug_assertions)]
     {
         // In development, start Python API from project root
@@ -29,7 +29,7 @@ fn start_python_api(app_handle: &AppHandle) -> Option<Child> {
             return None;
         }
 
-        println!("Starting Python API server from {:?}", python_script);
+        println!("🚀 Starting Python API server from {:?}", python_script);
 
         match Command::new("python3")
             .arg(&python_script)
@@ -37,11 +37,11 @@ fn start_python_api(app_handle: &AppHandle) -> Option<Child> {
             .spawn()
         {
             Ok(child) => {
-                println!("✓ Python API server started (PID: {})", child.id());
+                println!("✅ Python API server started (PID: {})", child.id());
                 Some(child)
             }
             Err(e) => {
-                eprintln!("Failed to start Python API: {}", e);
+                eprintln!("❌ Failed to start Python API: {}", e);
                 None
             }
         }
@@ -70,19 +70,8 @@ fn main() {
             app.manage(Mutex::new(database));
 
             // Start Python API server
-            if let Some(mut child) = start_python_api(app.app_handle()) {
-                // Store the process handle for cleanup
-                let app_handle = app.app_handle().clone();
-
-                // Register cleanup on app exit
-                std::thread::spawn(move || {
-                    // Wait for app to exit
-                    loop {
-                        std::thread::sleep(std::time::Duration::from_secs(1));
-                        // The process will be killed when the app exits
-                    }
-                });
-
+            if let Some(child) = start_python_api(app.app_handle()) {
+                // Store the process handle - it will be killed when app exits
                 app.manage(Mutex::new(Some(child)));
             }
 
