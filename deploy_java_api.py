@@ -100,7 +100,7 @@ def update_server_properties(resource_pack_url, sha1_hash):
     print(f"✅ Updated server.properties with resource pack URL: {resource_pack_url}")
     return True
 
-@app.route('/deploy-java', methods=['POST'])
+@app.route('/api/deploy', methods=['POST', 'OPTIONS'])
 def deploy_java_mod():
     """
     Receives Java code from the web editor, compiles it, and deploys it
