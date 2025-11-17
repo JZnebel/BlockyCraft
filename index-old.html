@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockCraft - Make Minecraft Mods!</title>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2d3748;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1::before {
+            content: '🎮';
+            font-size: 32px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #ed8936;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #dd6b20;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .projects-sidebar {
+            width: 280px;
+            background: #2d3748;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: width 0.3s ease, margin-left 0.3s ease;
+            position: relative;
+        }
+
+        .projects-sidebar.collapsed {
+            width: 0;
+            min-width: 0;
+        }
+
+        .projects-sidebar.collapsed .projects-header,
+        .projects-sidebar.collapsed .projects-section {
+            display: none;
+        }
+
+        .projects-sidebar.collapsed ~ .collapse-toggle-left {
+            left: 0;
+        }
+
+        .projects-header {
+            background: #1a202c;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .projects-section {
+            border-bottom: 2px solid #1a202c;
+        }
+
+        .section-title {
+            background: #374151;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-title:hover {
+            background: #4b5563;
+        }
+
+        .section-toggle {
+            font-size: 12px;
+        }
+
+        .new-project-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .new-project-btn:hover {
+            background: #38a169;
+        }
+
+        .projects-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .examples-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .section-collapsed .projects-list,
+        .section-collapsed .examples-list {
+            display: none;
+        }
+
+        .project-item {
+            background: #4a5568;
+            color: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .project-item:hover {
+            background: #5a6578;
+            transform: translateX(5px);
+        }
+
+        .project-item.active {
+            background: #667eea;
+            border-color: #48bb78;
+        }
+
+        .project-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .project-date {
+            font-size: 12px;
+            color: #cbd5e0;
+        }
+
+        .project-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .project-action-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .project-action-btn:hover {
+            background: #c53030;
+        }
+
+        .project-rename-btn {
+            background: #ed8936;
+        }
+
+        .project-rename-btn:hover {
+            background: #dd6b20;
+        }
+
+        .empty-projects {
+            color: #a0aec0;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        #blocklyDiv {
+            flex: 1;
+            background: white;
+        }
+
+        .side-panel {
+            width: 350px;
+            background: white;
+            border-left: 3px solid #4a5568;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: width 0.3s ease, margin-right 0.3s ease;
+            position: relative;
+        }
+
+        .side-panel.collapsed {
+            width: 0;
+            min-width: 0;
+        }
+
+        .side-panel.collapsed .panel-header,
+        .side-panel.collapsed .panel-content {
+            display: none;
+        }
+
+        .side-panel.collapsed ~ .collapse-toggle-right {
+            right: 0;
+        }
+
+        .panel-header {
+            background: #4a5568;
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapse-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .collapse-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Floating toggle buttons when panels are collapsed */
+        .collapse-toggle-left,
+        .collapse-toggle-right {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 36px;
+            height: 80px;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .collapse-toggle-left {
+            left: 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .collapse-toggle-right {
+            right: 0;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .collapse-toggle-left:hover,
+        .collapse-toggle-right:hover {
+            background: #5568d3;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .projects-sidebar.collapsed ~ #blocklyDiv .collapse-toggle-left {
+            display: flex;
+        }
+
+        .side-panel.collapsed ~ .collapse-toggle-right {
+            display: flex;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 30px 50px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            z-index: 10001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            padding: 30px 50px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            z-index: 10001;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .emoji-icon {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .celebrating {
+            animation: celebrate 0.5s ease-in-out 3;
+        }
+
+        /* Fix Blockly block alignment */
+        #blocklyDiv .blocklyPath {
+            stroke-width: 1px;
+        }
+
+        #blocklyDiv .blocklyMainBackground {
+            stroke-width: 1px;
+        }
+
+        /* Improve block rendering */
+        .blocklySvg {
+            shape-rendering: crispEdges;
+        }
+
+        .blocklyPath {
+            shape-rendering: geometricPrecision;
+        }
+
+        /* Style toolbox categories to look like actual Blockly blocks */
+        .blocklyToolboxCategory {
+            margin: 10px 8px 10px 16px !important;
+            border: none !important;
+            padding: 0 !important;
+            background: transparent !important;
+            transition: all 0.2s ease !important;
+            position: relative !important;
+            height: 48px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* Create the block shape with proper puzzle notch */
+        .blocklyTreeRowContentContainer {
+            position: relative !important;
+            background: var(--category-color) !important;
+            height: 40px !important;
+            padding: 0 20px 0 30px !important;
+            display: flex !important;
+            align-items: center !important;
+            border-radius: 4px !important;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2) !important;
+            clip-path: polygon(
+                0 0,
+                8px 0,
+                12px 4px,
+                20px 4px,
+                24px 0,
+                100% 0,
+                100% 100%,
+                24px 100%,
+                20px calc(100% - 4px),
+                12px calc(100% - 4px),
+                8px 100%,
+                0 100%
+            ) !important;
+        }
+
+        .blocklyToolboxCategory:hover .blocklyTreeRowContentContainer {
+            transform: translateX(4px) !important;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3) !important;
+            filter: brightness(1.1) !important;
+        }
+
+        .blocklyToolboxCategory[aria-selected="true"] .blocklyTreeRowContentContainer {
+            transform: translateX(8px) !important;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.4) !important;
+            filter: brightness(1.15) !important;
+        }
+
+        .blocklyToolboxCategoryLabel {
+            color: white !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+            pointer-events: none !important;
+        }
+
+        .blocklyToolboxCategoryIcon {
+            display: none !important;
+        }
+
+        /* Make toolbox background darker */
+        .blocklyToolbox {
+            background: #2d3748 !important;
+        }
+
+        /* Add padding to toolbox content */
+        .blocklyToolboxCategoryGroup {
+            padding: 12px 0 !important;
+        }
+
+        /* Improve statement input visibility and drop zone size */
+        .blocklyEditableText > rect,
+        .blocklyEditableText > text {
+            fill: white !important;
+        }
+
+        /* Make statement inputs (drop zones) more visible with larger minimum height */
+        .blocklyStatementInputArea {
+            min-height: 40px !important;
+        }
+
+        /* Highlight statement inputs when dragging */
+        .blocklyDragging ~ .blocklyBlockCanvas .blocklyStatementInputArea {
+            opacity: 0.8;
+        }
+
+        /* Make the connection indicator more visible */
+        .blocklyInsertionMarker {
+            fill-opacity: 0.5 !important;
+            stroke-opacity: 0.8 !important;
+            stroke-width: 3px !important;
+        }
+
+        /* Increase the hit area for statement connections */
+        .blocklyPath[d*="M 0,4"] {
+            stroke-width: 4px !important;
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .settings-section input,
+        .settings-section select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .settings-section input:focus,
+        .settings-section select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .settings-section small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .save-settings-btn {
+            background: #48bb78;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .save-settings-btn:hover {
+            background: #38a169;
+        }
+
+        .btn-settings {
+            background: #667eea;
+            margin-right: 10px;
+        }
+
+        .btn-settings:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Building your mod...</div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="successMessage" class="success-message"></div>
+    <div id="errorMessage" class="error-message"></div>
+    <div class="header">
+        <h1>BlockCraft - Make Minecraft Mods!</h1>
+        <div>
+            <button class="btn btn-secondary btn-settings" onclick="showSettings()">⚙️ Settings</button>
+            <button class="btn btn-secondary" onclick="showTutorial()">📚 Tutorial</button>
+            <button class="btn btn-primary" onclick="exportToServer()">⚡ Deploy to Minecraft!</button>
+            <button id="downloadBtn" class="btn btn-success" onclick="downloadModPackage()" style="display:none;">📦 Download Mod Package</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
+            </div>
+
+            <div class="settings-section">
+                <label for="openaiApiKey">OpenAI API Key (Optional)</label>
+                <input type="password" id="openaiApiKey" placeholder="sk-proj-...">
+                <small>Enable AI-generated textures for custom items. Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></small>
+            </div>
+
+            <div class="settings-section">
+                <label for="aiModel">AI Model for Textures</label>
+                <select id="aiModel">
+                    <option value="gpt-image-1-mini" selected>GPT Image 1 Mini ($0.005/image - Fastest & Cheapest!)</option>
+                    <option value="gpt-image-1">GPT Image 1 ($0.011/image - Better quality)</option>
+                    <option value="dall-e-2">DALL-E 2 ($0.02/image)</option>
+                    <option value="dall-e-3">DALL-E 3 ($0.04/image - Best quality)</option>
+                </select>
+                <small>Choose which AI model to use for generating item textures. GPT Image 1 Mini is recommended for pixel art!</small>
+            </div>
+
+            <button class="save-settings-btn" onclick="saveSettings()">💾 Save Settings</button>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="projects-sidebar" id="projectsSidebar">
+            <div class="projects-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="collapse-btn" onclick="toggleProjectsSidebar()" title="Hide sidebar">◀</button>
+                    <span>📁 Projects</span>
+                </div>
+                <button class="new-project-btn" onclick="createNewProject()">+ New</button>
+            </div>
+
+            <div class="projects-section" id="myModsSection">
+                <div class="section-title" onclick="toggleSection('myMods')">
+                    <span>🛠️ My Mods</span>
+                    <span class="section-toggle" id="myModsToggle">▼</span>
+                </div>
+                <div class="projects-list" id="projectsList">
+                    <div class="empty-projects">No projects yet! Click "+ New" to start.</div>
+                </div>
+            </div>
+
+            <div class="projects-section" id="examplesSection">
+                <div class="section-title" onclick="toggleSection('examples')">
+                    <span>📚 Examples</span>
+                    <span class="section-toggle" id="examplesToggle">▼</span>
+                </div>
+                <div class="examples-list" id="examplesList"></div>
+            </div>
+        </div>
+
+        <div id="blocklyDiv"></div>
+
+        <button class="collapse-toggle-left" id="expandProjectsBtn" onclick="toggleProjectsSidebar()" title="Show sidebar">▶</button>
+    </div>
+
+    <!-- Minecraft items data -->
+    <script src="data/minecraft_items.js"></script>
+
+    <!-- Block definitions - Scratch-style organization -->
+    <script src="blocks/events.js"></script>
+    <script src="blocks/motion.js"></script>
+    <script src="blocks/looks.js"></script>
+    <script src="blocks/sound.js"></script>
+    <script src="blocks/logic.js"></script>
+    <script src="blocks/sensing.js"></script>
+    <script src="blocks/operators.js"></script>
+    <script src="blocks/variables.js"></script>
+    <script src="blocks/world.js"></script>
+    <script src="blocks/custom_items.js"></script>
+    <script src="blocks/custom_mobs.js"></script>
+
+    <!-- Keep old blocks for backward compatibility -->
+    <script src="blocks/actions.js"></script>
+    <script src="blocks/player.js"></script>
+    <script src="generators/java.js"></script>
+    <script src="generators/custom_items_java.js"></script>
+    <script src="generators/custom_mobs_java.js"></script>
+    <script src="exporter/java_builder.js"></script>
+    <script src="projects.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

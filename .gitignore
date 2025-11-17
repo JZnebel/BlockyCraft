@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# Environment
+.env
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+/tmp/
+blockcraft-build/
+
+# Minecraft server files
+minecraft-fabric-*/
+.minecraft/
+server.properties
+eula.txt
+logs/
+world/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,91 @@
+.settings-content {
+  color: #1A1A1A;
+}
+
+.settings-section {
+  margin-bottom: 1.5rem;
+}
+
+.settings-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #1A1A1A;
+}
+
+.settings-description {
+  margin: 0 0 1.25rem 0;
+  color: #606A78;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.settings-field {
+  margin-bottom: 1.25rem;
+}
+
+.settings-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1A1A1A;
+}
+
+.settings-hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #606A78;
+  margin-top: 0.25rem;
+}
+
+.api-key-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settings-input {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  background: #F5F7FB;
+  border: 2px solid #E4E8EF;
+  border-radius: 6px;
+  color: #1A1A1A;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  transition: all 0.2s;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: #2D7FF9;
+  background: #FFFFFF;
+}
+
+.settings-input::placeholder {
+  color: #606A78;
+}
+
+.key-preview {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #F5F7FB;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #606A78;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}

@@ -1,0 +1,22 @@
+.model-preview-canvas {
+  border-radius: 4px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  border: 2px solid #E4E8EF;
+  display: block;
+  margin: 0.75rem auto;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.model-preview-canvas.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.model-preview-canvas.clickable:hover {
+  border-color: #2D7FF9;
+  box-shadow: 0 2px 8px rgba(45, 127, 249, 0.2);
+  transform: scale(1.02);
+}

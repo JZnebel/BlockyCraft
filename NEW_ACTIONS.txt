@@ -1,0 +1,31 @@
+This file contains the Java code generation logic for all the new actions.
+I'll implement this in stages to avoid making the file too large at once.
+
+List of actions to implement:
+1. PlayerTeleport
+2. PlayerGamemode
+3. PlayerHealth
+4. WorldPlaceBlock
+5. WorldTime
+6. WorldWeather
+7. WorldExplosion
+8. WorldEntityFollow
+9. WorldEntityAttack
+10. WorldEntityTame
+11. MotionMoveForward
+12. MotionTeleport
+13. MotionRotate
+14. MotionLaunch
+15. MotionSetX
+16. MotionChangeX
+17. LooksSubtitle
+18. LooksParticles
+19. LooksClearEffects
+20. LooksDisplayName
+21. LooksGamemode
+22. SoundMusicDisc
+23. SoundStopAll
+24. CustomActionProjectile
+25. CustomActionParticles
+26. CustomActionAreaEffect
+27. CustomActionTeleportLook

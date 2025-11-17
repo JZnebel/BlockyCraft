@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BlockCraft Example Tester</title>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="data/minecraft_items.js"></script>
+    <script src="blocks/events.js"></script>
+    <script src="blocks/actions.js"></script>
+    <script src="blocks/logic.js"></script>
+    <script src="blocks/loops.js"></script>
+    <script src="blocks/data.js"></script>
+    <script src="blocks/world.js"></script>
+    <script src="blocks/player.js"></script>
+    <script src="blocks/custom_items.js"></script>
+    <script src="generators/events_java.js"></script>
+    <script src="generators/actions_java.js"></script>
+    <script src="generators/logic_java.js"></script>
+    <script src="generators/loops_java.js"></script>
+    <script src="generators/data_java.js"></script>
+    <script src="generators/world_java.js"></script>
+    <script src="generators/player_java.js"></script>
+    <script src="generators/custom_items_java.js"></script>
+    <script src="projects.js"></script>
+</head>
+<body>
+    <h1>Testing BlockCraft Examples</h1>
+    <div id="results"></div>
+    <div id="blocklyDiv" style="display:none;"></div>
+
+    <script>
+        // Initialize Blockly workspace
+        const workspace = Blockly.inject('blocklyDiv', {
+            toolbox: '<xml></xml>'
+        });
+
+        const resultsDiv = document.getElementById('results');
+
+        function testExample(example, index) {
+            const result = document.createElement('div');
+            result.style.margin = '10px';
+            result.style.padding = '10px';
+            result.style.border = '1px solid #ccc';
+
+            try {
+                // Clear workspace
+                workspace.clear();
+
+                // Load example XML
+                const xml = Blockly.utils.xml.textToDom(example.workspace);
+                Blockly.Xml.domToWorkspace(xml, workspace);
+
+                // Try to generate code
+                const topBlocks = workspace.getTopBlocks(true);
+                let hasCustomItems = false;
+                let codeGenerated = true;
+
+                for (const block of topBlocks) {
+                    if (block.type === 'custom_item_define' || block.type === 'custom_item_use') {
+                        hasCustomItems = true;
+                        const customItemData = generateCustomItemsCode(workspace);
+                        console.log(`Example ${index}: Custom items generated:`, customItemData);
+                    }
+                }
+
+                result.innerHTML = `
+                    <strong style="color: green;">✅ ${example.name}</strong><br>
+                    <small>${example.description}</small><br>
+                    <small>Blocks: ${topBlocks.length}, Has custom items: ${hasCustomItems}</small>
+                `;
+                result.style.backgroundColor = '#d4edda';
+            } catch (error) {
+                result.innerHTML = `
+                    <strong style="color: red;">❌ ${example.name}</strong><br>
+                    <small>${example.description}</small><br>
+                    <strong>Error:</strong> ${error.message}<br>
+                    <pre>${error.stack}</pre>
+                `;
+                result.style.backgroundColor = '#f8d7da';
+            }
+
+            resultsDiv.appendChild(result);
+        }
+
+        // Test all examples
+        console.log('Testing', EXAMPLE_PROJECTS.length, 'examples...');
+        EXAMPLE_PROJECTS.forEach((example, index) => {
+            testExample(example, index);
+        });
+    </script>
+</body>
+</html>

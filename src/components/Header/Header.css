@@ -1,0 +1,90 @@
+.blocklycraft-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #333;
+  height: 56px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.project-name {
+  font-size: 1rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.header-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: #4c97ff;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.header-btn:hover {
+  background: #3373cc;
+  transform: translateY(-1px);
+}
+
+.header-btn:active {
+  transform: translateY(0);
+}
+
+.deploy-btn {
+  background: #4caf50;
+}
+
+.deploy-btn:hover {
+  background: #45a049;
+}
+
+.header-btn svg {
+  font-size: 1rem;
+}
+
+.btn-text {
+  font-size: 0.875rem;
+}

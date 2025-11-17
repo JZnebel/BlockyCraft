@@ -1,0 +1,243 @@
+.blockly-editor-container {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  display: flex;
+}
+
+.blockly-div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+/* Match Scratch-style colors */
+.blocklyToolboxDiv {
+  background-color: #f9f9f9 !important;
+  border-right: 1px solid #ddd !important;
+  padding: 0 !important;
+  width: 120px !important;
+  min-width: 120px !important;
+}
+
+/* Category labels */
+.blocklyTreeRow {
+  height: 64px !important;
+  padding: 8px 16px !important;
+  cursor: pointer !important;
+  border-bottom: 1px solid #e8eaed !important;
+  border-left: none !important;
+}
+
+.blocklyTreeRow:hover {
+  background-color: #e8eaed !important;
+}
+
+/* Remove colored left border from categories */
+.blocklyTreeRow::before {
+  display: none !important;
+}
+
+.blocklyTreeRowContentContainer {
+  border-left: none !important;
+}
+
+/* Remove any Blockly-applied colored borders */
+.blocklyToolboxCategory {
+  border-left: none !important;
+}
+
+.blocklyTreeRow[style*="border-left"] {
+  border-left: none !important;
+}
+
+.blocklyTreeSelected {
+  border-left: none !important;
+}
+
+/* Force remove all colored borders */
+div[class*="blocklyTreeRow"] {
+  border-left-width: 0px !important;
+  border-left-color: transparent !important;
+}
+
+.blocklyToolboxDiv .blocklyTreeRow {
+  border-left: 0 !important;
+  padding-left: 8px !important;
+}
+
+.blocklyTreeLabel {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Flyout (block preview panel) */
+.blocklyFlyout {
+  fill: #f9f9f9 !important;
+  fill-opacity: 1 !important;
+  border-left: 1px solid #ddd !important;
+}
+
+.blocklyFlyoutBackground {
+  fill: #f9f9f9 !important;
+  fill-opacity: 1 !important;
+}
+
+.blocklyScrollbarBackground {
+  fill: #f9f9f9 !important;
+}
+
+/* Workspace background */
+.blocklyMainBackground {
+  fill: #ffffff !important;
+}
+
+/* Make block previews in flyout more visible */
+.blocklyFlyout .blocklyDraggable {
+  cursor: grab !important;
+}
+
+.blocklyFlyout .blocklyDraggable:hover {
+  filter: brightness(1.1) !important;
+}
+
+/* Category icons/colors */
+.blocklyTreeIcon {
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 8px !important;
+}
+
+/* Category icon backgrounds */
+.category-events-row {
+  background-image: url('/categories/events.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-actions-row {
+  background-image: url('/categories/actions.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-customitems-row {
+  background-image: url('/categories/customitems.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-custommobs-row {
+  background-image: url('/categories/custommobs.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-player-row {
+  background-image: url('/categories/player.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-world-row {
+  background-image: url('/categories/world.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-motion-row {
+  background-image: url('/categories/motion.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-sensing-row {
+  background-image: url('/categories/sensing.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-looks-row {
+  background-image: url('/categories/looks.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-sound-row {
+  background-image: url('/categories/sound.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-logic-row {
+  background-image: url('/categories/logic.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-math-row {
+  background-image: url('/categories/math.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-text-row {
+  background-image: url('/categories/text.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+.category-variables-row {
+  background-image: url('/categories/variables.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: auto 90% !important;
+  height: 64px !important;
+}
+
+/* Hide text labels since icons have text in them */
+.blocklyTreeLabel {
+  display: none !important;
+}
+
+/* Hide flyout scrollbar */
+.blocklyFlyout .blocklyScrollbarVertical,
+.blocklyFlyout .blocklyScrollbarHorizontal {
+  display: none !important;
+}
+
+.blocklyFlyoutScrollbar {
+  display: none !important;
+}
+
+/* Alternative: hide all scrollbars in flyout */
+.blocklyFlyout .blocklyScrollbar {
+  display: none !important;
+}
