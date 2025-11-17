@@ -40,3 +40,14 @@ world/
 # OS
 .DS_Store
 Thumbs.db
+
+# Development docs (planning, migration tracking, etc.)
+ARCHITECTURE_PLAN.md
+MIGRATION_STATUS.md
+EXAMPLES_PLAN.md
+GPT_IMAGE_API.md
+CODEGEN_INTEGRATION_SUMMARY.md
+*_PLAN.md
+*_STATUS.md
+*_SUMMARY.md
+*.txt
