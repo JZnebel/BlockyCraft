@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "start": "./start-dev.sh",
+    "start:tauri": "./start-tauri-dev.sh",
+    "start:windows": "start-dev.bat"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",

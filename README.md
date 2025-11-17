@@ -31,7 +31,29 @@ A Scratch 3.0-style visual programming platform for creating Minecraft Fabric mo
 
 ## 🎯 Quick Start
 
-### Desktop App (Recommended)
+### 🚀 One-Click Startup (Recommended)
+
+**Linux/Mac:**
+```bash
+npm install          # First time only
+npm start            # Starts web UI + Python API
+# OR for Tauri desktop app:
+npm start:tauri      # Starts Tauri app (auto-starts Python API)
+```
+
+**Windows:**
+```bash
+npm install          # First time only
+npm run start:windows  # Starts web UI + Python API
+```
+
+The startup scripts automatically:
+- ✓ Start Python API server (port 8585)
+- ✓ Start Vite dev server (port 1420) OR Tauri app
+- ✓ Check for port conflicts
+- ✓ Clean shutdown with Ctrl+C
+
+### Desktop App (Alternative)
 
 1. **Install Dependencies:**
    ```bash
@@ -41,6 +63,7 @@ A Scratch 3.0-style visual programming platform for creating Minecraft Fabric mo
 2. **Run Development Mode:**
    ```bash
    npm run tauri dev
+   # Python API starts automatically!
    ```
 
 3. **Build Desktop App:**
@@ -48,7 +71,9 @@ A Scratch 3.0-style visual programming platform for creating Minecraft Fabric mo
    npm run tauri build
    ```
 
-### Web Version
+### Web Version (Manual)
+
+If you prefer to start services manually:
 
 1. **Start Development Server:**
    ```bash
