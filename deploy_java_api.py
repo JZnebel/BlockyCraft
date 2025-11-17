@@ -105,6 +105,10 @@ def deploy_java_mod():
     """
     Receives Java code from the web editor, compiles it, and deploys it
     """
+    # Handle CORS preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+
     try:
         data = request.json
 
