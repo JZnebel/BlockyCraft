@@ -1,29 +1,24 @@
-# BlockCraft - Claude AI Context
+# BlocklyCraft - Claude AI Context
 
 ## Project Overview
 
-BlockCraft is a visual programming tool for creating Minecraft Java Edition mods using a block-based interface (Blockly). Users can create custom items, mobs, commands, and behaviors without writing code, then test them instantly in a bundled Minecraft server.
+BlocklyCraft is a **fully functional Tauri desktop application** for creating Minecraft Java Edition mods using visual programming (Blockly). Users create custom items, mobs, commands, behaviors, and 3D AI-generated models without writing code.
 
-**Current Status:** MVP/Proof of Concept ✅
-**Next Phase:** Migrating to production-ready Tauri desktop application
+**Current Status:** ✅ **Production-Ready Desktop App**
+**Latest Version:** 1.0.0 (Tauri + React + TypeScript)
+**Repository:** https://github.com/JZnebel/BlockyCraft
 
 ---
 
-## Architecture Migration Plan
+## Current Architecture (FULLY IMPLEMENTED)
 
-### Current State (MVP)
-- **Frontend:** Single `index.html` (794 lines) + vanilla JS
-- **Backend:** Python Flask (3 files)
-- **Database:** Browser localStorage
-- **Deployment:** Manual setup (requires Python, Minecraft server, Gradle, Java)
-
-### Target State (Tauri App)
+### Technology Stack
 - **Frontend:** React 18 + TypeScript + Vite
-- **Backend:** Rust (Tauri commands)
-- **Database:** SQLite (embedded)
-- **Deployment:** Native installers (.exe, .dmg, .deb) with bundled Fabric server
-
-**See full details in:** `ARCHITECTURE_PLAN.md`
+- **UI Framework:** Tailwind CSS + Blockly (Zelos renderer - Scratch 3.0 style)
+- **Desktop:** Tauri 2.0 (Rust backend)
+- **Database:** SQLite (embedded, managed by Tauri)
+- **Deployment:** Python Flask API (port 8585) + Gradle 8.8
+- **Minecraft:** Fabric 1.21.1 + custom loader mod with auto-update
 
 ---
 
@@ -590,7 +585,7 @@ When helping with BlockCraft development:
 
 ---
 
-Last Updated: 2025-11-15
-Migration Status: Planning Phase
-Current Version: MVP (committed: `936ee74`)
-Target Version: 1.0.0 (Tauri App)
+**Last Updated:** November 18, 2025
+**Status:** ✅ Production-Ready Desktop App
+**Version:** 1.0.0
+**Latest Commit:** `ddb80f3` - Mod template backup + placement mode fixes
