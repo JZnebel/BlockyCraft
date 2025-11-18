@@ -548,10 +548,13 @@ function generateBlockJava(block, context) {
              type === 'spawn_ai_model_orbiting' || type === 'spawn_ai_model_circle' ||
              type === 'spawn_block_display_model') {
         const modelId = block.getFieldValue('MODEL_ID');
-        code = `${indent}// Spawn AI model: ${modelId}\n`;
+        // Get placement mode (only spawn_block_display_model has this field)
+        const placementMode = block.getFieldValue('PLACEMENT_MODE');
+        const functionName = (placementMode === 'blocks') ? `${modelId}_blocks` : modelId;
+        code = `${indent}// Spawn AI model: ${modelId} (${placementMode || 'display'} mode)\n`;
         code += `${indent}${worldVar}.getServer().getCommandManager().executeWithPrefix(\n`;
         code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${playerVar}.getPos()),\n`;
-        code += `${indent}    "function blockcraft:${modelId}"\n`;
+        code += `${indent}    "function blockcraft:${functionName}"\n`;
         code += `${indent});\n`;
     }
 

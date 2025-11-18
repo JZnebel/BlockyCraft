@@ -579,6 +579,7 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
 
         if block_display_models and len(block_display_models) > 0:
             print(f"🎨 Generating {len(block_display_models)} block display model functions...")
+            print(f"   DEBUG: Model variants: {model_variants}")
 
             # Create datapack directory structure
             datapack_dir = os.path.join(BUILD_PATH, 'src/main/resources/data', item_namespace, 'function')
@@ -612,12 +613,20 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                     variants = ['base']
 
                 for variant in variants:
-                    # Parse variant to get scale/rotation multiplier
+                    # Parse variant to get scale/rotation multiplier and placement mode
                     scale_multiplier = 1.0
                     rotation_offset = 0.0
+                    placement_mode = 'display'  # Default to display entities
                     variant_suffix = ""
 
-                    if variant != 'base':
+                    # Extract placement mode from THIS variant (if it's a placement variant)
+                    if variant.startswith('placement_'):
+                        placement_mode = variant.split('_')[1]  # Extract 'blocks' or 'display'
+                        # Add placement mode to filename suffix so they don't overwrite each other
+                        if placement_mode == 'blocks':
+                            variant_suffix = "_blocks"
+
+                    if variant != 'base' and not variant.startswith('placement_'):
                         parts = variant.split('_')
                         if len(parts) >= 2:
                             variant_type = parts[0]
@@ -636,7 +645,7 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                                 else:
                                     variant_suffix = f"_rotation_{variant_value}".replace('.', '_')
 
-                    print(f"  Generating function for: {model_name} ({len(blocks)} blocks) - variant: {variant} (scale={scale_multiplier})")
+                    print(f"  Generating function for: {model_name} ({len(blocks)} blocks) - variant: {variant} (scale={scale_multiplier}, mode={placement_mode})")
 
                     # Create mcfunction file
                     function_lines = [
@@ -645,6 +654,9 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                         f"# Prompt: {model.get('prompt', 'N/A')}",
                         "",
                     ]
+
+                    # Track unique positions to verify all blocks are placed
+                    unique_positions = set()
 
                     for block_entity in blocks:
                         block_type = block_entity.get('block', 'minecraft:stone')
@@ -655,6 +667,16 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                         brightness = block_entity.get('brightness', {})
                         scale = block_entity.get('scale', None)
                         rotation = block_entity.get('rotation', None)
+
+                        # For real blocks mode, scale up coordinates to preserve detail
+                        # Use the actual scale from the block to determine upscale factor
+                        if placement_mode == 'blocks':
+                            # Get the scale value (usually 0.22 for AI models)
+                            block_scale = scale[0] if scale else 0.22  # Default to 0.22 if no scale
+                            upscale_factor = 1.0 / block_scale
+                            x *= upscale_factor
+                            y *= upscale_factor
+                            z *= upscale_factor
 
                         # Add Y offset to match Three.js rendering (blocks pivot at center in Three.js, bottom in Minecraft)
                         if scale:
@@ -696,21 +718,41 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                             f"}}"
                         )
 
-                        # Build brightness NBT
-                        brightness_nbt = ""
-                        if brightness:
-                            sky = brightness.get('sky', 15)
-                            block_light = brightness.get('block', 0)
-                            brightness_nbt = f",brightness:{{sky:{sky},block:{block_light}}}"
+                        # Generate command based on placement mode
+                        if placement_mode == 'blocks':
+                            # Real blocks mode - use setblock command
+                            # Round coordinates to integers for block placement
+                            bx = int(round(x))
+                            by = int(round(y))
+                            bz = int(round(z))
 
-                        # Generate summon command
-                        summon_cmd = (
-                            f"summon minecraft:block_display ~{x} ~{y} ~{z} "
-                            f"{{block_state:{{Name:\"{block_type}\"{props_nbt}}}"
-                            f"{brightness_nbt}{transform_nbt}}}"
-                        )
+                            # Track unique positions
+                            unique_positions.add((bx, by, bz))
 
-                        function_lines.append(summon_cmd)
+                            # Build properties string for setblock
+                            props_str = ""
+                            if properties:
+                                props_list = [f'{k}={v}' for k, v in properties.items()]
+                                props_str = f"[{','.join(props_list)}]"
+
+                            setblock_cmd = f"setblock ~{bx} ~{by} ~{bz} {block_type}{props_str}"
+                            function_lines.append(setblock_cmd)
+                        else:
+                            # Display entities mode - use summon block_display command
+                            # Build brightness NBT
+                            brightness_nbt = ""
+                            if brightness:
+                                sky = brightness.get('sky', 15)
+                                block_light = brightness.get('block', 0)
+                                brightness_nbt = f",brightness:{{sky:{sky},block:{block_light}}}"
+
+                            # Generate summon command
+                            summon_cmd = (
+                                f"summon minecraft:block_display ~{x} ~{y} ~{z} "
+                                f"{{block_state:{{Name:\"{block_type}\"{props_nbt}}}"
+                                f"{brightness_nbt}{transform_nbt}}}"
+                            )
+                            function_lines.append(summon_cmd)
 
                     # Write function file with variant suffix
                     function_filename = f'{model_id}{variant_suffix}.mcfunction'
@@ -718,7 +760,10 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                     with open(function_file_path, 'w') as f:
                         f.write('\n'.join(function_lines))
 
-                    print(f"  ✓ Generated function: {function_filename}")
+                    if placement_mode == 'blocks':
+                        print(f"  ✓ Generated function: {function_filename} ({len(unique_positions)} unique positions from {len(blocks)} source blocks)")
+                    else:
+                        print(f"  ✓ Generated function: {function_filename}")
 
             print(f"  ✓ All block display functions generated")
 

@@ -12,7 +12,7 @@ export function registerAIModelAdvancedBlocks(): void {
 Blockly.Blocks['spawn_ai_model_rotated'] = {
   init: function() {
     this.appendDummyInput()
-      .appendField('Spawn AI model')
+      .appendField('Spawn AI model (display entities)')
       .appendField(new Blockly.FieldTextInput('model_id'), 'MODEL_ID');
     this.appendDummyInput()
       .appendField('facing')
@@ -41,7 +41,7 @@ Blockly.Blocks['spawn_ai_model_rotated'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290);
-    this.setTooltip('Spawn a model with rotation and position control');
+    this.setTooltip('Spawn a model with rotation and position control (display entities only - required for rotation)');
     this.setHelpUrl('');
   }
 };
@@ -91,7 +91,7 @@ Blockly.Blocks['spawn_ai_model_following'] = {
 Blockly.Blocks['spawn_ai_model_scaled'] = {
   init: function() {
     this.appendDummyInput()
-      .appendField('Spawn AI model')
+      .appendField('Spawn AI model (display entities)')
       .appendField(new Blockly.FieldTextInput('model_id'), 'MODEL_ID');
     this.appendDummyInput()
       .appendField('scaled')
@@ -113,7 +113,7 @@ Blockly.Blocks['spawn_ai_model_scaled'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290);
-    this.setTooltip('Spawn an AI model with position and scale control');
+    this.setTooltip('Spawn an AI model with position and scale control (display entities only - required for scaling)');
     this.setHelpUrl('');
   }
 };

@@ -6,10 +6,16 @@ export const spawnBlockDisplayModel = {
     this.appendDummyInput()
       .appendField('Spawn AI model at player')
       .appendField(new Blockly.FieldTextInput('model_id'), 'MODEL_ID');
+    this.appendDummyInput()
+      .appendField('as')
+      .appendField(new Blockly.FieldDropdown([
+        ['Display Entities', 'display'],
+        ['Real Blocks', 'blocks']
+      ]), 'PLACEMENT_MODE');
     this.setPreviousStatement(true, 'Action');
     this.setNextStatement(true, 'Action');
     this.setColour('#9C27B0');
-    this.setTooltip('Spawns an AI-generated block display model at the player location');
+    this.setTooltip('Spawns an AI-generated model. Display Entities can be animated, Real Blocks are permanent structures.');
     this.setHelpUrl('');
   },
 };
