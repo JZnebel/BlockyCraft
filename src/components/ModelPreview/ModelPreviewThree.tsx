@@ -345,7 +345,7 @@ function ModelPreviewThree({ blocks, size = 120, clickable = false, draggable = 
     dragStart.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     // Only open modal if we didn't drag and clickable is enabled
     if (clickable && !wasDragging.current) {
       setShowModal(true);

@@ -114,6 +114,7 @@ export default function AIModelsPanel(props: AIModelsPanelProps) {
     return [];
   };
 
+  // @ts-ignore - Used for future functionality
   const saveModel = async (model: BlockDisplayModel) => {
     try {
       await dbSaveAiModel(

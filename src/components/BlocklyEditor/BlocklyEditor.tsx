@@ -105,10 +105,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
     kind: 'categoryToolbox',
     contents: [
       // @ts-ignore - cssConfig is supported but not in type definitions
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-events',
           row: 'category-events-row'
@@ -121,10 +122,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
         ]
       },
       // @ts-ignore - cssConfig is supported but not in type definitions
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-actions',
           row: 'category-actions-row'
@@ -142,10 +144,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'spawn_ai_model_scaled' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-player',
           row: 'category-player-row'
@@ -156,10 +159,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'player_effect' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-world',
           row: 'category-world-row'
@@ -178,10 +182,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'world_entity_tame' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-motion',
           row: 'category-motion-row'
@@ -197,10 +202,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'motion_launch' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-sensing',
           row: 'category-sensing-row'
@@ -225,10 +231,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'sensing_player_name' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-looks',
           row: 'category-looks-row'
@@ -243,10 +250,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'looks_clear_effects' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-sound',
           row: 'category-sound-row'
@@ -260,10 +268,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
       {
         kind: 'sep'
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-logic',
           row: 'category-logic-row'
@@ -279,10 +288,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'repeat_forever' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-math',
           row: 'category-math-row'
@@ -293,10 +303,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'math_arithmetic' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-text',
           row: 'category-text-row'
@@ -306,10 +317,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'text' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-variables',
           row: 'category-variables-row'
@@ -320,10 +332,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
       {
         kind: 'sep'
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-customitems',
           row: 'category-customitems-row'
@@ -333,10 +346,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'custom_item_define' },
         ]
       },
-            // @ts-expect-error - cssConfig is supported but not in type definitions
+            // @ts-ignore - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
+            // @ts-ignore - cssConfig works at runtime but not in types
         cssConfig: {
           container: 'category-custommobs',
           row: 'category-custommobs-row'
