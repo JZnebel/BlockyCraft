@@ -241,3 +241,9 @@ div[class*="blocklyTreeRow"] {
 .blocklyFlyout .blocklyScrollbar {
   display: none !important;
 }
+
+/* Blockly input field styling */
+.blocklyHtmlInput {
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
+}

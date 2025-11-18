@@ -435,6 +435,8 @@
   margin-bottom: 12px;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
+  background: #FFFFFF;
+  color: #1A1A1A;
 }
 
 .ai-texture-input:focus {
