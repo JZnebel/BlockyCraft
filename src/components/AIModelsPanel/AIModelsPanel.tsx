@@ -4,7 +4,7 @@ import { faMagicWandSparkles, faSpinner, faTrash, faCopy, faCheck, faChevronLeft
 import { generateBlockDisplayModelCodegen, editBlockDisplayModel } from '@/utils/tauri-commands';
 import { dbGetSetting, dbSaveAiModel, dbGetAiModels, dbGetAiModelBlocks, dbDeleteAiModel } from '@/utils/database';
 import type { BlockDisplayModel, BlockDisplayEntity } from '@/utils/database';
-import ModelPreview from '@/components/ModelPreview/ModelPreview';
+import ModelPreview from '@/components/ModelPreview/ModelPreviewThree';
 import './AIModelsPanel.css';
 
 interface AIModelsPanelProps {

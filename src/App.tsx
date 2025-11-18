@@ -117,11 +117,11 @@ function App() {
       return;
     }
 
-    // Require save if project is untitled
-    if (projectName === 'Untitled Project') {
+    // Require save if project is untitled (case-insensitive)
+    if (projectName.toLowerCase().trim() === 'untitled project') {
       setTempProjectName(projectName);
       setShowSaveModal(true);
-      showMessage('Save Required', 'Please save your project before compiling.');
+      showMessage('Save Required', 'Please save your project with a proper name before compiling.');
       return;
     }
 
@@ -151,11 +151,11 @@ function App() {
       return;
     }
 
-    // Require save if project is untitled
-    if (projectName === 'Untitled Project') {
+    // Require save if project is untitled (case-insensitive)
+    if (projectName.toLowerCase().trim() === 'untitled project') {
       setTempProjectName(projectName);
       setShowSaveModal(true);
-      showMessage('Save Required', 'Please save your project before deploying.');
+      showMessage('Save Required', 'Please save your project with a proper name before deploying.');
       return;
     }
 

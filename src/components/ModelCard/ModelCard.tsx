@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCube, faCopy } from '@fortawesome/free-solid-svg-icons';
 import type { BlockDisplayModel } from '@/utils/database';
-import ModelPreview from '@/components/ModelPreview/ModelPreview';
+import ModelPreview from '@/components/ModelPreview/ModelPreviewThree';
 import './ModelCard.css';
 
 interface ModelCardProps {
@@ -28,7 +28,7 @@ export default function ModelCard({ model, onDelete, onCopyId }: ModelCardProps)
       </div>
       <div className="model-card-body">
         {showPreview ? (
-          <ModelPreview blocks={model.blocks || []} size={140} clickable={true} />
+          <ModelPreview blocks={model.blocks || []} size={140} clickable={false} />
         ) : (
           <button
             onClick={() => setShowPreview(true)}

@@ -17,9 +17,36 @@ use std::sync::Mutex;
 use std::process::{Command, Child};
 use tauri::{Manager, AppHandle};
 
+fn kill_process_on_port(port: u16) {
+    #[cfg(target_os = "linux")]
+    {
+        // Try to find and kill any process using the port
+        let output = Command::new("sh")
+            .arg("-c")
+            .arg(format!("lsof -ti:{}", port))
+            .output();
+
+        if let Ok(output) = output {
+            if output.status.success() {
+                let pid = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                if !pid.is_empty() {
+                    println!("🔪 Killing existing process on port {}: PID {}", port, pid);
+                    let _ = Command::new("kill")
+                        .arg(&pid)
+                        .output();
+                    std::thread::sleep(std::time::Duration::from_millis(500));
+                }
+            }
+        }
+    }
+}
+
 fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
     #[cfg(debug_assertions)]
     {
+        // Kill any existing process on port 8585
+        kill_process_on_port(8585);
+
         // In development, start Python API from project root
         // Tauri runs from src-tauri, so go up one level to find deploy_java_api.py
         let mut project_root = std::env::current_dir().ok()?;

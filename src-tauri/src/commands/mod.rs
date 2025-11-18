@@ -984,6 +984,7 @@ pub async fn compile_mod(mod_data: ModData, project_name: String) -> Result<Stri
         "projectName": project_name,
         "customItems": mod_data.custom_items,
         "customMobs": mod_data.custom_mobs,
+        "blockDisplayModels": mod_data.block_display_models,
         "aiSettings": {}
     });
 
@@ -1103,6 +1104,7 @@ pub async fn build_mod(mod_data: ModData, project_name: String) -> Result<String
         "projectName": project_name,
         "customItems": mod_data.custom_items,
         "customMobs": mod_data.custom_mobs,
+        "blockDisplayModels": mod_data.block_display_models,
         "aiSettings": {},
         "deploy": false  // Don't deploy, just build
     });

@@ -104,8 +104,31 @@ AVAILABLE LIBRARY FUNCTIONS WITH EXACT BLOCK COUNT FORMULAS:
 5. create_tapered_shape(profile, scale, color_map, block_material="concrete")
    Formula: Complex - estimate ~500-2000 blocks depending on profile complexity
 
-6. add_glow(blocks, brightness_sky=15, brightness_block=15)
-   Returns: None (modifies in place, adds 0 blocks)
+6. create_cone(height, base_radius, scale, color, block_material="concrete", center_y=0.0)
+   Formula: Similar to tapered_shape, ~300-1000 blocks
+   Example: height=3, base_radius=1.5, scale=0.3 → ~400 blocks
+
+7. create_pyramid(base_width, height, scale, color, block_material="concrete", center=(0,0,0))
+   Formula: Square-based pyramid, ~200-800 blocks
+   Example: base_width=4, height=3, scale=0.3 → ~500 blocks
+
+8. create_torus(major_radius, minor_radius, scale, color, block_material="concrete", center_y=0.0)
+   Formula: major_segments * minor_segments
+            major_segments = max(16, int(2*π*major_radius / scale))
+            minor_segments = max(8, int(2*π*minor_radius / scale))
+   Example: major_radius=2, minor_radius=0.5, scale=0.3 → ~40*10 = 400 blocks
+
+9. create_plane(width, depth, scale, color, block_material="concrete", center=(0,0,0))
+   Formula: num_x * num_z = int(width/scale) * int(depth/scale)
+   Example: width=5, depth=5, scale=0.3 → 16*16 = 256 blocks
+
+10. create_text(text, scale, color, block_material="concrete", position=(0,0,0), char_spacing=1.0)
+    Formula: ~35 blocks per character (5x7 bitmap font)
+    Example: "HELLO", scale=0.3 → 5 chars * 35 = ~175 blocks
+    IMPORTANT: Text is flat (2D), renders in XY plane, supports A-Z, 0-9, ! . - _
+
+11. add_glow(blocks, brightness_sky=15, brightness_block=15)
+    Returns: None (modifies in place, adds 0 blocks)
 
 CRITICAL: CALCULATE BEFORE CODING!
 Before writing any code, manually calculate:
@@ -236,6 +259,9 @@ IMPORTANT:
 Complexity: {}
 
 Analyze the image and create a voxel model that captures its key features.
+- If the image contains TEXT or LOGOS, use create_text() to render the text in voxels
+- For 3D objects, use geometric shapes (sphere, box, cylinder, cone, pyramid, torus, etc.)
+- Combine text and shapes to recreate the full image
 Build a hollow structure (surface only) that looks good in Minecraft.
 Output only the generate() function code.",
                         if prompt.is_empty() { String::new() } else { format!(": {}", prompt) },
@@ -505,6 +531,11 @@ AVAILABLE LIBRARY FUNCTIONS:
 - create_cylinder(height, radius, scale, color, block_material="concrete", center_y=0.0)
 - create_box(width, height, depth, scale, color, block_material="concrete", center=(0,0,0))
 - create_tapered_shape(profile, scale, color_map, block_material="concrete")
+- create_cone(height, base_radius, scale, color, block_material="concrete", center_y=0.0)
+- create_pyramid(base_width, height, scale, color, block_material="concrete", center=(0,0,0))
+- create_torus(major_radius, minor_radius, scale, color, block_material="concrete", center_y=0.0)
+- create_plane(width, depth, scale, color, block_material="concrete", center=(0,0,0))
+- create_text(text, scale, color, block_material="concrete", position=(0,0,0), char_spacing=1.0)
 - add_glow(blocks, brightness_sky=15, brightness_block=15)
 
 Common edit examples:
@@ -513,6 +544,8 @@ Common edit examples:
 - "change color to red" → change color parameter to "red"
 - "make tail longer" → increase length parameter of tail component
 - "add wings" → add new components using create_* functions
+- "add text saying HELLO" → use create_text("HELLO", scale, color, position=...)
+- "add the text BlocklyCraft on it" → use create_text to render the text
 
 OUTPUT FORMAT:
 Return ONLY the modified generate() function code, nothing else."#;

@@ -575,6 +575,8 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
         # Generate block_display model functions
         block_display_models = data.get('blockDisplayModels', [])
         model_variants = data.get('modelVariants', {})  # { "model_123": ["scale_2", "scale_10"] }
+        model_errors = []  # Track errors for user feedback
+
         if block_display_models and len(block_display_models) > 0:
             print(f"🎨 Generating {len(block_display_models)} block display model functions...")
 
@@ -591,11 +593,15 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                 try:
                     blocks = json.loads(blocks_json) if isinstance(blocks_json, str) else blocks_json
                 except json.JSONDecodeError:
-                    print(f"  ⚠ Failed to parse blocks_json for {model_name}")
+                    error_msg = f"Failed to parse blocks_json for {model_name}"
+                    print(f"  ⚠ {error_msg}")
+                    model_errors.append(error_msg)
                     continue
 
                 if not blocks:
-                    print(f"  ⚠ No blocks found for {model_name}")
+                    error_msg = f"No blocks found for {model_name}"
+                    print(f"  ⚠ {error_msg}")
+                    model_errors.append(error_msg)
                     continue
 
                 # Get variants for this model (e.g., ["scale_2", "scale_10"])
@@ -650,32 +656,45 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
                         scale = block_entity.get('scale', None)
                         rotation = block_entity.get('rotation', None)
 
+                        # Add Y offset to match Three.js rendering (blocks pivot at center in Three.js, bottom in Minecraft)
+                        if scale:
+                            sy = scale[1]  # Get Y scale
+                            y += (sy * scale_multiplier) / 2
+
                         # Build block_state NBT
                         props_nbt = ""
                         if properties:
                             props_list = [f'{k}:"{v}"' for k, v in properties.items()]
                             props_nbt = f",Properties:{{{','.join(props_list)}}}"
 
-                        # Build transformation NBT
-                        transform_parts = []
+                        # Build transformation NBT - MUST include all components for Minecraft to apply it
+                        # Default identity transformation
+                        sx, sy, sz = (1.0, 1.0, 1.0)
                         if scale:
                             sx, sy, sz = scale
                             # Apply scale multiplier to each block's scale
                             sx *= scale_multiplier
                             sy *= scale_multiplier
                             sz *= scale_multiplier
-                            transform_parts.append(f"scale:[{sx}f,{sy}f,{sz}f]")
 
+                        # Rotation (quaternion format [x, y, z, w])
+                        left_rot = "[0f,0f,0f,1f]"  # Identity quaternion (no rotation)
                         if rotation:
                             pitch, yaw, roll = rotation
                             # Convert degrees to quaternion (simplified - just use left_rotation for yaw)
                             import math
                             yaw_rad = math.radians(yaw + rotation_offset)
-                            transform_parts.append(f"left_rotation:[0f,{math.sin(yaw_rad/2)}f,0f,{math.cos(yaw_rad/2)}f]")
+                            left_rot = f"[0f,{math.sin(yaw_rad/2)}f,0f,{math.cos(yaw_rad/2)}f]"
 
-                        transform_nbt = ""
-                        if transform_parts:
-                            transform_nbt = f",transformation:{{{','.join(transform_parts)}}}"
+                        # Complete transformation with all required components
+                        transform_nbt = (
+                            f",transformation:{{"
+                            f"translation:[0f,0f,0f],"
+                            f"left_rotation:{left_rot},"
+                            f"scale:[{sx}f,{sy}f,{sz}f],"
+                            f"right_rotation:[0f,0f,0f,1f]"
+                            f"}}"
+                        )
 
                         # Build brightness NBT
                         brightness_nbt = ""
@@ -736,6 +755,19 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
         # Check if we should deploy or just build
         should_deploy = data.get('deploy', True)  # Default to True for backwards compatibility
 
+        # Check if there are custom textures (uploaded or AI-generated)
+        # Only deploy to client if there are custom textures that need a resource pack
+        has_custom_textures = False
+        for item in custom_items:
+            if item.get('textureData') or item.get('texture'):
+                has_custom_textures = True
+                break
+        if not has_custom_textures:
+            for mob in custom_mobs:
+                if mob.get('textureData') or mob.get('texture'):
+                    has_custom_textures = True
+                    break
+
         # Initialize variables
         target_jar = None
         client_target_jar = None
@@ -751,8 +783,8 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
             target_jar = os.path.join(MINECRAFT_MODS_PATH, unique_jar_name)
             shutil.copy(jar_file, target_jar)
 
-            # Also copy to client mods folder
-            if os.path.exists(client_mods_path):
+            # Also copy to client mods folder (only if custom textures exist)
+            if has_custom_textures and os.path.exists(client_mods_path):
                 # Remove old versions from client too
                 for f in os.listdir(client_mods_path):
                     if f.startswith(f'blockcraft-{safe_project_id}') and f.endswith('.jar'):
@@ -842,15 +874,14 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
         else:
             success_msg = f'✅ Mod built successfully!\\n\\n🎮 Your custom commands:\\n{cmd_list}{download_msg}'
 
-        # Check if there are custom textures (uploaded or AI-generated)
-        has_custom_textures = False
-        for item in custom_items:
-            if item.get('textureData') or item.get('texture'):
-                has_custom_textures = True
-                break
+        # Add model errors if any occurred
+        if model_errors:
+            error_list = '\\n'.join([f'  • {err}' for err in model_errors])
+            success_msg += f'\\n\\n⚠️ WARNINGS:\\n{error_list}'
 
         return jsonify({
-            'success': True,
+            'success': True if not model_errors else False,
+            'error': f"Deployment had errors:\\n{'\\n'.join(model_errors)}" if model_errors else None,
             'message': success_msg,
             'jar_file': jars[0],
             'jar_path': target_jar,
@@ -858,7 +889,8 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
             'resource_pack_path': resource_pack_path if resource_pack_path and os.path.exists(resource_pack_path) else None,
             'project_id': safe_project_id,
             'has_custom_textures': has_custom_textures,
-            'project_name': project_name
+            'project_name': project_name,
+            'warnings': model_errors if model_errors else None
         })
 
     except Exception as e:

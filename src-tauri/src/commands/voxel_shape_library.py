@@ -229,6 +229,595 @@ def create_box(width, height, depth, scale, color, block_material="concrete", ce
 
     return blocks
 
+def create_cone(height, base_radius, scale, color, block_material="concrete", center_y=0.0):
+    """
+    Create a cone shape (tapered from base to point)
+
+    Args:
+        height: Total height of cone
+        base_radius: Radius at the base
+        scale: Block scale
+        color: Minecraft color
+        block_material: Material type
+        center_y: Y position of cone base
+
+    Returns:
+        List of blocks forming cone surface
+    """
+    profile = [
+        {"y": center_y + height, "radius": 0.01},  # Tip (tiny radius to avoid empty)
+        {"y": center_y, "radius": base_radius}      # Base
+    ]
+    color_map = [{"y_range": [center_y + height, center_y], "color": color}]
+    return create_tapered_shape(profile, scale, color_map, block_material)
+
+def create_pyramid(base_width, height, scale, color, block_material="concrete", center=(0, 0, 0)):
+    """
+    Create a pyramid with square base
+
+    Args:
+        base_width: Width of square base
+        height: Height of pyramid
+        scale: Block scale
+        color: Minecraft color
+        block_material: Material type
+        center: (x, y, z) center position of base
+
+    Returns:
+        List of blocks forming pyramid surface
+    """
+    blocks = []
+    cx, cy, cz = center
+    vertical_spacing = scale * 0.9
+    num_layers = int(height / vertical_spacing)
+
+    for i in range(num_layers + 1):
+        t = i / num_layers  # 0 at base, 1 at tip
+        y = cy + (i * vertical_spacing)
+        current_width = base_width * (1 - t)
+
+        if current_width < scale:
+            # Tip - single block
+            blocks.append({
+                "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                "x": cx,
+                "y": round(y, 3),
+                "z": cz,
+                "scale": [scale, scale, scale]
+            })
+        else:
+            # Create square layer
+            num_blocks = max(2, int(current_width / scale))
+            half_width = current_width / 2
+
+            # Four edges of the square
+            for j in range(num_blocks):
+                offset = -half_width + (j * current_width / num_blocks)
+
+                # Front and back edges
+                blocks.append({"block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                              "x": round(cx + offset, 3), "y": round(y, 3), "z": round(cz - half_width, 3),
+                              "scale": [scale, scale, scale]})
+                blocks.append({"block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                              "x": round(cx + offset, 3), "y": round(y, 3), "z": round(cz + half_width, 3),
+                              "scale": [scale, scale, scale]})
+
+                # Left and right edges (skip corners)
+                if j > 0 and j < num_blocks - 1:
+                    blocks.append({"block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                                  "x": round(cx - half_width, 3), "y": round(y, 3), "z": round(cz + offset, 3),
+                                  "scale": [scale, scale, scale]})
+                    blocks.append({"block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                                  "x": round(cx + half_width, 3), "y": round(y, 3), "z": round(cz + offset, 3),
+                                  "scale": [scale, scale, scale]})
+
+    return blocks
+
+def create_torus(major_radius, minor_radius, scale, color, block_material="concrete", center_y=0.0):
+    """
+    Create a torus (donut) shape
+
+    Args:
+        major_radius: Radius from center to tube center
+        minor_radius: Radius of the tube
+        scale: Block scale
+        color: Minecraft color
+        block_material: Material type
+        center_y: Y position of torus center
+
+    Returns:
+        List of blocks forming torus surface
+    """
+    blocks = []
+
+    # Number of segments around the major circle
+    major_segments = max(16, int(2 * math.pi * major_radius / scale))
+    # Number of segments around the minor circle
+    minor_segments = max(8, int(2 * math.pi * minor_radius / scale))
+
+    for i in range(major_segments):
+        major_angle = (2 * math.pi * i) / major_segments
+
+        # Center of tube at this major angle
+        tube_center_x = major_radius * math.cos(major_angle)
+        tube_center_z = major_radius * math.sin(major_angle)
+
+        for j in range(minor_segments):
+            minor_angle = (2 * math.pi * j) / minor_segments
+
+            # Offset from tube center
+            offset_x = minor_radius * math.cos(minor_angle) * math.cos(major_angle)
+            offset_y = minor_radius * math.sin(minor_angle)
+            offset_z = minor_radius * math.cos(minor_angle) * math.sin(major_angle)
+
+            blocks.append({
+                "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                "x": round(tube_center_x + offset_x, 3),
+                "y": round(center_y + offset_y, 3),
+                "z": round(tube_center_z + offset_z, 3),
+                "scale": [scale, scale, scale]
+            })
+
+    return blocks
+
+def create_plane(width, depth, scale, color, block_material="concrete", center=(0, 0, 0)):
+    """
+    Create a flat rectangular plane
+
+    Args:
+        width: X dimension
+        depth: Z dimension
+        scale: Block scale
+        color: Minecraft color
+        block_material: Material type
+        center: (x, y, z) center position
+
+    Returns:
+        List of blocks forming plane surface
+    """
+    blocks = []
+    cx, cy, cz = center
+
+    num_x = max(2, int(width / scale))
+    num_z = max(2, int(depth / scale))
+
+    for ix in range(num_x):
+        for iz in range(num_z):
+            x = cx - width/2 + (ix * width / num_x)
+            z = cz - depth/2 + (iz * depth / num_z)
+
+            blocks.append({
+                "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                "x": round(x, 3),
+                "y": round(cy, 3),
+                "z": round(z, 3),
+                "scale": [scale, scale, scale]
+            })
+
+    return blocks
+
+# Simple 5x7 bitmap font for text rendering
+FONT_5X7 = {
+    'A': [
+        "  X  ",
+        " X X ",
+        "X   X",
+        "XXXXX",
+        "X   X",
+        "X   X",
+        "X   X"
+    ],
+    'B': [
+        "XXXX ",
+        "X   X",
+        "X   X",
+        "XXXX ",
+        "X   X",
+        "X   X",
+        "XXXX "
+    ],
+    'C': [
+        " XXX ",
+        "X   X",
+        "X    ",
+        "X    ",
+        "X    ",
+        "X   X",
+        " XXX "
+    ],
+    'D': [
+        "XXXX ",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "XXXX "
+    ],
+    'E': [
+        "XXXXX",
+        "X    ",
+        "X    ",
+        "XXXX ",
+        "X    ",
+        "X    ",
+        "XXXXX"
+    ],
+    'F': [
+        "XXXXX",
+        "X    ",
+        "X    ",
+        "XXXX ",
+        "X    ",
+        "X    ",
+        "X    "
+    ],
+    'G': [
+        " XXX ",
+        "X   X",
+        "X    ",
+        "X  XX",
+        "X   X",
+        "X   X",
+        " XXX "
+    ],
+    'H': [
+        "X   X",
+        "X   X",
+        "X   X",
+        "XXXXX",
+        "X   X",
+        "X   X",
+        "X   X"
+    ],
+    'I': [
+        "XXXXX",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "XXXXX"
+    ],
+    'J': [
+        "XXXXX",
+        "    X",
+        "    X",
+        "    X",
+        "    X",
+        "X   X",
+        " XXX "
+    ],
+    'K': [
+        "X   X",
+        "X  X ",
+        "X X  ",
+        "XX   ",
+        "X X  ",
+        "X  X ",
+        "X   X"
+    ],
+    'L': [
+        "X    ",
+        "X    ",
+        "X    ",
+        "X    ",
+        "X    ",
+        "X    ",
+        "XXXXX"
+    ],
+    'M': [
+        "X   X",
+        "XX XX",
+        "X X X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X"
+    ],
+    'N': [
+        "X   X",
+        "XX  X",
+        "X X X",
+        "X  XX",
+        "X   X",
+        "X   X",
+        "X   X"
+    ],
+    'O': [
+        " XXX ",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        " XXX "
+    ],
+    'P': [
+        "XXXX ",
+        "X   X",
+        "X   X",
+        "XXXX ",
+        "X    ",
+        "X    ",
+        "X    "
+    ],
+    'Q': [
+        " XXX ",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X X X",
+        "X  X ",
+        " XX X"
+    ],
+    'R': [
+        "XXXX ",
+        "X   X",
+        "X   X",
+        "XXXX ",
+        "X X  ",
+        "X  X ",
+        "X   X"
+    ],
+    'S': [
+        " XXX ",
+        "X   X",
+        "X    ",
+        " XXX ",
+        "    X",
+        "X   X",
+        " XXX "
+    ],
+    'T': [
+        "XXXXX",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  "
+    ],
+    'U': [
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        " XXX "
+    ],
+    'V': [
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        " X X ",
+        "  X  "
+    ],
+    'W': [
+        "X   X",
+        "X   X",
+        "X   X",
+        "X   X",
+        "X X X",
+        "XX XX",
+        "X   X"
+    ],
+    'X': [
+        "X   X",
+        "X   X",
+        " X X ",
+        "  X  ",
+        " X X ",
+        "X   X",
+        "X   X"
+    ],
+    'Y': [
+        "X   X",
+        "X   X",
+        " X X ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  "
+    ],
+    'Z': [
+        "XXXXX",
+        "    X",
+        "   X ",
+        "  X  ",
+        " X   ",
+        "X    ",
+        "XXXXX"
+    ],
+    '0': [
+        " XXX ",
+        "X   X",
+        "X  XX",
+        "X X X",
+        "XX  X",
+        "X   X",
+        " XXX "
+    ],
+    '1': [
+        "  X  ",
+        " XX  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "XXXXX"
+    ],
+    '2': [
+        " XXX ",
+        "X   X",
+        "    X",
+        "   X ",
+        "  X  ",
+        " X   ",
+        "XXXXX"
+    ],
+    '3': [
+        " XXX ",
+        "X   X",
+        "    X",
+        "  XX ",
+        "    X",
+        "X   X",
+        " XXX "
+    ],
+    '4': [
+        "   X ",
+        "  XX ",
+        " X X ",
+        "X  X ",
+        "XXXXX",
+        "   X ",
+        "   X "
+    ],
+    '5': [
+        "XXXXX",
+        "X    ",
+        "XXXX ",
+        "    X",
+        "    X",
+        "X   X",
+        " XXX "
+    ],
+    '6': [
+        "  XX ",
+        " X   ",
+        "X    ",
+        "XXXX ",
+        "X   X",
+        "X   X",
+        " XXX "
+    ],
+    '7': [
+        "XXXXX",
+        "    X",
+        "   X ",
+        "  X  ",
+        " X   ",
+        " X   ",
+        " X   "
+    ],
+    '8': [
+        " XXX ",
+        "X   X",
+        "X   X",
+        " XXX ",
+        "X   X",
+        "X   X",
+        " XXX "
+    ],
+    '9': [
+        " XXX ",
+        "X   X",
+        "X   X",
+        " XXXX",
+        "    X",
+        "   X ",
+        " XX  "
+    ],
+    ' ': [
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     "
+    ],
+    '!': [
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "  X  ",
+        "     ",
+        "  X  "
+    ],
+    '.': [
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "  X  "
+    ],
+    '-': [
+        "     ",
+        "     ",
+        "     ",
+        "XXXXX",
+        "     ",
+        "     ",
+        "     "
+    ],
+    '_': [
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "XXXXX"
+    ],
+}
+
+def create_text(text, scale, color, block_material="concrete", position=(0, 0, 0), char_spacing=1.0):
+    """
+    Create 3D text from string using bitmap font
+
+    Args:
+        text: String to render (uppercase letters, numbers, and basic punctuation)
+        scale: Block scale
+        color: Minecraft color
+        block_material: Material type
+        position: (x, y, z) starting position (bottom-left of first character)
+        char_spacing: Extra spacing between characters (in block units)
+
+    Returns:
+        List of blocks forming text
+    """
+    blocks = []
+    start_x, start_y, start_z = position
+    current_x = start_x
+
+    text = text.upper()  # Convert to uppercase
+
+    for char in text:
+        if char not in FONT_5X7:
+            # Skip unknown characters
+            continue
+
+        bitmap = FONT_5X7[char]
+
+        # Render this character
+        for row_idx, row in enumerate(bitmap):
+            y = start_y + (6 - row_idx) * scale  # Top to bottom (row 0 = top)
+
+            for col_idx, pixel in enumerate(row):
+                if pixel == 'X':
+                    x = current_x + col_idx * scale
+
+                    blocks.append({
+                        "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
+                        "x": round(x, 3),
+                        "y": round(y, 3),
+                        "z": round(start_z, 3),
+                        "scale": [scale, scale, scale]
+                    })
+
+        # Move to next character position (5 columns + spacing)
+        current_x += (5 + char_spacing) * scale
+
+    return blocks
+
 def add_glow(blocks, brightness_sky=15, brightness_block=15):
     """Add brightness property to all blocks"""
     for block in blocks:

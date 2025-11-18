@@ -3,7 +3,7 @@ import * as Blockly from 'blockly';
 // Import the Java code generator
 // @ts-ignore - JavaScript file
 import { generateJavaCode } from '../../generators/java.js';
-import { dbGetAiModels } from './database';
+import { dbGetAiModels, dbGetAiModelBlocks } from './database';
 
 // Type definitions for our mod data structures
 export interface CustomItem {
@@ -165,6 +165,10 @@ export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<
         const modelData = allModels.find(m => m.model_id === modelId);
         if (modelData) {
           console.log('[Generator] Found model data for', modelId);
+          // Fetch the actual blocks_json (lazy loaded for performance)
+          const blocksJson = await dbGetAiModelBlocks(modelId);
+          modelData.blocks_json = blocksJson;
+          console.log('[Generator] Loaded', blocksJson.length, 'bytes of blocks_json for', modelId);
           modData.blockDisplayModels!.push(modelData);
         } else {
           console.warn('[Generator] Model not found in database:', modelId);
