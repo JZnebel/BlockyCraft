@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "blockcraft_generated",
+  "version": "${version}",
+  "name": "BlockCraft Generated Mod",
+  "description": "Auto-generated mod from BlockCraft visual editor",
+  "authors": ["BlockCraft"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.blockcraft.BlockCraftMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

@@ -29,7 +29,7 @@ CORS(app, resources={
 })
 
 # Paths
-TEMPLATE_PATH = '/home/jordan/blockcraft-mod-template'
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'mod-template')
 BUILD_PATH = '/tmp/blockcraft-build'
 MINECRAFT_MODS_PATH = '/home/jordan/minecraft-fabric-1.21.1-cobblemon/mods'
 MINECRAFT_DIR = '/home/jordan/minecraft-fabric-1.21.1-cobblemon'

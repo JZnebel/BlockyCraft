@@ -1,0 +1,11 @@
+package com.blockcraft;
+
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+
+public class BlockCraftModClient implements ClientModInitializer {
+    @Override
+    public void onInitializeClient() {
+        // GENERATED_RENDERER_REGISTRATION
+    }
+}
