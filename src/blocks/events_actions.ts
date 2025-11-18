@@ -162,4 +162,18 @@ export function registerEventActionBlocks(): void {
       this.setHelpUrl('');
     }
   };
+
+  // Action: Execute Minecraft command
+  Blockly.Blocks['action_execute_command'] = {
+    init: function() {
+      this.appendDummyInput()
+        .appendField('Execute command /')
+        .appendField(new Blockly.FieldTextInput('kill @e[type=minecraft:block_display,distance=..10]'), 'COMMAND');
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour('#4CAF50');
+      this.setTooltip('Executes a raw Minecraft command');
+      this.setHelpUrl('');
+    }
+  };
 }

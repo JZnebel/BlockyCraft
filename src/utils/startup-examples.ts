@@ -51,7 +51,7 @@ export const EXAMPLE_PROJECTS = [
     name: "Display Block Eraser",
     description: "Utility command to remove AI model display blocks nearby",
     difficulty: "intermediate",
-    workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">clearmodels</field><statement name="ACTIONS"><block type="action_message"><field name="MESSAGE">Clearing nearby display blocks...</field></block></statement></block></xml>`
+    workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">clearmodels</field><statement name="ACTIONS"><block type="action_message"><field name="MESSAGE">Clearing nearby display blocks...</field><next><block type="action_execute_command"><field name="COMMAND">kill @e[type=minecraft:block_display,distance=..10]</field><next><block type="action_message"><field name="MESSAGE">Display blocks removed!</field><next><block type="action_play_sound"><field name="SOUND">entity.player.levelup</field></block></next></block></next></block></next></block></statement></block></xml>`
   },
 
   // ========== ADVANCED TIER ==========

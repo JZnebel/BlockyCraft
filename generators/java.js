@@ -100,6 +100,14 @@ function generateBlockJava(block, context) {
         const text = block.getFieldValue('TEXT');
         code = `${indent}${playerVar}.sendMessage(Text.literal("${text}"), true);\n`;
     }
+    else if (type === 'action_execute_command') {
+        const command = block.getFieldValue('COMMAND');
+        code = `${indent}// Execute Minecraft command\n`;
+        code += `${indent}${worldVar}.getServer().getCommandManager().executeWithPrefix(\n`;
+        code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${playerVar}.getPos()),\n`;
+        code += `${indent}    "${command}"\n`;
+        code += `${indent});\n`;
+    }
 
     // ========== PLAYER BLOCKS ==========
     else if (type === 'player_health') {
