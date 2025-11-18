@@ -12,7 +12,7 @@
   "icon": "assets/blockcraftloader/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": [
+    "main": [
       "com.blockcraft.loader.BlocklyCraftLoader"
     ]
   },

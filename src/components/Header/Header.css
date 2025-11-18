@@ -74,6 +74,13 @@
   transform: translateY(0);
 }
 
+.header-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  background: #999 !important;
+}
+
 .deploy-btn {
   background: #4caf50;
 }

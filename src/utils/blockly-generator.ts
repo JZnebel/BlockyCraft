@@ -1,5 +1,10 @@
 import * as Blockly from 'blockly';
 
+// Import the Java code generator
+// @ts-ignore - JavaScript file
+import { generateJavaCode } from '../../generators/java.js';
+import { dbGetAiModels } from './database';
+
 // Type definitions for our mod data structures
 export interface CustomItem {
   name: string;
@@ -24,6 +29,10 @@ export interface CustomMob {
 export interface ModData {
   customItems: CustomItem[];
   customMobs: CustomMob[];
+  javaCode?: string;
+  commands?: any[];
+  events?: any[];
+  blockDisplayModels?: any[];
 }
 
 /**
@@ -87,15 +96,18 @@ function extractCustomMob(block: Blockly.Block): CustomMob | null {
 /**
  * Generate mod data from Blockly workspace
  */
-export function generateModData(workspace: Blockly.WorkspaceSvg): ModData {
+export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<ModData> {
   const modData: ModData = {
     customItems: [],
     customMobs: [],
+    blockDisplayModels: [],
   };
 
   // Get all top-level blocks
   const blocks = workspace.getAllBlocks(false);
 
+  // Collect model IDs from spawn blocks
+  const modelIds = new Set<string>();
   for (const block of blocks) {
     // Extract custom items
     if (block.type === 'custom_item_define') {
@@ -112,6 +124,61 @@ export function generateModData(workspace: Blockly.WorkspaceSvg): ModData {
         modData.customMobs.push(mob);
       }
     }
+
+    // Extract AI model IDs from spawn blocks
+    if (block.type === 'spawn_ai_model_scaled' || block.type === 'spawn_ai_model_rotated' ||
+        block.type === 'spawn_ai_model_spinning' || block.type === 'spawn_ai_model_following' ||
+        block.type === 'spawn_ai_model_orbiting' || block.type === 'spawn_ai_model_circle' ||
+        block.type === 'spawn_block_display_model') {
+      const modelId = block.getFieldValue('MODEL_ID');
+      if (modelId) {
+        modelIds.add(modelId);
+      }
+    }
+  }
+
+  // Fetch AI model data from database
+  if (modelIds.size > 0) {
+    console.log('[Generator] Found AI model IDs:', Array.from(modelIds));
+    try {
+      const allModels = await dbGetAiModels();
+      console.log('[Generator] Fetched', allModels.length, 'AI models from database');
+      for (const modelId of modelIds) {
+        const modelData = allModels.find(m => m.model_id === modelId);
+        if (modelData) {
+          console.log('[Generator] Found model data for', modelId);
+          modData.blockDisplayModels!.push(modelData);
+        } else {
+          console.warn('[Generator] Model not found in database:', modelId);
+        }
+      }
+      console.log('[Generator] Total blockDisplayModels:', modData.blockDisplayModels!.length);
+    } catch (error) {
+      console.error('Error fetching AI models:', error);
+    }
+  }
+
+  // Generate Java code from blocks using the JavaScript generator
+  try {
+    const javaData = generateJavaCode(workspace);
+    modData.commands = javaData.commands;
+    modData.events = javaData.events;
+
+    // Build the complete Java code from commands and events
+    let javaCode = '';
+    if (javaData.commands && javaData.commands.length > 0) {
+      for (const cmd of javaData.commands) {
+        javaCode += cmd.code + '\n';
+      }
+    }
+    if (javaData.events && javaData.events.length > 0) {
+      for (const evt of javaData.events) {
+        javaCode += evt.code + '\n';
+      }
+    }
+    modData.javaCode = javaCode;
+  } catch (error) {
+    console.error('Error generating Java code:', error);
   }
 
   return modData;

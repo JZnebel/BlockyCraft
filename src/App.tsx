@@ -22,7 +22,18 @@ function App() {
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [tempProjectName, setTempProjectName] = useState('');
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageTitle, setMessageTitle] = useState('');
+  const [messageContent, setMessageContent] = useState('');
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+
+  const showMessage = (title: string, content: string) => {
+    setMessageTitle(title);
+    setMessageContent(content);
+    setShowMessageModal(true);
+  };
 
   const handleWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
@@ -40,11 +51,11 @@ function App() {
         console.log('[App] Example loaded successfully');
       } catch (error) {
         console.error('[App] Error loading example:', error);
-        alert('Error loading example: ' + error);
+        showMessage('Error', 'Error loading example: ' + error);
       }
     } else {
       console.error('[App] No workspace reference!');
-      alert('Workspace not initialized');
+      showMessage('Error', 'Workspace not initialized');
     }
   };
 
@@ -56,7 +67,7 @@ function App() {
         console.log('Project loaded:', name);
       } catch (error) {
         console.error('Error loading project:', error);
-        alert('Error loading project: ' + error);
+        showMessage('Error', 'Error loading project: ' + error);
       }
     }
   };
@@ -76,7 +87,7 @@ function App() {
 
   const handleSave = async () => {
     if (!workspaceRef.current) {
-      alert('No workspace to save');
+      showMessage('Error', 'No workspace to save');
       return;
     }
 
@@ -94,56 +105,59 @@ function App() {
       await dbSaveProject(tempProjectName.trim(), xmlText);
       setProjectName(tempProjectName.trim());
       setShowSaveModal(false);
-      alert('Project saved successfully!');
+      showMessage('Success', 'Project saved successfully!');
     } catch (error) {
       console.error('Save error:', error);
-      alert('Error saving project: ' + error);
+      showMessage('Error', 'Error saving project: ' + error);
     }
   };
 
   const handleCompile = async () => {
-    if (!workspaceRef.current) {
-      alert('No workspace to compile');
+    if (!workspaceRef.current || isCompiling || isDeploying) {
       return;
     }
 
+    setIsCompiling(true);
     try {
       // Generate mod data from workspace
-      const modData = generateModData(workspaceRef.current);
+      const modData = await generateModData(workspaceRef.current);
 
       // Validate mod data
       const errors = validateModData(modData);
       if (errors.length > 0) {
-        alert('Validation errors:\n' + errors.join('\n'));
+        showMessage('Validation Errors', errors.join('\n'));
         return;
       }
 
-      alert('Build successful! Use "Deploy Mod" to deploy to the server.');
+      showMessage('Build Successful', 'Build successful! Use "Deploy Mod" to deploy to the server.');
     } catch (error) {
       console.error('Compile error:', error);
-      alert('Error compiling mod: ' + error);
+      showMessage('Compile Error', String(error));
+    } finally {
+      setIsCompiling(false);
     }
   };
 
   const handleDeploy = async () => {
-    if (!workspaceRef.current) {
-      alert('No workspace to deploy');
+    if (!workspaceRef.current || isCompiling || isDeploying) {
       return;
     }
 
+    setIsDeploying(true);
     try {
       // Generate mod data from workspace
-      const modData = generateModData(workspaceRef.current);
+      const modData = await generateModData(workspaceRef.current);
 
       // Validate mod data
       const errors = validateModData(modData);
       if (errors.length > 0) {
-        alert('Validation errors:\n' + errors.join('\n'));
+        showMessage('Validation Errors', errors.join('\n'));
         return;
       }
 
       // Deploy to Python API
       console.log('Deploying mod data:', modData);
+      console.log('blockDisplayModels count:', modData.blockDisplayModels?.length || 0);
       const response = await fetch('http://localhost:8585/api/deploy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,7 +171,7 @@ function App() {
       const result = await response.json();
 
       if (result.success) {
-        alert('Mod deployed successfully!\n\n' + result.message);
+        showMessage('Success', 'Mod deployed successfully!\n\n' + result.message);
         // Store deployment in localStorage
         const deployments = JSON.parse(localStorage.getItem('blocklycraft_deployments') || '[]');
         if (!deployments.find((d: any) => d.projectName === projectName)) {
@@ -170,11 +184,13 @@ function App() {
         // Trigger refresh of deployment status
         setDeploymentRefreshKey(prev => prev + 1);
       } else {
-        alert('Deployment failed:\n' + (result.error || 'Unknown error'));
+        showMessage('Deployment Failed', result.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Deploy error:', error);
-      alert('Error deploying mod: ' + error);
+      showMessage('Deployment Error', String(error));
+    } finally {
+      setIsDeploying(false);
     }
   };
 
@@ -204,6 +220,8 @@ function App() {
         onDeploy={handleDeploy}
         onSettings={() => setShowSettings(true)}
         onProjectNameClick={handleProjectNameClick}
+        isCompiling={isCompiling}
+        isDeploying={isDeploying}
       />
       <div className="editor-container">
         <ExamplesPanel
@@ -331,6 +349,42 @@ function App() {
             }}
             autoFocus
           />
+        </div>
+      </Modal>
+      <Modal
+        isOpen={showMessageModal}
+        onClose={() => setShowMessageModal(false)}
+        title={messageTitle}
+        actions={
+          <button
+            className="modal-btn modal-btn-primary"
+            onClick={() => setShowMessageModal(false)}
+          >
+            OK
+          </button>
+        }
+      >
+        <div style={{ padding: '1rem' }}>
+          <textarea
+            readOnly
+            value={messageContent}
+            style={{
+              width: '100%',
+              minHeight: '150px',
+              padding: '0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.875rem',
+              fontFamily: 'monospace',
+              background: '#f5f5f5',
+              color: '#000',
+              resize: 'vertical'
+            }}
+            onClick={(e) => e.currentTarget.select()}
+          />
+          <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.875rem', color: '#666' }}>
+            Click the text above to select and copy
+          </p>
         </div>
       </Modal>
     </div>

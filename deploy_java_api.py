@@ -112,8 +112,8 @@ def deploy_java_mod():
     try:
         data = request.json
 
-        if not data or 'javaCode' not in data:
-            return jsonify({'success': False, 'error': 'Invalid Java code data'}), 400
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
 
         # Get project ID for unique naming
         project_id = data.get('projectId', 'default')
@@ -180,6 +180,46 @@ def deploy_java_mod():
             # Attribute registration (registration happens inline above, so no separate mob_registration needed)
             mob_attribute_registration += f"        FabricDefaultAttributeRegistry.register({mob_var}, {mob_class}.createMobAttributes());\n"
 
+        # Generate command registration code
+        commands = data.get('commands', [])
+        command_registration = ''
+
+        for cmd in commands:
+            cmd_name = cmd.get('name', '')
+            cmd_code = cmd.get('code', '')
+
+            if cmd_name and cmd_code:
+                command_registration += f"""        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {{
+            dispatcher.register(CommandManager.literal("{cmd_name}")
+                .executes(context -> {{
+                    var source = context.getSource();
+{cmd_code}                    return 1;
+                }})
+            );
+        }});
+"""
+
+        # Generate event registration code
+        events = data.get('events', [])
+        event_registration = ''
+
+        for evt in events:
+            evt_type = evt.get('type', '')
+            evt_code = evt.get('code', '')
+
+            if evt_type == 'block_break' and evt_code:
+                event_registration += f"""        PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {{
+{evt_code}        }});
+"""
+            elif evt_type == 'right_click' and evt_code:
+                event_registration += f"""        UseItemCallback.EVENT.register((player, world, hand) -> {{
+{evt_code}            return TypedActionResult.pass(player.getStackInHand(hand));
+        }});
+"""
+
+        # Combine command and event registration
+        generated_code = command_registration + event_registration
+
         java_code = template.replace('package com.blockcraft;', f'package {package_name};')
         java_code = java_code.replace('// GENERATED_CUSTOM_ITEMS', item_declarations)
         java_code = java_code.replace('// GENERATED_ITEM_REGISTRATION', item_registration)
@@ -187,7 +227,7 @@ def deploy_java_mod():
         java_code = java_code.replace('// GENERATED_MOB_REGISTRATION', '')  # Empty since registration happens inline
         java_code = java_code.replace('// GENERATED_MOB_ATTRIBUTES', mob_attribute_registration)
         java_code = java_code.replace('// GENERATED_HELPER_METHODS', data.get('helperMethods', ''))
-        java_code = java_code.replace('// GENERATED_COMMANDS', data['javaCode'])
+        java_code = java_code.replace('// GENERATED_COMMANDS', generated_code)
 
         # Write final Java file to unique package
         java_file_path = os.path.join(package_path, 'BlockCraftMod.java')
@@ -534,7 +574,9 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
 
         # Generate block_display model functions
         block_display_models = data.get('blockDisplayModels', [])
+        print(f"DEBUG: Received blockDisplayModels: {len(block_display_models)} items")
         if block_display_models and len(block_display_models) > 0:
+            print(f"DEBUG: First model data: {block_display_models[0]}")
             print(f"🎨 Generating {len(block_display_models)} block display model functions...")
 
             # Create datapack directory structure
@@ -542,11 +584,19 @@ public class {mob_renderer} extends EntityRenderer<{mob_class}> {{
             os.makedirs(datapack_dir, exist_ok=True)
 
             for model in block_display_models:
-                model_id = model.get('id', 'unknown')
+                model_id = model.get('model_id', 'unknown')
                 model_name = model.get('name', 'AI Model')
-                blocks = model.get('blocks', [])
+                blocks_json = model.get('blocks_json', '[]')
+
+                # Parse blocks from JSON string
+                try:
+                    blocks = json.loads(blocks_json) if isinstance(blocks_json, str) else blocks_json
+                except json.JSONDecodeError:
+                    print(f"  ⚠ Failed to parse blocks_json for {model_name}")
+                    continue
 
                 if not blocks:
+                    print(f"  ⚠ No blocks found for {model_name}")
                     continue
 
                 print(f"  Generating function for: {model_name} ({len(blocks)} blocks)")
