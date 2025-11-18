@@ -35,6 +35,8 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
   );
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [, setIsDraggingOver] = useState(false);
+  const [aiTextureDescription, setAiTextureDescription] = useState('');
+  const [isGeneratingTexture, setIsGeneratingTexture] = useState(false);
   const processingFiles = useRef<Set<string>>(new Set()); // Track files being processed
   const aiImageDropHandler = useRef<((base64: string, dataUrl: string) => void) | null>(null);
   const activeTabRef = useRef<'examples' | 'projects' | 'media' | 'ai'>('projects'); // Ref to track current tab
@@ -439,6 +441,88 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
     });
   };
 
+  const generateAITexture = async () => {
+    if (!aiTextureDescription.trim()) {
+      alert('Please enter a description for the texture');
+      return;
+    }
+
+    setIsGeneratingTexture(true);
+
+    try {
+      // Get API key from settings
+      const { dbGetSetting } = await import('@/utils/database');
+      const apiKey = await dbGetSetting('openai_api_key');
+
+      if (!apiKey) {
+        alert('Please set your OpenAI API key in Settings first');
+        setIsGeneratingTexture(false);
+        return;
+      }
+
+      // Generate texture using Tauri command
+      const { generateItemTexture } = await import('@/utils/tauri-commands');
+      console.log('[AI TEXTURE] Generating:', aiTextureDescription);
+
+      const base64Image = await generateItemTexture(apiKey, aiTextureDescription);
+
+      // Convert to data URL
+      const dataUrl = `data:image/png;base64,${base64Image}`;
+
+      // Save to media library
+      const fileName = `ai_texture_${Date.now()}.png`;
+      const name = aiTextureDescription.substring(0, 50); // Use description as name
+
+      // Save file
+      const fs = await import('@tauri-apps/plugin-fs');
+      const { appDataDir } = await import('@tauri-apps/api/path');
+      const mediaDir = await appDataDir();
+      const mediaDirPath = `${mediaDir}/media`;
+
+      // Ensure media directory exists
+      try {
+        await fs.mkdir(mediaDirPath, { recursive: true });
+      } catch (e) {
+        // Directory might already exist
+      }
+
+      const filePath = `${mediaDirPath}/${fileName}`;
+
+      // Decode base64 and save
+      const imageData = atob(base64Image);
+      const bytes = new Uint8Array(imageData.length);
+      for (let i = 0; i < imageData.length; i++) {
+        bytes[i] = imageData.charCodeAt(i);
+      }
+
+      await fs.writeFile(filePath, bytes);
+      console.log('[AI TEXTURE] Saved file:', filePath);
+
+      // Save to database
+      const mediaId = await dbSaveMedia(name, fileName);
+      console.log('[AI TEXTURE] Saved to database with ID:', mediaId);
+
+      // Add to state
+      setMediaFiles(prev => [...prev, {
+        id: mediaId,
+        name,
+        file_name: fileName,
+        dataUrl,
+        created_at: Date.now()
+      }]);
+
+      // Clear input
+      setAiTextureDescription('');
+      alert('Texture generated successfully!');
+
+    } catch (error) {
+      console.error('[AI TEXTURE] Error:', error);
+      alert(`Failed to generate texture: ${error}`);
+    } finally {
+      setIsGeneratingTexture(false);
+    }
+  };
+
   const deleteProject = (index: number, event: React.MouseEvent) => {
     event.stopPropagation();
 
@@ -643,6 +727,28 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                   <div className="upload-text">Upload Images</div>
                   <div className="upload-subtext">Click to select PNG, JPG, GIF files</div>
                 </label>
+              </div>
+
+              <div className="ai-texture-section">
+                <div className="ai-texture-header">
+                  <div className="upload-icon">✨</div>
+                  <div className="upload-text">Generate with AI</div>
+                </div>
+                <input
+                  type="text"
+                  className="ai-texture-input"
+                  placeholder="Describe the texture you want (e.g., 'A glowing purple sword with lightning')"
+                  value={aiTextureDescription}
+                  onChange={(e) => setAiTextureDescription(e.target.value)}
+                  disabled={isGeneratingTexture}
+                />
+                <button
+                  className="ai-generate-button"
+                  onClick={generateAITexture}
+                  disabled={isGeneratingTexture || !aiTextureDescription.trim()}
+                >
+                  {isGeneratingTexture ? 'Generating...' : 'Generate Texture'}
+                </button>
               </div>
 
               {mediaFiles.length === 0 ? (
