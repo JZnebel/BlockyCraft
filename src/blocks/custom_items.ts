@@ -1,18 +1,10 @@
 import * as Blockly from 'blockly';
 import { MINECRAFT_ITEMS, RARITY_OPTIONS } from '@/data/minecraft_items';
-
-// Type definitions for block extra state
-interface CustomItemExtraState {
-  uploadedTexture: string | null;
-}
+import { createMediaDropdown } from './media_dropdown';
 
 // Extended block interface for custom properties
 interface CustomItemBlock extends Blockly.Block {
-  uploadedTextureData: string | null;
   validateItemName(newValue: string): string;
-  onTextureSourceChange(newValue: string): string | null;
-  addUploadClickHandler(): void;
-  openFileUpload(): void;
 }
 
 // Helper function to create recipe dropdown fields dynamically
@@ -30,30 +22,8 @@ export const customItemDefine = {
         'ITEM_NAME'
       );
     this.appendDummyInput()
-      .appendField('Texture source:')
-      .appendField(
-        new Blockly.FieldDropdown(
-          [
-            ['AI Generate', 'ai'],
-            ['Upload File', 'upload'],
-          ],
-          this.onTextureSourceChange.bind(this)
-        ),
-        'TEXTURE_SOURCE'
-      );
-    this.appendDummyInput('AI_TEXTURE_INPUT')
-      .appendField('AI Description:')
-      .appendField(
-        new Blockly.FieldTextInput('glowing purple wand with stars'),
-        'TEXTURE_DESCRIPTION'
-      );
-    this.appendDummyInput('UPLOAD_BUTTON_INPUT')
-      .appendField('Upload PNG:')
-      .appendField(
-        new Blockly.FieldLabelSerializable('(click to upload)'),
-        'UPLOAD_STATUS'
-      )
-      .setVisible(false);
+      .appendField('Custom Texture:')
+      .appendField(createMediaDropdown(), 'MEDIA_TEXTURE');
     this.appendDummyInput()
       .appendField('Fallback texture')
       .appendField(
@@ -93,32 +63,9 @@ export const customItemDefine = {
       .appendField(createRecipeDropdown(), 'RECIPE_9');
     this.setColour('#E91E63');
     this.setTooltip(
-      'Creates a custom item with AI-generated or uploaded texture and optional crafting recipe'
+      'Creates a custom item with texture from Media Library'
     );
     this.setHelpUrl('');
-
-    // Store uploaded texture data
-    this.uploadedTextureData = null;
-
-    // Setup click handler after a short delay to ensure DOM is ready
-    setTimeout(() => this.addUploadClickHandler(), 100);
-  },
-
-  saveExtraState: function (this: CustomItemBlock): CustomItemExtraState {
-    // Save the uploaded texture data
-    return {
-      uploadedTexture: this.uploadedTextureData || null,
-    };
-  },
-
-  loadExtraState: function (this: CustomItemBlock, state: CustomItemExtraState) {
-    // Restore the uploaded texture data
-    this.uploadedTextureData = state.uploadedTexture || null;
-    if (this.uploadedTextureData) {
-      this.setFieldValue('Texture loaded', 'UPLOAD_STATUS');
-    }
-    // Re-add click handler after loading
-    setTimeout(() => this.addUploadClickHandler(), 100);
   },
 
   validateItemName: function (this: CustomItemBlock, newValue: string): string {
@@ -129,56 +76,6 @@ export const customItemDefine = {
       newValue = newValue.substring(0, 30);
     }
     return newValue || 'Custom Item';
-  },
-
-  onTextureSourceChange: function (this: CustomItemBlock, newValue: string): string | null {
-    const aiInput = this.getInput('AI_TEXTURE_INPUT');
-    const uploadInput = this.getInput('UPLOAD_BUTTON_INPUT');
-
-    if (newValue === 'ai') {
-      aiInput?.setVisible(true);
-      uploadInput?.setVisible(false);
-    } else {
-      aiInput?.setVisible(false);
-      uploadInput?.setVisible(true);
-    }
-    return newValue;
-  },
-
-  addUploadClickHandler: function (this: CustomItemBlock) {
-    // Find the upload status field and make it clickable
-    const uploadField = this.getField('UPLOAD_STATUS') as any;
-    if (uploadField && uploadField.fieldGroup_) {
-      uploadField.fieldGroup_.style.cursor = 'pointer';
-      // Remove old handler if it exists
-      uploadField.fieldGroup_.onclick = null;
-      uploadField.fieldGroup_.onclick = (e: Event) => {
-        e.stopPropagation();
-        this.openFileUpload();
-      };
-    } else {
-      // Try again after a short delay if not ready
-      setTimeout(() => this.addUploadClickHandler(), 100);
-    }
-  },
-
-  openFileUpload: function (this: CustomItemBlock) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/png';
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          this.uploadedTextureData = event.target?.result as string;
-          this.setFieldValue(file.name, 'UPLOAD_STATUS');
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    input.click();
   },
 };
 

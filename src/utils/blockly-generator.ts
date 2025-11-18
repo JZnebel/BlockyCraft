@@ -8,9 +8,7 @@ import { dbGetAiModels, dbGetAiModelBlocks } from './database';
 // Type definitions for our mod data structures
 export interface CustomItem {
   name: string;
-  textureSource: 'ai' | 'upload';
-  textureDescription?: string;
-  uploadedTexture?: string;
+  mediaTexture?: string; // File name from media library
   baseItem: string;
   rarity: string;
   maxStack: number;
@@ -19,7 +17,7 @@ export interface CustomItem {
 
 export interface CustomMob {
   name: string;
-  uploadedTexture?: string;
+  mediaTexture?: string; // File name from media library
   health: number;
   size: number;
   speed: string;
@@ -44,22 +42,16 @@ function extractCustomItem(block: Blockly.Block): CustomItem | null {
 
   const item: CustomItem = {
     name: block.getFieldValue('ITEM_NAME') || 'Custom Item',
-    textureSource: block.getFieldValue('TEXTURE_SOURCE') as 'ai' | 'upload',
     baseItem: block.getFieldValue('BASE_ITEM') || 'minecraft:stick',
     rarity: block.getFieldValue('RARITY') || 'COMMON',
     maxStack: parseInt(block.getFieldValue('MAX_STACK')) || 1,
     recipe: [],
   };
 
-  // Get texture data
-  if (item.textureSource === 'ai') {
-    item.textureDescription = block.getFieldValue('TEXTURE_DESCRIPTION') || '';
-  } else {
-    // Get uploaded texture from block's extra state
-    const extraState = (block as any).uploadedTextureData;
-    if (extraState) {
-      item.uploadedTexture = extraState;
-    }
+  // Get texture from media library
+  const mediaTexture = block.getFieldValue('MEDIA_TEXTURE');
+  if (mediaTexture && mediaTexture !== 'none') {
+    item.mediaTexture = mediaTexture;
   }
 
   // Get recipe (3x3 grid)
@@ -85,10 +77,10 @@ function extractCustomMob(block: Blockly.Block): CustomMob | null {
     behavior: block.getFieldValue('BEHAVIOR') || 'PASSIVE',
   };
 
-  // Get uploaded texture from block's extra state
-  const extraState = (block as any).uploadedTextureData;
-  if (extraState) {
-    mob.uploadedTexture = extraState;
+  // Get texture from media library
+  const mediaTexture = block.getFieldValue('MEDIA_TEXTURE');
+  if (mediaTexture && mediaTexture !== 'none') {
+    mob.mediaTexture = mediaTexture;
   }
 
   return mob;
@@ -274,13 +266,8 @@ export function validateModData(modData: ModData): string[] {
     }
     itemNames.add(item.name);
 
-    // Check if texture is provided
-    if (item.textureSource === 'ai' && !item.textureDescription) {
-      errors.push(`Item "${item.name}" needs an AI texture description`);
-    }
-    if (item.textureSource === 'upload' && !item.uploadedTexture) {
-      errors.push(`Item "${item.name}" needs an uploaded texture`);
-    }
+    // Check if texture is provided (now optional - uses fallback texture if not set)
+    // No error needed - base texture will be used as fallback
   }
 
   // Check for duplicate mob names
@@ -291,10 +278,8 @@ export function validateModData(modData: ModData): string[] {
     }
     mobNames.add(mob.name);
 
-    // Check if texture is provided
-    if (!mob.uploadedTexture) {
-      errors.push(`Mob "${mob.name}" needs an uploaded texture`);
-    }
+    // Check if texture is provided (now optional - default mob appearance if not set)
+    // No error needed - can work without custom texture
   }
 
   return errors;

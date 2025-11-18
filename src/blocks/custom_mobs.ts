@@ -1,16 +1,9 @@
 import * as Blockly from 'blockly';
-
-// Type definitions for block extra state
-interface CustomMobExtraState {
-  uploadedTexture: string | null;
-}
+import { createMediaDropdown } from './media_dropdown';
 
 // Extended block interface for custom properties
 interface CustomMobBlock extends Blockly.Block {
-  uploadedTextureData: string | null;
   validateMobName(name: string): string;
-  addUploadClickHandler(): void;
-  openFileUpload(): void;
 }
 
 // Custom Mobs: Define custom billboard/sprite entities
@@ -23,11 +16,8 @@ export const customMobDefine = {
         'MOB_NAME'
       );
     this.appendDummyInput()
-      .appendField('Upload PNG Texture:')
-      .appendField(
-        new Blockly.FieldLabelSerializable('(click to upload)'),
-        'UPLOAD_STATUS'
-      );
+      .appendField('Custom Texture:')
+      .appendField(createMediaDropdown(), 'MEDIA_TEXTURE');
     this.appendDummyInput()
       .appendField('Health')
       .appendField(new Blockly.FieldNumber(20, 1, 100), 'HEALTH');
@@ -57,72 +47,13 @@ export const customMobDefine = {
         'BEHAVIOR'
       );
     this.setColour('#9C27B0');
-    this.setTooltip('Create a custom mob using a 2D sprite texture');
+    this.setTooltip('Create a custom mob using a 2D sprite texture from Media Library');
     this.setHelpUrl('');
-
-    // Store uploaded texture data
-    this.uploadedTextureData = null;
-
-    // Setup click handler after a short delay to ensure DOM is ready
-    setTimeout(() => this.addUploadClickHandler(), 100);
   },
 
   validateMobName: function (this: CustomMobBlock, name: string): string {
     // Remove special characters, keep only letters, numbers, and spaces
     return name.replace(/[^a-zA-Z0-9 ]/g, '');
-  },
-
-  addUploadClickHandler: function (this: CustomMobBlock) {
-    // Find the upload status field and make it clickable
-    const uploadField = this.getField('UPLOAD_STATUS') as any;
-    if (uploadField && uploadField.fieldGroup_) {
-      uploadField.fieldGroup_.style.cursor = 'pointer';
-      // Remove old handler if it exists
-      uploadField.fieldGroup_.onclick = null;
-      uploadField.fieldGroup_.onclick = (e: Event) => {
-        e.stopPropagation();
-        this.openFileUpload();
-      };
-    } else {
-      // Try again after a short delay if not ready
-      setTimeout(() => this.addUploadClickHandler(), 100);
-    }
-  },
-
-  openFileUpload: function (this: CustomMobBlock) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/png';
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          this.uploadedTextureData = event.target?.result as string;
-          this.setFieldValue('Texture loaded', 'UPLOAD_STATUS');
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-    input.click();
-  },
-
-  saveExtraState: function (this: CustomMobBlock): CustomMobExtraState {
-    // Save the uploaded texture data
-    return {
-      uploadedTexture: this.uploadedTextureData || null,
-    };
-  },
-
-  loadExtraState: function (this: CustomMobBlock, state: CustomMobExtraState) {
-    // Restore the uploaded texture data
-    this.uploadedTextureData = state.uploadedTexture || null;
-    if (this.uploadedTextureData) {
-      this.setFieldValue('Texture loaded', 'UPLOAD_STATUS');
-    }
-    // Re-add click handler after loading
-    setTimeout(() => this.addUploadClickHandler(), 100);
   },
 };
 
