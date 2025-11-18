@@ -47,8 +47,10 @@ export default function AIModelsPanel(props: AIModelsPanelProps) {
 
   // Register drop handler with parent
   useEffect(() => {
+    console.log('[AI Models] Registering image drop handler, callback exists:', !!props.onRegisterImageDropHandler);
     if (props.onRegisterImageDropHandler) {
       props.onRegisterImageDropHandler(handleImageDrop);
+      console.log('[AI Models] Image drop handler registered successfully');
     }
   }, [props.onRegisterImageDropHandler]);
 
@@ -346,7 +348,7 @@ export default function AIModelsPanel(props: AIModelsPanelProps) {
 
         {/* Image Upload Section */}
         <div className="input-group">
-          <label>Or upload an image:</label>
+          <label>Or upload/drag an image:</label>
           {imagePreview ? (
             <div className="image-preview-container">
               <img src={imagePreview} alt="Preview" className="image-preview" />
@@ -360,9 +362,7 @@ export default function AIModelsPanel(props: AIModelsPanelProps) {
               </button>
             </div>
           ) : (
-            <label className="image-upload-btn" htmlFor="image-upload">
-              <FontAwesomeIcon icon={faImage} />
-              Choose Image
+            <div className="image-drop-zone">
               <input
                 id="image-upload"
                 type="file"
@@ -371,7 +371,14 @@ export default function AIModelsPanel(props: AIModelsPanelProps) {
                 disabled={isGenerating}
                 style={{ display: 'none' }}
               />
-            </label>
+              <label htmlFor="image-upload" className="image-drop-zone-label">
+                <div className="upload-icon">
+                  <FontAwesomeIcon icon={faImage} size="2x" />
+                </div>
+                <div className="upload-text">Drop image here or click to select</div>
+                <div className="upload-subtext">PNG, JPG, GIF files supported</div>
+              </label>
+            </div>
           )}
         </div>
 

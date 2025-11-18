@@ -37,6 +37,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
   const [, setIsDraggingOver] = useState(false);
   const processingFiles = useRef<Set<string>>(new Set()); // Track files being processed
   const aiImageDropHandler = useRef<((base64: string, dataUrl: string) => void) | null>(null);
+  const activeTabRef = useRef<'examples' | 'projects' | 'media' | 'ai'>('projects'); // Ref to track current tab
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -51,6 +52,12 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
     message: '',
     onConfirm: () => {},
   });
+
+  // Keep activeTabRef in sync with activeTab state
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+    console.log('[TAB] Active tab changed to:', activeTab);
+  }, [activeTab]);
 
   // Load saved projects and media from database on mount
   useEffect(() => {
@@ -181,12 +188,15 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
   const handleTauriFileDrop = async (filePaths: string[]) => {
     console.log('[TAURI] Processing dropped files:', filePaths);
+    console.log('[TAURI] Active tab (ref):', activeTabRef.current);
+    console.log('[TAURI] AI handler exists:', !!aiImageDropHandler.current);
     setIsDraggingOver(false);
 
     // If AI tab is active and we have an image drop handler, route images there
-    if (activeTab === 'ai' && aiImageDropHandler.current && filePaths.length > 0) {
+    if (activeTabRef.current === 'ai' && aiImageDropHandler.current && filePaths.length > 0) {
       const filePath = filePaths[0]; // Take first image only for AI tab
       const ext = filePath.split('.').pop()?.toLowerCase();
+      console.log('[TAURI] Routing to AI Models - file extension:', ext);
 
       if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '')) {
         try {
@@ -218,6 +228,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
       }
     }
 
+    console.log('[TAURI] Processing as media library file');
     // Otherwise, process as media library files
     try {
       const fs = await import('@tauri-apps/plugin-fs');

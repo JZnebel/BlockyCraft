@@ -385,13 +385,12 @@
   padding: 30px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .media-upload-button:hover {
   border-color: #2D7FF9;
   background: rgba(45, 127, 249, 0.05);
-  transform: scale(1.02);
 }
 
 .upload-icon {

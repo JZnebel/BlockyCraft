@@ -327,30 +327,45 @@
 }
 
 /* Image Upload Styles */
-.image-upload-btn {
-  display: inline-flex;
+.image-drop-zone {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.image-drop-zone-label {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #4c97ff 0%, #2D7FF9 100%);
-  border: none;
+  padding: 1.5rem;
+  background: rgba(76, 151, 255, 0.08);
+  border: 2px dashed rgba(76, 151, 255, 0.4);
   border-radius: 6px;
-  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.image-drop-zone-label:hover {
+  background: rgba(76, 151, 255, 0.12);
+  border-color: rgba(76, 151, 255, 0.6);
+}
+
+.image-drop-zone .upload-icon {
+  color: #4c97ff;
+}
+
+.image-drop-zone .upload-text {
+  color: #4c97ff;
   font-weight: 600;
   font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.image-upload-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 151, 255, 0.4);
-}
-
-.image-upload-btn:active {
-  transform: translateY(0);
+.image-drop-zone .upload-subtext {
+  color: rgba(76, 151, 255, 0.7);
+  font-size: 0.8rem;
 }
 
 .image-preview-container {
