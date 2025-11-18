@@ -33,6 +33,7 @@ export interface ModData {
   commands?: any[];
   events?: any[];
   blockDisplayModels?: any[];
+  modelVariants?: { [modelId: string]: string[] }; // e.g. { "model_123": ["scale_2", "scale_10"] }
 }
 
 /**
@@ -106,8 +107,10 @@ export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<
   // Get all top-level blocks
   const blocks = workspace.getAllBlocks(false);
 
-  // Collect model IDs from spawn blocks
+  // Collect model IDs and their scale/rotation parameters from spawn blocks
   const modelIds = new Set<string>();
+  const modelVariants = new Map<string, Set<string>>(); // modelId -> Set of variant keys like "scale_2" or "rotation_90"
+
   for (const block of blocks) {
     // Extract custom items
     if (block.type === 'custom_item_define') {
@@ -125,13 +128,28 @@ export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<
       }
     }
 
-    // Extract AI model IDs from spawn blocks
-    if (block.type === 'spawn_ai_model_scaled' || block.type === 'spawn_ai_model_rotated' ||
-        block.type === 'spawn_ai_model_spinning' || block.type === 'spawn_ai_model_following' ||
-        block.type === 'spawn_ai_model_orbiting' || block.type === 'spawn_ai_model_circle' ||
-        block.type === 'spawn_block_display_model') {
-      const modelId = block.getFieldValue('MODEL_ID');
-      if (modelId) {
+    // Extract AI model IDs from spawn blocks and track variants
+    const modelId = block.getFieldValue('MODEL_ID');
+    if (modelId) {
+      if (block.type === 'spawn_ai_model_scaled') {
+        const scale = parseFloat(block.getFieldValue('SCALE') || '1');
+        modelIds.add(modelId);
+        if (!modelVariants.has(modelId)) {
+          modelVariants.set(modelId, new Set());
+        }
+        modelVariants.get(modelId)!.add(`scale_${scale}`);
+      } else if (block.type === 'spawn_ai_model_rotated') {
+        const rotation = parseFloat(block.getFieldValue('ROTATION') || '0');
+        modelIds.add(modelId);
+        if (!modelVariants.has(modelId)) {
+          modelVariants.set(modelId, new Set());
+        }
+        modelVariants.get(modelId)!.add(`rotation_${rotation}`);
+      } else if (block.type === 'spawn_ai_model_spinning' ||
+                 block.type === 'spawn_ai_model_following' ||
+                 block.type === 'spawn_ai_model_orbiting' ||
+                 block.type === 'spawn_ai_model_circle' ||
+                 block.type === 'spawn_block_display_model') {
         modelIds.add(modelId);
       }
     }
@@ -156,6 +174,15 @@ export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<
     } catch (error) {
       console.error('Error fetching AI models:', error);
     }
+  }
+
+  // Convert modelVariants Map to plain object
+  if (modelVariants.size > 0) {
+    modData.modelVariants = {};
+    for (const [modelId, variants] of modelVariants.entries()) {
+      modData.modelVariants[modelId] = Array.from(variants);
+    }
+    console.log('[Generator] Model variants:', modData.modelVariants);
   }
 
   // Generate Java code from blocks using the JavaScript generator

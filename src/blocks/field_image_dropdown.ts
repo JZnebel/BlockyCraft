@@ -60,7 +60,7 @@ export class FieldImageDropdown extends Blockly.FieldDropdown {
   /**
    * Override getSize to account for image/emoji width and dropdown arrow
    */
-  protected override getSize(): Blockly.utils.Size {
+  override getSize(): Blockly.utils.Size {
     const size = super.getSize();
     // Add extra width for the image/emoji + padding for the dropdown arrow
     const imageWidth = this.imageFolder === 'entity' ? 22 : 24;

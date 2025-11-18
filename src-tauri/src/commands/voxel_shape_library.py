@@ -37,7 +37,7 @@ def create_circle_layer(y, radius, scale, color, block_material="concrete"):
         z = radius * math.sin(angle)
 
         blocks.append({
-            "block": f"minecraft:{color}_{block_material}",
+            "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
             "x": round(x, 3),
             "y": round(y, 3),
             "z": round(z, 3),
@@ -69,7 +69,7 @@ def create_sphere(radius, scale, color, block_material="concrete"):
         if abs(y) >= radius:
             # At pole, just center block
             blocks.append({
-                "block": f"minecraft:{color}_{block_material}",
+                "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
                 "x": 0.0,
                 "y": round(y, 3),
                 "z": 0.0,
@@ -190,7 +190,7 @@ def create_box(width, height, depth, scale, color, block_material="concrete", ce
 
             for z in [cz - depth/2, cz + depth/2]:
                 blocks.append({
-                    "block": f"minecraft:{color}_{block_material}",
+                    "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
                     "x": round(x, 3),
                     "y": round(y, 3),
                     "z": round(z, 3),
@@ -205,7 +205,7 @@ def create_box(width, height, depth, scale, color, block_material="concrete", ce
 
             for x in [cx - width/2, cx + width/2]:
                 blocks.append({
-                    "block": f"minecraft:{color}_{block_material}",
+                    "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
                     "x": round(x, 3),
                     "y": round(y, 3),
                     "z": round(z, 3),
@@ -220,7 +220,7 @@ def create_box(width, height, depth, scale, color, block_material="concrete", ce
 
             for y in [cy - height/2, cy + height/2]:
                 blocks.append({
-                    "block": f"minecraft:{color}_{block_material}",
+                    "block": f"minecraft:{color}_{block_material}" if block_material else f"minecraft:{color}",
                     "x": round(x, 3),
                     "y": round(y, 3),
                     "z": round(z, 3),

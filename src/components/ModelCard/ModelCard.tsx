@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCube, faCopy } from '@fortawesome/free-solid-svg-icons';
-import type { BlockDisplayModel } from '@/utils/blockly-generator';
+import type { BlockDisplayModel } from '@/utils/database';
 import ModelPreview from '@/components/ModelPreview/ModelPreview';
 import './ModelCard.css';
 
@@ -28,7 +28,7 @@ export default function ModelCard({ model, onDelete, onCopyId }: ModelCardProps)
       </div>
       <div className="model-card-body">
         {showPreview ? (
-          <ModelPreview blocks={model.blocks} size={140} clickable={true} />
+          <ModelPreview blocks={model.blocks || []} size={140} clickable={true} />
         ) : (
           <button
             onClick={() => setShowPreview(true)}
@@ -40,7 +40,7 @@ export default function ModelCard({ model, onDelete, onCopyId }: ModelCardProps)
           </button>
         )}
         <p className="model-info">
-          {model.blocks.length} blocks
+          {(model.blocks || []).length} blocks
         </p>
         <p className="model-id">
           <code>{model.id}</code>

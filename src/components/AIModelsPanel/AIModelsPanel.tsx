@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagicWandSparkles, faSpinner, faTrash, faCube, faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { generateBlockDisplayModel, generateBlockDisplayModelCodegen } from '@/utils/tauri-commands';
+import { faMagicWandSparkles, faSpinner, faTrash, faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { generateBlockDisplayModelCodegen } from '@/utils/tauri-commands';
 import { dbGetSetting, dbSaveAiModel, dbGetAiModels, dbDeleteAiModel } from '@/utils/database';
-import type { BlockDisplayModel, BlockDisplayEntity } from '@/utils/blockly-generator';
+import type { BlockDisplayModel, BlockDisplayEntity } from '@/utils/database';
 import ModelPreview from '@/components/ModelPreview/ModelPreview';
 import './AIModelsPanel.css';
 
@@ -11,13 +11,12 @@ interface AIModelsPanelProps {
   onLoadModel?: (model: BlockDisplayModel) => void;
 }
 
-export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
+export default function AIModelsPanel(_props: AIModelsPanelProps) {
   const [prompt, setPrompt] = useState('');
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [savedModels, setSavedModels] = useState<BlockDisplayModel[]>([]);
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const [useCodeGen, setUseCodeGen] = useState(true);  // Default to better quality codegen
   const [expandedPreviews, setExpandedPreviews] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -59,7 +58,7 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
         model.id,
         model.name,
         model.prompt,
-        JSON.stringify(model.blocks),
+        JSON.stringify(model.blocks || []),
         model.generatedBy
       );
       // Reload models from database
@@ -97,9 +96,8 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
 
     setIsGenerating(true);
     try {
-      const entities: BlockDisplayEntity[] = useCodeGen
-        ? await generateBlockDisplayModelCodegen(apiKey, prompt.trim(), size)
-        : await generateBlockDisplayModel(apiKey, prompt.trim(), size);
+      // Always use codegen for better quality
+      const entities: BlockDisplayEntity[] = await generateBlockDisplayModelCodegen(apiKey, prompt.trim(), size);
 
       // Create model object
       const model: BlockDisplayModel = {
@@ -126,12 +124,6 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
     }
   };
 
-  const handleUseModel = (model: BlockDisplayModel) => {
-    if (onLoadModel) {
-      onLoadModel(model);
-    }
-    alert(`To use this model:\n\n1. Go to the "AI Models" category in the toolbox\n2. Drag out a "Spawn AI model" block\n3. Enter the model ID: ${model.id}`);
-  };
 
   const togglePreview = (modelId: string) => {
     setExpandedPreviews(prev => {
@@ -173,7 +165,7 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
         </div>
 
         <div className="input-group">
-          <label htmlFor="model-size">Size:</label>
+          <label htmlFor="model-size">Detail Level:</label>
           <select
             id="model-size"
             value={size}
@@ -181,9 +173,9 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
             disabled={isGenerating}
             className="size-select"
           >
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
+            <option value="small">Simple (fast, fewer blocks)</option>
+            <option value="medium">Moderate (balanced)</option>
+            <option value="large">Detailed (complex, more blocks)</option>
           </select>
         </div>
 
@@ -237,10 +229,10 @@ export default function AIModelsPanel({ onLoadModel }: AIModelsPanelProps) {
                   </div>
                   <div className="model-card-body">
                     {isExpanded && (
-                      <ModelPreview blocks={model.blocks} size={140} clickable={true} />
+                      <ModelPreview blocks={model.blocks || []} size={140} clickable={true} />
                     )}
                     <p className="model-info">
-                      {model.blocks.length} blocks
+                      {(model.blocks || []).length} blocks
                     </p>
                     <div className="model-id-container">
                       <p className="model-id"><code>{model.id}</code></p>

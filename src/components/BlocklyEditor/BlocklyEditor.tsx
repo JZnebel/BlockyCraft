@@ -104,6 +104,8 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
   return {
     kind: 'categoryToolbox',
     contents: [
+      // @ts-ignore - cssConfig is supported but not in type definitions
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -118,6 +120,8 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'event_break_block' },
         ]
       },
+      // @ts-ignore - cssConfig is supported but not in type definitions
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -134,14 +138,11 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'action_title' },
           { kind: 'block', type: 'action_actionbar' },
           { kind: 'block', type: 'spawn_block_display_model' },
-          { kind: 'block', type: 'spawn_ai_model_spinning' },
           { kind: 'block', type: 'spawn_ai_model_rotated' },
-          { kind: 'block', type: 'spawn_ai_model_following' },
           { kind: 'block', type: 'spawn_ai_model_scaled' },
-          { kind: 'block', type: 'spawn_ai_model_orbiting' },
-          { kind: 'block', type: 'spawn_ai_model_circle' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -155,6 +156,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'player_effect' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -176,6 +178,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'world_entity_tame' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -194,6 +197,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'motion_launch' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -221,6 +225,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'sensing_player_name' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -238,6 +243,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'looks_clear_effects' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -254,6 +260,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
       {
         kind: 'sep'
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -272,6 +279,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'repeat_forever' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -285,6 +293,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'math_arithmetic' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -297,6 +306,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'text' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -310,6 +320,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
       {
         kind: 'sep'
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',
@@ -322,6 +333,7 @@ function getToolbox(): Blockly.utils.toolbox.ToolboxDefinition {
           { kind: 'block', type: 'custom_item_define' },
         ]
       },
+            // @ts-expect-error - cssConfig is supported but not in type definitions
       {
         kind: 'category',
         name: '',

@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { save, open } from '@tauri-apps/plugin-dialog';
-import type { ModData, BlockDisplayEntity } from './blockly-generator';
+import type { ModData } from './blockly-generator';
+import type { BlockDisplayEntity } from './database';
 
 /**
  * Save project to a file using Tauri file dialog

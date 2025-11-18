@@ -60,6 +60,17 @@ export const dbGetAllSettings = async (): Promise<DbSetting[]> => {
   return await invoke('db_get_all_settings');
 };
 
+// Block Display Entity (matches Rust struct)
+export interface BlockDisplayEntity {
+  block: string;
+  properties?: { [key: string]: string };
+  x: number;
+  y: number;
+  z: number;
+  scale?: [number, number, number];
+  rotation?: [number, number, number];
+}
+
 // AI Model operations
 export interface DbAiModel {
   id?: number;
@@ -69,6 +80,16 @@ export interface DbAiModel {
   blocks_json: string; // JSON string of BlockDisplayEntity[]
   generated_by: string; // 'ai' | 'manual'
   created_at: number;
+}
+
+// Helper type for models with parsed blocks (frontend-friendly camelCase)
+export interface BlockDisplayModel {
+  id: string; // model_id from database
+  name: string;
+  prompt: string;
+  blocks?: BlockDisplayEntity[]; // Parsed from blocks_json
+  generatedBy: 'ai' | 'manual';
+  createdAt: number;
 }
 
 export const dbSaveAiModel = async (modelId: string, name: string, prompt: string, blocksJson: string, generatedBy: string): Promise<number> => {

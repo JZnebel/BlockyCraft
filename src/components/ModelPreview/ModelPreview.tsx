@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { BlockDisplayEntity } from '@/utils/blockly-generator';
+import type { BlockDisplayEntity } from '@/utils/database';
 import Modal from '@/components/Modal/Modal';
 import './ModelPreview.css';
 
