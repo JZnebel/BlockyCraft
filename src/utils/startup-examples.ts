@@ -47,6 +47,12 @@ export const EXAMPLE_PROJECTS = [
     difficulty: "intermediate",
     workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">party</field><statement name="ACTIONS"><block type="action_title"><field name="TITLE">PARTY TIME!</field><next><block type="world_time"><field name="TIME">6000</field><next><block type="world_weather"><field name="WEATHER">clear</field></block></next></block></next></block></statement></block></xml>`
   },
+  {
+    name: "Display Block Eraser",
+    description: "Utility command to remove AI model display blocks nearby",
+    difficulty: "intermediate",
+    workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">clearmodels</field><statement name="ACTIONS"><block type="action_message"><field name="MESSAGE">Clearing nearby display blocks...</field></block></statement></block></xml>`
+  },
 
   // ========== ADVANCED TIER ==========
   {
