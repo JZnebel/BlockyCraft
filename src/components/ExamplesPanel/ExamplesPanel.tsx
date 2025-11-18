@@ -36,6 +36,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [, setIsDraggingOver] = useState(false);
   const processingFiles = useRef<Set<string>>(new Set()); // Track files being processed
+  const aiImageDropHandler = useRef<((base64: string, dataUrl: string) => void) | null>(null);
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -182,6 +183,42 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
     console.log('[TAURI] Processing dropped files:', filePaths);
     setIsDraggingOver(false);
 
+    // If AI tab is active and we have an image drop handler, route images there
+    if (activeTab === 'ai' && aiImageDropHandler.current && filePaths.length > 0) {
+      const filePath = filePaths[0]; // Take first image only for AI tab
+      const ext = filePath.split('.').pop()?.toLowerCase();
+
+      if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '')) {
+        try {
+          const fs = await import('@tauri-apps/plugin-fs');
+          const fileData = await fs.readFile(filePath);
+
+          // Convert to base64
+          const uint8Array = new Uint8Array(fileData);
+          let binaryString = '';
+          const chunkSize = 0x8000;
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+            binaryString += String.fromCharCode(...chunk);
+          }
+          const base64 = btoa(binaryString);
+
+          const mimeType = ext === 'png' ? 'image/png' :
+                          ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
+                          ext === 'gif' ? 'image/gif' : 'image/webp';
+          const dataUrl = `data:${mimeType};base64,${base64}`;
+
+          // Call AI panel's drop handler
+          aiImageDropHandler.current(base64, dataUrl);
+          console.log('[TAURI] Image routed to AI Models panel');
+          return;
+        } catch (error) {
+          console.error('[TAURI] Error processing image for AI tab:', error);
+        }
+      }
+    }
+
+    // Otherwise, process as media library files
     try {
       const fs = await import('@tauri-apps/plugin-fs');
       const { appDataDir } = await import('@tauri-apps/api/path');
@@ -574,7 +611,11 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
           </div>
 
           {activeTab === 'ai' ? (
-            <AIModelsPanel />
+            <AIModelsPanel
+              onRegisterImageDropHandler={(handler) => {
+                aiImageDropHandler.current = handler;
+              }}
+            />
           ) : activeTab === 'media' ? (
             <div className="examples-list">
               <div className="media-upload-section">

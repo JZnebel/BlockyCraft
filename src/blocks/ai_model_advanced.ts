@@ -8,7 +8,7 @@ export function registerAIModelAdvancedBlocks(): void {
   // This function is called to ensure the module is imported
 }
 
-// Spawn AI model with rotation
+// Spawn AI model with rotation and position control
 Blockly.Blocks['spawn_ai_model_rotated'] = {
   init: function() {
     this.appendDummyInput()
@@ -25,11 +25,23 @@ Blockly.Blocks['spawn_ai_model_rotated'] = {
       ]), 'DIRECTION')
       .appendField(new Blockly.FieldNumber(0, -360, 360), 'YAW')
       .appendField('°');
+    this.appendDummyInput()
+      .appendField('at')
+      .appendField(new Blockly.FieldDropdown([
+        ['player position', 'PLAYER'],
+        ['blocks in front', 'FRONT'],
+        ['where looking', 'LOOKING'],
+        ['blocks above', 'ABOVE'],
+        ['custom offset', 'OFFSET']
+      ]), 'POSITION_TYPE');
+    this.appendDummyInput()
+      .appendField(new Blockly.FieldNumber(3, 0, 50), 'DISTANCE')
+      .appendField('blocks');
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290);
-    this.setTooltip('Spawn a model facing a direction');
+    this.setTooltip('Spawn a model with rotation and position control');
     this.setHelpUrl('');
   }
 };
@@ -75,7 +87,7 @@ Blockly.Blocks['spawn_ai_model_following'] = {
   }
 };
 
-// Spawn AI model scaled
+// Spawn AI model scaled with position control
 Blockly.Blocks['spawn_ai_model_scaled'] = {
   init: function() {
     this.appendDummyInput()
@@ -85,11 +97,23 @@ Blockly.Blocks['spawn_ai_model_scaled'] = {
       .appendField('scaled')
       .appendField(new Blockly.FieldNumber(1, 0.1, 10, 0.1), 'SCALE')
       .appendField('x size');
-    this.setInputsInline(true);
+    this.appendDummyInput()
+      .appendField('at')
+      .appendField(new Blockly.FieldDropdown([
+        ['player position', 'PLAYER'],
+        ['blocks in front', 'FRONT'],
+        ['where looking', 'LOOKING'],
+        ['blocks above', 'ABOVE'],
+        ['custom offset', 'OFFSET']
+      ]), 'POSITION_TYPE');
+    this.appendDummyInput()
+      .appendField(new Blockly.FieldNumber(3, 0, 50), 'DISTANCE')
+      .appendField('blocks');
+    this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290);
-    this.setTooltip('Spawn an AI model at a different scale');
+    this.setTooltip('Spawn an AI model with position and scale control');
     this.setHelpUrl('');
   }
 };

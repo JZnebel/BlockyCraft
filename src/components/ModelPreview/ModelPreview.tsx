@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import type { BlockDisplayEntity } from '@/utils/database';
 import Modal from '@/components/Modal/Modal';
 import './ModelPreview.css';
@@ -74,7 +74,7 @@ function getBlockColor(blockType: string): string {
   return BLOCK_COLORS[blockType] || BLOCK_COLORS['default'];
 }
 
-export default function ModelPreview({ blocks, size = 120, clickable = false, rotation = 45 }: ModelPreviewProps & { rotation?: number }) {
+const ModelPreview = memo(function ModelPreview({ blocks, size = 120, clickable = false, rotation = 45 }: ModelPreviewProps & { rotation?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showModal, setShowModal] = useState(false);
   const [modalRotation, setModalRotation] = useState(45);
@@ -267,7 +267,9 @@ export default function ModelPreview({ blocks, size = 120, clickable = false, ro
       )}
     </>
   );
-}
+});
+
+export default ModelPreview;
 
 // Helper functions to lighten/darken colors
 function lightenColor(color: string, percent: number): string {

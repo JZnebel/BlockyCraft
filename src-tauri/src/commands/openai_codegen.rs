@@ -4,6 +4,12 @@ use std::fs;
 use super::openai::BlockDisplayEntity;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct CodegenResult {
+    pub blocks: Vec<BlockDisplayEntity>,
+    pub generated_code: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct OpenAIRequest {
     model: String,
     messages: Vec<Message>,
@@ -11,9 +17,30 @@ struct OpenAIRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+enum MessageContent {
+    Text(String),
+    Array(Vec<ContentPart>),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct Message {
     role: String,
-    content: String,
+    content: MessageContent,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+enum ContentPart {
+    #[serde(rename = "text")]
+    Text { text: String },
+    #[serde(rename = "image_url")]
+    ImageUrl { image_url: ImageUrl },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ImageUrl {
+    url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,11 +58,12 @@ struct Usage {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Choice {
-    message: MessageContent,
+    message: ResponseMessage,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct MessageContent {
+struct ResponseMessage {
+    role: String,
     content: String,
 }
 
@@ -44,7 +72,8 @@ pub async fn generate_block_display_model_codegen(
     api_key: String,
     prompt: String,
     size: String,
-) -> Result<Vec<BlockDisplayEntity>, String> {
+    image_base64: Option<String>,
+) -> Result<CodegenResult, String> {
     // System prompt for code generation
     let system_prompt = r#"You are a Python code generator for 3D voxel models in Minecraft.
 
@@ -193,8 +222,37 @@ IMPORTANT:
         _ => "Moderate - balanced detail, good mix of block sizes for recognizable features",
     };
 
-    let user_prompt = format!(
-        "Create a 3D voxel model of: {}
+    // Build user message (with or without image)
+    let user_message = if let Some(ref image_data) = image_base64 {
+        // With image - use vision
+        let image_url = format!("data:image/png;base64,{}", image_data);
+        Message {
+            role: "user".to_string(),
+            content: MessageContent::Array(vec![
+                ContentPart::Text {
+                    text: format!(
+                        "Create a 3D voxel model based on this image{}
+
+Complexity: {}
+
+Analyze the image and create a voxel model that captures its key features.
+Build a hollow structure (surface only) that looks good in Minecraft.
+Output only the generate() function code.",
+                        if prompt.is_empty() { String::new() } else { format!(": {}", prompt) },
+                        size_guidance
+                    )
+                },
+                ContentPart::ImageUrl {
+                    image_url: ImageUrl { url: image_url }
+                }
+            ])
+        }
+    } else {
+        // Text only - no image
+        Message {
+            role: "user".to_string(),
+            content: MessageContent::Text(format!(
+                "Create a 3D voxel model of: {}
 
 Complexity: {}
 
@@ -203,8 +261,10 @@ You control both the block scale AND the number of blocks - choose what makes se
 The model can be any physical size - users will scale it themselves in-game if needed.
 
 Output only the generate() function code.",
-        prompt, size_guidance
-    );
+                prompt, size_guidance
+            ))
+        }
+    };
 
     // Call OpenAI API
     let client = reqwest::Client::new();
@@ -213,12 +273,9 @@ Output only the generate() function code.",
         messages: vec![
             Message {
                 role: "system".to_string(),
-                content: system_prompt.to_string(),
+                content: MessageContent::Text(system_prompt.to_string()),
             },
-            Message {
-                role: "user".to_string(),
-                content: user_prompt,
-            },
+            user_message,
         ],
         temperature: 0.7,
     };
@@ -294,7 +351,7 @@ Respond with ONLY a number (your estimate of total blocks)."#,
         messages: vec![
             Message {
                 role: "user".to_string(),
-                content: review_prompt,
+                content: MessageContent::Text(review_prompt),
             },
         ],
         temperature: 0.3,
@@ -417,5 +474,223 @@ print(json.dumps(result))
 
     println!("[OpenAI CodeGen] Successfully generated {} blocks", entities.len());
 
-    Ok(entities)
+    Ok(CodegenResult {
+        blocks: entities,
+        generated_code: clean_code.to_string(),
+    })
+}
+
+#[tauri::command]
+pub async fn edit_block_display_model(
+    api_key: String,
+    original_prompt: String,
+    original_code: String,
+    edit_request: String,
+) -> Result<CodegenResult, String> {
+    // System prompt for code editing
+    let system_prompt = r#"You are a Python code editor for 3D voxel models in Minecraft.
+
+Your task is to modify existing code based on user requests. Make TARGETED edits - don't rewrite everything from scratch.
+
+IMPORTANT EDITING RULES:
+1. Modify ONLY the parts relevant to the user's request
+2. Preserve the overall structure and style of the original code
+3. Keep using the same library functions (create_sphere, create_cylinder, etc.)
+4. Add comments showing what you changed
+5. Output the complete modified generate() function
+
+AVAILABLE LIBRARY FUNCTIONS:
+- create_circle_layer(y, radius, scale, color, block_material="concrete")
+- create_sphere(radius, scale, color, block_material="concrete")
+- create_cylinder(height, radius, scale, color, block_material="concrete", center_y=0.0)
+- create_box(width, height, depth, scale, color, block_material="concrete", center=(0,0,0))
+- create_tapered_shape(profile, scale, color_map, block_material="concrete")
+- add_glow(blocks, brightness_sky=15, brightness_block=15)
+
+Common edit examples:
+- "make it bigger" → increase radius/width/height parameters
+- "make it smaller" → decrease parameters
+- "change color to red" → change color parameter to "red"
+- "make tail longer" → increase length parameter of tail component
+- "add wings" → add new components using create_* functions
+
+OUTPUT FORMAT:
+Return ONLY the modified generate() function code, nothing else."#;
+
+    let user_prompt = format!(
+        r#"Original prompt: "{}"
+
+Original code:
+```python
+{}
+```
+
+User's edit request: "{}"
+
+Modify the code to fulfill the edit request. Output the complete modified generate() function."#,
+        original_prompt, original_code, edit_request
+    );
+
+    // Call OpenAI API
+    let client = reqwest::Client::new();
+    let request_body = OpenAIRequest {
+        model: "gpt-5.1-2025-11-13".to_string(),
+        messages: vec![
+            Message {
+                role: "system".to_string(),
+                content: MessageContent::Text(system_prompt.to_string()),
+            },
+            Message {
+                role: "user".to_string(),
+                content: MessageContent::Text(user_prompt),
+            },
+        ],
+        temperature: 0.7,
+    };
+
+    println!("[OpenAI Edit] Sending edit request: {}", edit_request);
+
+    let response = client
+        .post("https://api.openai.com/v1/chat/completions")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .json(&request_body)
+        .send()
+        .await
+        .map_err(|e| {
+            eprintln!("[OpenAI Edit] Request error: {:?}", e);
+            format!("Failed to call OpenAI API: {}", e)
+        })?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(format!("OpenAI API error ({}): {}", status, error_text));
+    }
+
+    let openai_response: OpenAIResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse OpenAI response: {}", e))?;
+
+    if openai_response.choices.is_empty() {
+        return Err("No response from OpenAI".to_string());
+    }
+
+    // Log token usage
+    if let Some(usage) = &openai_response.usage {
+        let input_cost = (usage.prompt_tokens as f64 / 1_000_000.0) * 2.50;
+        let output_cost = (usage.completion_tokens as f64 / 1_000_000.0) * 10.00;
+        let total_cost = input_cost + output_cost;
+
+        println!("╔══════════════════════════════════════════════════════════╗");
+        println!("║              OpenAI Edit Usage Statistics               ║");
+        println!("╠══════════════════════════════════════════════════════════╣");
+        println!("║  Prompt tokens:     {:>8} (${:.4})                ║", usage.prompt_tokens, input_cost);
+        println!("║  Completion tokens: {:>8} (${:.4})                ║", usage.completion_tokens, output_cost);
+        println!("║  Total tokens:      {:>8} (${:.4})                ║", usage.total_tokens, total_cost);
+        println!("╚══════════════════════════════════════════════════════════╝");
+    }
+
+    let code = &openai_response.choices[0].message.content;
+    println!("[OpenAI Edit] Received edited code ({} chars)", code.len());
+
+    // Extract code from markdown if needed
+    let clean_code = if code.contains("```python") {
+        code.split("```python")
+            .nth(1)
+            .and_then(|s| s.split("```").next())
+            .unwrap_or(code)
+    } else if code.contains("```") {
+        code.split("```")
+            .nth(1)
+            .and_then(|s| s.split("```").next())
+            .unwrap_or(code)
+    } else {
+        code
+    };
+
+    // Write voxel library to temp file
+    let voxel_lib = include_str!("voxel_shape_library.py");
+    let temp_lib_path = "/tmp/voxel_shape_library.py";
+    fs::write(temp_lib_path, voxel_lib)
+        .map_err(|e| format!("Failed to write voxel library: {}", e))?;
+
+    // Write generated code to temp file
+    let full_code = format!(
+        r#"#!/usr/bin/env python3
+import sys
+sys.path.insert(0, '/tmp')
+from voxel_shape_library import *
+import json
+
+{}
+
+# Execute and output JSON
+result = generate()
+print(json.dumps(result))
+"#,
+        clean_code
+    );
+
+    let temp_code_path = "/tmp/edited_voxel_code.py";
+    fs::write(temp_code_path, &full_code)
+        .map_err(|e| format!("Failed to write edited code: {}", e))?;
+
+    println!("[OpenAI Edit] Executing edited Python code...");
+
+    // Execute Python code
+    let output = Command::new("python3")
+        .arg(temp_code_path)
+        .output()
+        .map_err(|e| format!("Failed to execute Python code: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Python execution failed: {}", stderr));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("[OpenAI Edit] Python output: {}", &stdout[..stdout.len().min(500)]);
+
+    // Parse JSON output
+    let mut entities: Vec<BlockDisplayEntity> = serde_json::from_str(&stdout)
+        .map_err(|e| format!("Failed to parse edited blocks JSON: {}. Output: {}", e, &stdout[..stdout.len().min(200)]))?;
+
+    if entities.is_empty() {
+        return Err("AI generated empty model".to_string());
+    }
+
+    println!("[OpenAI Edit] Generated {} blocks (before deduplication)", entities.len());
+
+    // Deduplicate blocks at exact same position
+    use std::collections::HashSet;
+    let mut seen_positions = HashSet::new();
+    let original_count = entities.len();
+
+    entities.retain(|entity| {
+        let x = (entity.x * 1000.0).round() as i32;
+        let y = (entity.y * 1000.0).round() as i32;
+        let z = (entity.z * 1000.0).round() as i32;
+        let pos = (x, y, z);
+
+        if seen_positions.contains(&pos) {
+            false
+        } else {
+            seen_positions.insert(pos);
+            true
+        }
+    });
+
+    let removed_count = original_count - entities.len();
+    if removed_count > 0 {
+        println!("[OpenAI Edit] Removed {} overlapping blocks", removed_count);
+    }
+
+    println!("[OpenAI Edit] Successfully generated {} blocks", entities.len());
+
+    Ok(CodegenResult {
+        blocks: entities,
+        generated_code: clean_code.to_string(),
+    })
 }

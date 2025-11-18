@@ -3,6 +3,11 @@ import { save, open } from '@tauri-apps/plugin-dialog';
 import type { ModData } from './blockly-generator';
 import type { BlockDisplayEntity } from './database';
 
+export interface CodegenResult {
+  blocks: BlockDisplayEntity[];
+  generated_code: string;
+}
+
 /**
  * Save project to a file using Tauri file dialog
  */
@@ -120,18 +125,44 @@ export async function generateBlockDisplayModel(
 export async function generateBlockDisplayModelCodegen(
   apiKey: string,
   prompt: string,
-  size: 'small' | 'medium' | 'large'
-): Promise<BlockDisplayEntity[]> {
+  size: 'small' | 'medium' | 'large',
+  imageBase64?: string
+): Promise<CodegenResult> {
   try {
-    const result = await invoke<BlockDisplayEntity[]>('generate_block_display_model_codegen', {
+    const result = await invoke<CodegenResult>('generate_block_display_model_codegen', {
       apiKey,
       prompt,
-      size
+      size,
+      imageBase64: imageBase64 || null
     });
 
     return result;
   } catch (error) {
     console.error('Error generating block display model (codegen):', error);
+    throw error;
+  }
+}
+
+/**
+ * Edit an existing block display model using AI
+ */
+export async function editBlockDisplayModel(
+  apiKey: string,
+  originalPrompt: string,
+  originalCode: string,
+  editRequest: string
+): Promise<CodegenResult> {
+  try {
+    const result = await invoke<CodegenResult>('edit_block_display_model', {
+      apiKey,
+      originalPrompt,
+      originalCode,
+      editRequest
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error editing block display model:', error);
     throw error;
   }
 }

@@ -80,6 +80,8 @@ export interface DbAiModel {
   blocks_json: string; // JSON string of BlockDisplayEntity[]
   generated_by: string; // 'ai' | 'manual'
   created_at: number;
+  generated_code?: string; // Python code that generated the model
+  block_count: number; // Pre-calculated block count for performance
 }
 
 // Helper type for models with parsed blocks (frontend-friendly camelCase)
@@ -92,12 +94,16 @@ export interface BlockDisplayModel {
   createdAt: number;
 }
 
-export const dbSaveAiModel = async (modelId: string, name: string, prompt: string, blocksJson: string, generatedBy: string): Promise<number> => {
-  return await invoke('db_save_ai_model', { modelId, name, prompt, blocksJson, generatedBy });
+export const dbSaveAiModel = async (modelId: string, name: string, prompt: string, blocksJson: string, generatedBy: string, generatedCode?: string, blockCount?: number): Promise<number> => {
+  return await invoke('db_save_ai_model', { modelId, name, prompt, blocksJson, generatedBy, generatedCode: generatedCode || null, blockCount: blockCount || 0 });
 };
 
 export const dbGetAiModels = async (): Promise<DbAiModel[]> => {
   return await invoke('db_get_ai_models');
+};
+
+export const dbGetAiModelBlocks = async (modelId: string): Promise<string> => {
+  return await invoke('db_get_ai_model_blocks', { modelId });
 };
 
 export const dbDeleteAiModel = async (id: number): Promise<void> => {

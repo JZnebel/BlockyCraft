@@ -134,12 +134,6 @@ export const EXAMPLE_PROJECTS = [
     description: "Spawn a lantern facing East (90 degrees)!",
     difficulty: "intermediate",
     workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">eastlantern</field><statement name="ACTIONS"><block type="action_message"><field name="MESSAGE">Spawning East-facing Lantern!</field><next><block type="spawn_ai_model_rotated"><field name="MODEL_ID">model_1763358420993</field><field name="DIRECTION">90</field><field name="YAW">90</field><next><block type="looks_particles"><field name="PARTICLE">flame</field><field name="COUNT">50</field></block></next></block></next></block></statement></block></xml>`
-  },
-  {
-    name: "Spinning Lantern",
-    description: "Spawn a Japanese Lantern that spins for 10 seconds!",
-    difficulty: "intermediate",
-    workspace: `<xml xmlns="https://developers.google.com/blockly/xml"><block type="event_command" x="20" y="20"><field name="COMMAND">spinlantern</field><statement name="ACTIONS"><block type="action_message"><field name="MESSAGE">Spawning Spinning Lantern!</field><next><block type="spawn_ai_model_spinning"><field name="MODEL_ID">model_1763358420993</field><field name="DURATION">10</field><next><block type="looks_particles"><field name="PARTICLE">flame</field><field name="COUNT">50</field></block></next></block></next></block></statement></block></xml>`
   }
 ];
 

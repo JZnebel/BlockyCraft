@@ -475,24 +475,72 @@ function generateBlockJava(block, context) {
     else if (type === 'spawn_ai_model_scaled') {
         const modelId = block.getFieldValue('MODEL_ID');
         const scale = parseFloat(block.getFieldValue('SCALE') || 1.0);
-        // Generate function name with scale suffix (e.g., model_123_scale_2)
+        const posType = block.getFieldValue('POSITION_TYPE') || 'PLAYER';
+        const distance = parseFloat(block.getFieldValue('DISTANCE') || 3);
+
+        // Generate function name with scale suffix
         const scaleSuffix = `_scale_${scale}`.replace('.', '_');
         const functionName = `${modelId}${scaleSuffix}`;
-        code = `${indent}// Spawn scaled AI model: ${modelId} at ${scale}x scale\n`;
+
+        // Calculate spawn position based on position type
+        let positionCode = '';
+        if (posType === 'PLAYER') {
+            positionCode = `${playerVar}.getPos()`;
+        } else if (posType === 'FRONT') {
+            code += `${indent}// Calculate position in front of player\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.getPos().add(${playerVar}.getRotationVector().multiply(${distance}));\n`;
+            positionCode = 'spawnPos';
+        } else if (posType === 'LOOKING') {
+            code += `${indent}// Calculate where player is looking\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.raycast(${distance}, 1.0f, false).getPos();\n`;
+            positionCode = 'spawnPos';
+        } else if (posType === 'ABOVE') {
+            code += `${indent}// Calculate position above player\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.getPos().add(0, ${distance}, 0);\n`;
+            positionCode = 'spawnPos';
+        } else {
+            positionCode = `${playerVar}.getPos()`;
+        }
+
+        code += `${indent}// Spawn scaled AI model: ${modelId} at ${scale}x scale\n`;
         code += `${indent}${worldVar}.getServer().getCommandManager().executeWithPrefix(\n`;
-        code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${playerVar}.getPos()),\n`;
+        code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${positionCode}),\n`;
         code += `${indent}    "function blockcraft:${functionName}"\n`;
         code += `${indent});\n`;
     }
     else if (type === 'spawn_ai_model_rotated') {
         const modelId = block.getFieldValue('MODEL_ID');
         const rotation = parseFloat(block.getFieldValue('ROTATION') || 0);
-        // Generate function name with rotation suffix (e.g., model_123_rotation_90)
+        const posType = block.getFieldValue('POSITION_TYPE') || 'PLAYER';
+        const distance = parseFloat(block.getFieldValue('DISTANCE') || 3);
+
+        // Generate function name with rotation suffix
         const rotationSuffix = `_rotation_${rotation}`.replace('.', '_');
         const functionName = `${modelId}${rotationSuffix}`;
-        code = `${indent}// Spawn rotated AI model: ${modelId} at ${rotation} degrees\n`;
+
+        // Calculate spawn position based on position type
+        let positionCode = '';
+        if (posType === 'PLAYER') {
+            positionCode = `${playerVar}.getPos()`;
+        } else if (posType === 'FRONT') {
+            code += `${indent}// Calculate position in front of player\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.getPos().add(${playerVar}.getRotationVector().multiply(${distance}));\n`;
+            positionCode = 'spawnPos';
+        } else if (posType === 'LOOKING') {
+            code += `${indent}// Calculate where player is looking\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.raycast(${distance}, 1.0f, false).getPos();\n`;
+            positionCode = 'spawnPos';
+        } else if (posType === 'ABOVE') {
+            code += `${indent}// Calculate position above player\n`;
+            code += `${indent}Vec3d spawnPos = ${playerVar}.getPos().add(0, ${distance}, 0);\n`;
+            positionCode = 'spawnPos';
+        } else {
+            positionCode = `${playerVar}.getPos()`;
+        }
+
+        code += `${indent}// Spawn rotated AI model: ${modelId} at ${rotation} degrees\n`;
         code += `${indent}${worldVar}.getServer().getCommandManager().executeWithPrefix(\n`;
-        code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${playerVar}.getPos()),\n`;
+        code += `${indent}    ${worldVar}.getServer().getCommandSource().withPosition(${positionCode}),\n`;
         code += `${indent}    "function blockcraft:${functionName}"\n`;
         code += `${indent});\n`;
     }

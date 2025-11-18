@@ -66,6 +66,8 @@ fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             // Initialize database
             let app_data_dir = app.path().app_data_dir()
@@ -99,12 +101,14 @@ fn main() {
             db_get_all_settings,
             db_save_ai_model,
             db_get_ai_models,
+            db_get_ai_model_blocks,
             db_delete_ai_model,
             // OpenAI commands
             generate_block_display_model,
             generate_item_texture,
             // OpenAI Codegen commands
             generate_block_display_model_codegen,
+            edit_block_display_model,
             // Project file commands
             save_project,
             load_project,

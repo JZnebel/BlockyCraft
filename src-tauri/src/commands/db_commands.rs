@@ -229,6 +229,8 @@ pub struct AiModel {
     pub blocks_json: String,
     pub generated_by: String,
     pub created_at: i64,
+    pub generated_code: Option<String>,
+    pub block_count: i64,
 }
 
 #[tauri::command]
@@ -239,6 +241,8 @@ pub fn db_save_ai_model(
     prompt: String,
     blocks_json: String,
     generated_by: String,
+    generated_code: Option<String>,
+    block_count: i64,
 ) -> Result<i64, String> {
     let db = db.lock().unwrap();
     let conn = db.get_connection();
@@ -246,14 +250,16 @@ pub fn db_save_ai_model(
 
     // Try to insert, on conflict update
     conn.execute(
-        "INSERT INTO ai_models (model_id, name, prompt, blocks_json, generated_by, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        "INSERT INTO ai_models (model_id, name, prompt, blocks_json, generated_by, created_at, generated_code, block_count)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
          ON CONFLICT(model_id) DO UPDATE SET
             name = excluded.name,
             prompt = excluded.prompt,
             blocks_json = excluded.blocks_json,
-            generated_by = excluded.generated_by",
-        [&model_id, &name, &prompt, &blocks_json, &generated_by, &now.to_string()],
+            generated_by = excluded.generated_by,
+            generated_code = excluded.generated_code,
+            block_count = excluded.block_count",
+        [&model_id as &dyn rusqlite::ToSql, &name, &prompt, &blocks_json, &generated_by, &now.to_string(), &generated_code, &block_count.to_string()],
     )
     .map_err(|e| e.to_string())?;
 
@@ -268,7 +274,7 @@ pub fn db_get_ai_models(
     let conn = db.get_connection();
 
     let mut stmt = conn
-        .prepare("SELECT id, model_id, name, prompt, blocks_json, generated_by, created_at FROM ai_models ORDER BY created_at DESC")
+        .prepare("SELECT id, model_id, name, prompt, generated_by, created_at, generated_code, block_count FROM ai_models ORDER BY created_at DESC")
         .map_err(|e| e.to_string())?;
 
     let models = stmt
@@ -278,9 +284,11 @@ pub fn db_get_ai_models(
                 model_id: row.get(1)?,
                 name: row.get(2)?,
                 prompt: row.get(3)?,
-                blocks_json: row.get(4)?,
-                generated_by: row.get(5)?,
-                created_at: row.get(6)?,
+                blocks_json: String::new(), // Don't load blocks_json for performance
+                generated_by: row.get(4)?,
+                created_at: row.get(5)?,
+                generated_code: row.get(6)?,
+                block_count: row.get::<_, Option<i64>>(7)?.unwrap_or(0),
             })
         })
         .map_err(|e| e.to_string())?
@@ -288,6 +296,25 @@ pub fn db_get_ai_models(
         .map_err(|e| e.to_string())?;
 
     Ok(models)
+}
+
+#[tauri::command]
+pub fn db_get_ai_model_blocks(
+    db: State<Mutex<Database>>,
+    model_id: String,
+) -> Result<String, String> {
+    let db = db.lock().unwrap();
+    let conn = db.get_connection();
+
+    let blocks_json = conn
+        .query_row(
+            "SELECT blocks_json FROM ai_models WHERE model_id = ?1",
+            [&model_id],
+            |row| row.get::<_, String>(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    Ok(blocks_json)
 }
 
 #[tauri::command]

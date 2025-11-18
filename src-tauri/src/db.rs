@@ -74,10 +74,23 @@ impl Database {
                 prompt TEXT NOT NULL,
                 blocks_json TEXT NOT NULL,
                 generated_by TEXT NOT NULL,
-                created_at INTEGER NOT NULL
+                created_at INTEGER NOT NULL,
+                generated_code TEXT
             )",
             [],
         )?;
+
+        // Migration: Add generated_code column if it doesn't exist
+        self.conn.execute(
+            "ALTER TABLE ai_models ADD COLUMN generated_code TEXT",
+            [],
+        ).ok(); // Ignore error if column already exists
+
+        // Migration: Add block_count column if it doesn't exist
+        self.conn.execute(
+            "ALTER TABLE ai_models ADD COLUMN block_count INTEGER DEFAULT 0",
+            [],
+        ).ok(); // Ignore error if column already exists
 
         Ok(())
     }

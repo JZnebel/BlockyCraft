@@ -117,6 +117,14 @@ function App() {
       return;
     }
 
+    // Require save if project is untitled
+    if (projectName === 'Untitled Project') {
+      setTempProjectName(projectName);
+      setShowSaveModal(true);
+      showMessage('Save Required', 'Please save your project before compiling.');
+      return;
+    }
+
     setIsCompiling(true);
     try {
       // Generate mod data from workspace
@@ -140,6 +148,14 @@ function App() {
 
   const handleDeploy = async () => {
     if (!workspaceRef.current || isCompiling || isDeploying) {
+      return;
+    }
+
+    // Require save if project is untitled
+    if (projectName === 'Untitled Project') {
+      setTempProjectName(projectName);
+      setShowSaveModal(true);
+      showMessage('Save Required', 'Please save your project before deploying.');
       return;
     }
 
