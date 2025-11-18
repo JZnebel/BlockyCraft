@@ -845,7 +845,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                             onClick={(e) => undeployMod(project.name, e)}
                             title="Undeploy mod"
                           >
-                            🗑️
+                            Undeploy
                           </button>
                         )}
                         <button

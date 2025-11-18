@@ -247,3 +247,37 @@ div[class*="blocklyTreeRow"] {
   background: #FFFFFF !important;
   color: #1A1A1A !important;
 }
+
+/* Blockly dropdown field styling - make them wider to prevent text overlap */
+.blocklyDropDownDiv {
+  min-width: 200px !important;
+}
+
+/* Fix dropdown field width on blocks to accommodate images */
+.blocklyFieldDropdown {
+  min-width: 120px !important;
+}
+
+/* Ensure dropdown text has padding from the arrow */
+.blocklyDropdownText {
+  padding-right: 20px !important;
+}
+
+/* Hide dropdown arrows - they overlap with the images */
+.blocklyDropdownText tspan {
+  display: none !important;
+}
+
+/* Alternative: hide the arrow character specifically */
+.blocklyText > tspan[class*="Arrow"] {
+  display: none !important;
+}
+
+/* Hide all dropdown arrow paths */
+g[class*="blocklyEditableText"] path {
+  display: none !important;
+}
+
+g[class*="blocklyEditableText"] polygon {
+  display: none !important;
+}

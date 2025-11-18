@@ -55,17 +55,49 @@ export class FieldImageDropdown extends Blockly.FieldDropdown {
     super(options, validator);
     this.imageFolder = imageFolder;
     this.imagePrefix = `/minecraft-textures/${imageFolder}/`;
+
+    // Remove the dropdown arrow by setting it to empty string
+    // @ts-ignore - ARROW_CHAR is a static property we can override
+    this.ARROW_CHAR = '';
   }
 
   /**
-   * Override getSize to account for image/emoji width and dropdown arrow
+   * Override to prevent showing the dropdown arrow
+   */
+  protected override showDropdownArrow_(): boolean {
+    return false;
+  }
+
+  /**
+   * Override to prevent creating SVG arrow
+   */
+  protected override createSVGArrow_(): SVGElement {
+    // Return an empty group element instead of an arrow
+    const svgNS = 'http://www.w3.org/2000/svg';
+    return document.createElementNS(svgNS, 'g');
+  }
+
+  /**
+   * Override to prevent creating text arrow
+   */
+  protected override createTextArrow_(): SVGElement {
+    // Return an empty tspan element instead of an arrow
+    const svgNS = 'http://www.w3.org/2000/svg';
+    return document.createElementNS(svgNS, 'tspan');
+  }
+
+  /**
+   * Override getSize to account for image/emoji width
    */
   override getSize(): Blockly.utils.Size {
     const size = super.getSize();
-    // Add extra width for the image/emoji + padding for the dropdown arrow
-    const imageWidth = this.imageFolder === 'entity' ? 22 : 24;
-    const arrowPadding = 10; // Extra space to prevent arrow overlap
-    return new Blockly.utils.Size(size.width + imageWidth + arrowPadding, size.height);
+    // Add width for image/emoji that will be displayed before the text
+    const imageWidth = this.imageFolder === 'entity' ? 24 : 26;
+
+    // Add image width plus padding for proper spacing
+    const finalWidth = size.width + imageWidth + 10; // +10 for extra padding
+
+    return new Blockly.utils.Size(finalWidth, size.height);
   }
 
   /**
@@ -80,6 +112,15 @@ export class FieldImageDropdown extends Blockly.FieldDropdown {
 
     const currentValue = this.getValue();
     if (!currentValue) return;
+
+    // Force the border rect to be wider to accommodate image + text
+    const borderRect = this.borderRect_;
+    if (borderRect) {
+      const currentWidth = parseFloat(borderRect.getAttribute('width') || '0');
+      const imageWidth = this.imageFolder === 'entity' ? 24 : 26;
+      const newWidth = currentWidth + imageWidth + 10;
+      borderRect.setAttribute('width', newWidth.toString());
+    }
 
     // Remove any existing image or text element
     const existingImg = textElement.previousElementSibling;
@@ -97,14 +138,16 @@ export class FieldImageDropdown extends Blockly.FieldDropdown {
       const emojiText = document.createElementNS(svgNS, 'text');
       emojiText.textContent = emoji;
       emojiText.setAttribute('font-size', '18');
-      emojiText.setAttribute('y', '13');
-      emojiText.setAttribute('x', '0');
+      emojiText.setAttribute('y', '16'); // Adjusted for better vertical centering with Zelos renderer
+      emojiText.setAttribute('x', '2'); // Small offset from left edge
+      emojiText.setAttribute('dominant-baseline', 'middle'); // Ensure vertical centering
 
       textElement.parentNode?.insertBefore(emojiText, textElement);
 
       // Add spacing by offsetting the text element
       const currentX = parseFloat(textElement.getAttribute('x') || '0');
-      textElement.setAttribute('x', (currentX + 22).toString());
+      const offset = 24;
+      textElement.setAttribute('x', (currentX + offset).toString());
     } else {
       // For items and blocks, use image
       const imagePath = this.getImagePath(currentValue);
@@ -112,14 +155,16 @@ export class FieldImageDropdown extends Blockly.FieldDropdown {
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imagePath);
       image.setAttribute('height', '20');
       image.setAttribute('width', '20');
-      image.setAttribute('y', '-2');
+      image.setAttribute('y', '2'); // Adjusted for better vertical alignment
+      image.setAttribute('x', '2'); // Small offset from left edge
       image.style.imageRendering = 'pixelated';
 
       textElement.parentNode?.insertBefore(image, textElement);
 
       // Add spacing by offsetting the text element
       const currentX = parseFloat(textElement.getAttribute('x') || '0');
-      textElement.setAttribute('x', (currentX + 24).toString());
+      const offset = 26;
+      textElement.setAttribute('x', (currentX + offset).toString());
     }
   }
 
