@@ -69,7 +69,8 @@ Kids see their code work **instantly** in a game they love. That immediate feedb
 - **AI Model Generation** - Optional: Generate 3D models from text descriptions
 
 ### 💾 Professional Tools
-- **Real Mods** - Generates actual Fabric mods that work in Minecraft
+- **Multi-Platform Support** - Create Fabric mods, Bukkit plugins, OR Bedrock add-ons
+- **Real Minecraft Content** - Generates actual working mods/plugins/add-ons
 - **SQLite Database** - Projects saved like real software
 - **One-Click Deploy** - Share mods with friends instantly
 - **Cross-Platform** - Desktop app or web browser
@@ -115,10 +116,15 @@ npm run start:windows  # Starts web UI + Python API
 ```
 
 The startup scripts automatically:
-- ✓ Start Python API server (port 8585)
+- ✓ Start Python API servers (ports 8585/8586/8587)
 - ✓ Start Vite dev server (port 1420) OR Tauri app
 - ✓ Check for port conflicts
 - ✓ Clean shutdown with Ctrl+C
+
+**Choose Your Platform:**
+- **Fabric** (Java Edition mods) → Port 8585
+- **Bukkit/Spigot/Paper** (Java Edition plugins) → Port 8586
+- **Bedrock** (Mobile/Console/Win10 add-ons) → Port 8587
 
 ### Desktop App (Alternative)
 
@@ -147,22 +153,31 @@ If you prefer to start services manually:
    npm run dev
    ```
 
-2. **Start Python API:**
+2. **Start Python APIs** (choose one or all):
    ```bash
+   # Fabric mods (Java Edition):
    python3 deploy_java_api.py
+
+   # Bukkit plugins (Java Edition servers):
+   python3 deploy_bukkit_api.py
+
+   # Bedrock add-ons (Mobile/Console/Win10):
+   python3 deploy_bedrock_api.py
    ```
 
 3. **Open Browser:**
    - Navigate to `http://localhost:1420`
+   - Select your platform in Settings
 
 ## 📦 Installation
 
 ### Prerequisites
 - **Node.js** 18+ and npm
 - **Rust** (for Tauri desktop app)
-- **Python** 3.8+ (for API server)
-- **Java 21** (for mod compilation)
-- **Minecraft** Java Edition 1.21.1 with Fabric Loader
+- **Python** 3.8+ (for API servers)
+- **Java 17+** (for Fabric/Bukkit compilation)
+- **Maven** (for Bukkit plugins)
+- **Minecraft** - Java Edition 1.21.1 OR Bedrock Edition
 
 ### Setup
 
@@ -173,6 +188,9 @@ cd BlockyCraft
 
 # Install Node dependencies
 npm install
+
+# Install Python dependencies
+pip install -r requirements.txt
 
 # Setup Tauri (if building desktop app)
 cd src-tauri
@@ -224,13 +242,20 @@ For AI model generation, add your OpenAI API keys in Settings:
 - **Tauri** - Desktop app framework (Rust)
 
 ### Backend
-- **Python Flask API** - Mod compilation and deployment
+- **Python Flask APIs** (3 deployment servers)
+  - Fabric API (port 8585) - Gradle-based Java mod compilation
+  - Bukkit API (port 8586) - Maven-based Java plugin compilation
+  - Bedrock API (port 8587) - JSON/JavaScript packaging
 - **SQLite** - Local database for projects and AI models
-- **Gradle** - Java/Fabric mod building
+- **Code Generators** - Platform-specific code generation
+  - generators/java.js - Fabric API code
+  - generators/bukkit.js - Bukkit/Spigot API code
+  - generators/bedrock.js - @minecraft/server JavaScript
 
 ### Minecraft Integration
-- **Fabric Mod Loader** 1.21.1
-- **BlocklyCraft Loader** - Auto-update client mod
+- **Java Edition** - Fabric Loader 1.21.1 OR Bukkit/Spigot/Paper
+- **Bedrock Edition** - Mobile, Console, Windows 10
+- **BlocklyCraft Loader** - Auto-update client mod (Fabric only)
 - **HTTP Distribution** - Mod delivery system
 
 ## 📂 Project Structure
@@ -282,16 +307,27 @@ BlocklyCraft/
 
 ## 🔧 API Endpoints
 
-### Deployment API (Port 8585)
-- `POST /api/deploy` - Compile and deploy mod
+### Fabric Deployment API (Port 8585)
+- `POST /api/deploy` - Compile and deploy Fabric mod
 - `GET /api/mods-manifest` - List deployed mods (for auto-updater)
+- `GET /health` - Check API status
+
+### Bukkit Deployment API (Port 8586)
+- `POST /api/deploy` - Compile and deploy Bukkit plugin
+- `GET /health` - Check API status
+
+### Bedrock Deployment API (Port 8587)
+- `POST /api/deploy` - Package and deploy Bedrock add-on
+- `GET /health` - Check API status
 
 ### Parameters
 ```json
 {
   "projectId": "my_project",
   "projectName": "My Mod",
+  "platform": "fabric|bukkit|bedrock",
   "commands": [...],
+  "events": [...],
   "customItems": [...],
   "customMobs": [...],
   "aiModels": [...]

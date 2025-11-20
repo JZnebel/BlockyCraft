@@ -1,591 +1,463 @@
-# BlocklyCraft - Claude AI Context
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-BlocklyCraft is a **fully functional Tauri desktop application** for creating Minecraft Java Edition mods using visual programming (Blockly). Users create custom items, mobs, commands, behaviors, and 3D AI-generated models without writing code.
+BlocklyCraft is a **hybrid Tauri + Python desktop application** for creating Minecraft Java Edition mods using visual programming (Blockly). Users create custom items, mobs, commands, AI-generated 3D models, and behaviors through drag-and-drop blocks—no coding required.
 
-**Current Status:** ✅ **Production-Ready Desktop App**
-**Latest Version:** 1.0.0 (Tauri + React + TypeScript)
-**Repository:** https://github.com/JZnebel/BlockyCraft
+**Current Status:** Production-ready desktop app with multi-platform support in progress
+**Version:** 1.0.0
+**Tech Stack:** Tauri 2.0 (Rust) + React 18 + TypeScript + Python Flask API
+**Minecraft:** Fabric 1.21.1 with custom auto-update loader mod
 
----
+## Architecture
 
-## Current Architecture (FULLY IMPLEMENTED)
+### Hybrid Backend System
 
-### Technology Stack
-- **Frontend:** React 18 + TypeScript + Vite
-- **UI Framework:** Tailwind CSS + Blockly (Zelos renderer - Scratch 3.0 style)
-- **Desktop:** Tauri 2.0 (Rust backend)
-- **Database:** SQLite (embedded, managed by Tauri)
-- **Deployment:** Python Flask API (port 8585) + Gradle 8.8
-- **Minecraft:** Fabric 1.21.1 + custom loader mod with auto-update
+BlocklyCraft uses a **unique dual-backend architecture**:
 
----
+1. **Tauri Backend (Rust)** - `src-tauri/`
+   - Database operations (SQLite)
+   - OpenAI API integration (texture + model generation)
+   - File system operations
+   - Settings management
+   - Automatically starts Python API on app launch
 
-## Key Technologies
+2. **Python Flask API** - `deploy_java_api.py` (port 8585)
+   - Mod compilation (Gradle)
+   - Java code generation from Blockly blocks
+   - Resource pack generation
+   - Mod deployment to Minecraft server
+   - Auto-started by Tauri in development mode
 
 ### Frontend Stack
-- **Blockly** - Visual block-based programming interface
-- **React 18** - Component-based UI framework
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Build tool and dev server
-- **TailwindCSS** - Utility-first CSS framework
-- **Zustand** - Lightweight state management
-- **@tauri-apps/api** - Frontend bindings for Tauri
 
-### Backend Stack
-- **Tauri 2.0** - Rust-based desktop app framework
-- **SQLite** - Embedded database for projects and textures
-- **Gradle 8.8** - Java build tool (bundled)
-- **Fabric API** - Minecraft modding framework
-- **OpenAI GPT Image 1** - AI texture generation
+- **React 18 + TypeScript** - Component framework
+- **Vite** - Build tool (port 1420)
+- **Blockly** - Visual programming library (Zelos renderer = Scratch-style)
+- **TailwindCSS** - Styling
+- **Zustand** - State management
 
-### Minecraft Integration
-- **Minecraft Java Edition 1.21.1**
-- **Fabric Loader 0.16.9**
-- **Fabric API 0.100.0**
-- **Java 21** - Required runtime
+### Database Schema (SQLite)
 
----
+Located at: `~/.local/share/com.blocklycraft.app/blockcraft.db` (Linux)
 
-## Project Structure (Target)
-
-```
-blockcraft/
-├── src-tauri/                    # Rust backend
-│   ├── src/
-│   │   ├── main.rs              # Tauri entry point
-│   │   ├── commands/            # API commands callable from frontend
-│   │   │   ├── project.rs       # Project CRUD
-│   │   │   ├── compiler.rs      # Mod compilation with Gradle
-│   │   │   ├── server.rs        # Minecraft server management
-│   │   │   ├── installer.rs     # Fabric client auto-installer
-│   │   │   └── texture.rs       # AI texture generation
-│   │   ├── database/            # SQLite layer
-│   │   │   ├── models.rs        # Data models
-│   │   │   └── schema.sql       # Database schema
-│   │   └── utils/
-│   │       ├── minecraft.rs     # .minecraft folder detection
-│   │       └── paths.rs         # Cross-platform paths
-│   ├── resources/               # Files bundled in installer
-│   │   ├── server/
-│   │   │   ├── fabric-server-launcher.jar
-│   │   │   ├── minecraft-server-1.21.1.jar
-│   │   │   └── fabric-api.jar
-│   │   ├── gradle/
-│   │   │   └── gradle-8.8-all.zip
-│   │   └── templates/           # Java code templates
-│   │       ├── BlockCraftMod.java.template
-│   │       └── build.gradle.template
-│   ├── Cargo.toml
-│   └── tauri.conf.json          # Tauri configuration
-│
-├── src/                         # React frontend
-│   ├── components/
-│   │   ├── BlocklyEditor/       # Visual block editor
-│   │   ├── ProjectManager/      # Project list/create/load
-│   │   ├── TextureGenerator/    # Upload/AI texture gen
-│   │   ├── ServerMonitor/       # Server status/logs
-│   │   └── Layout/              # App layout components
-│   ├── blocks/                  # Blockly block definitions
-│   │   ├── custom_items.ts
-│   │   ├── custom_mobs.ts
-│   │   ├── events.ts
-│   │   └── actions.ts
-│   ├── generators/              # Blockly → Java code generators
-│   │   ├── java.ts
-│   │   ├── custom_items_java.ts
-│   │   └── custom_mobs_java.ts
-│   ├── hooks/                   # React hooks
-│   │   ├── useProjects.ts       # Project state management
-│   │   ├── useServer.ts         # Server control
-│   │   └── useTextures.ts       # Texture handling
-│   ├── lib/
-│   │   ├── tauri.ts             # Tauri command wrappers
-│   │   └── blockly.ts           # Blockly utilities
-│   ├── types/                   # TypeScript type definitions
-│   ├── App.tsx                  # Main app component
-│   └── main.tsx                 # React entry point
-│
-├── public/
-│   └── blockly/                 # Blockly library files
-│
-├── .claude/
-│   └── claude.md                # This file
-│
-├── ARCHITECTURE_PLAN.md         # Detailed migration plan
-├── GPT_IMAGE_API.md             # OpenAI API documentation
-├── README.md                    # User-facing documentation
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── tailwind.config.js
-└── .gitignore
-```
-
----
-
-## Current Features (MVP)
-
-### Working Features ✅
-1. **Custom Items**
-   - Visual block for defining items
-   - Texture upload (PNG, persists across sessions)
-   - AI texture generation (GPT Image 1 integration ready)
-   - Properties: name, max stack size, rarity, tooltip
-   - Auto-generates Minecraft item registration code
-
-2. **Custom Mobs**
-   - Visual block for defining entities
-   - Sprite texture upload (billboard rendering)
-   - AI behaviors: Follow player, wander, melee attack, flee from player
-   - Movement speed, health, attack damage configuration
-   - Auto-generates entity registration and renderer code
-
-3. **Custom Commands**
-   - Slash command creation (`/command_name`)
-   - Integration with custom items/mobs
-   - Message output, item giving, mob spawning
-
-4. **Project Management**
-   - Create/load/save projects (localStorage → SQLite in new version)
-   - JSON serialization with texture data persistence
-   - Auto-save on changes
-
-5. **Mod Compilation & Deployment**
-   - Generates Fabric 1.21.1 mod structure
-   - Java source code generation from blocks
-   - Gradle build automation
-   - Language file generation (en_us.json) for display names
-   - Auto-deploy to server mods folder
-   - Server restart after deployment
-
-6. **Development Tools**
-   - Loading overlay during compilation
-   - Success/error notifications
-   - Example projects
-
----
-
-## Migration Roadmap
-
-See `ARCHITECTURE_PLAN.md` for detailed timeline. Summary:
-
-### Phase 1: Setup (Week 1)
-- Install Tauri CLI and dependencies
-- Create Tauri project scaffold
-- Setup Vite + React + TypeScript
-- Configure TailwindCSS
-
-### Phase 2: Frontend Migration (Week 2-3)
-- Convert HTML → React components
-- Migrate Blockly blocks to TypeScript
-- Migrate code generators to TypeScript
-- Implement React state management
-- Create project UI components
-
-### Phase 3: Backend Implementation (Week 3-4)
-- Setup SQLite database with schema
-- Implement Tauri commands (project, compiler, server, installer)
-- Bundle Fabric server and resources
-- Implement Fabric client auto-installer
-
-### Phase 4: Integration & Testing (Week 5)
-- Connect frontend to Rust backend
-- Test full workflow end-to-end
-- Cross-platform testing (Windows, macOS, Linux)
-
-### Phase 5: Polish & Distribution (Week 6)
-- UI/UX improvements
-- Error handling and logging
-- Build production installers
-- Documentation
-
-### Phase 6: Advanced Features (Future)
-- Update GPT Image 1 API (transparent backgrounds)
-- Mod export/sharing
-- Mod marketplace
-- Multi-language support
-- Auto-updates
-
----
-
-## Important Patterns & Conventions
-
-### File Naming
-- React components: `PascalCase.tsx`
-- Hooks: `use*.ts`
-- Utilities: `camelCase.ts`
-- Types: `PascalCase` interfaces/types
-- Rust files: `snake_case.rs`
-
-### Code Generation Pattern
-```
-Blockly Workspace (JSON)
-    ↓
-Frontend: Block definitions (TypeScript)
-    ↓
-Frontend: Code generators (TypeScript → Java source)
-    ↓
-Backend: Tauri command (Rust)
-    ↓
-Gradle: Compile Java source → JAR
-    ↓
-Deploy: Copy JAR to server/client mods folders
-```
-
-### Tauri Command Pattern
-```typescript
-// Frontend (React)
-import { invoke } from '@tauri-apps/api/tauri';
-
-const result = await invoke<CompilationResult>('compile_mod', {
-  blocksJson: JSON.stringify(workspace)
-});
-```
-
-```rust
-// Backend (Rust)
-#[tauri::command]
-async fn compile_mod(blocks_json: String) -> Result<CompilationResult, String> {
-    // Parse blocks
-    // Generate Java code
-    // Run Gradle
-    // Return result
-}
-```
-
----
-
-## Key Implementation Details
-
-### 1. Texture Persistence
-**Current (localStorage):**
-- Blocks have `saveExtraState` / `loadExtraState` methods
-- Textures stored as base64 in block state
-- Project uses JSON serialization (not XML)
-
-**New (SQLite):**
 ```sql
-CREATE TABLE textures (
+-- Projects with multi-platform support
+CREATE TABLE projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    workspace_xml TEXT NOT NULL,
+    platform TEXT NOT NULL DEFAULT 'fabric',  -- 'fabric' | 'bukkit' | 'bedrock'
+    edition TEXT NOT NULL DEFAULT 'java',     -- 'java' | 'bedrock'
+    minecraft_version TEXT NOT NULL DEFAULT '1.21.1',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+-- Media library (textures, models)
+CREATE TABLE media (
     id INTEGER PRIMARY KEY,
-    project_id INTEGER,
-    block_id TEXT,        -- Which block this belongs to
-    image_data BLOB,      -- PNG binary or base64
-    created_at INTEGER,
-    FOREIGN KEY (project_id) REFERENCES projects(id)
+    name TEXT NOT NULL,
+    file_name TEXT NOT NULL UNIQUE,
+    created_at INTEGER NOT NULL
+);
+
+-- AI-generated 3D models
+CREATE TABLE ai_models (
+    id INTEGER PRIMARY KEY,
+    model_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    prompt TEXT NOT NULL,
+    blocks_json TEXT NOT NULL,
+    generated_by TEXT NOT NULL,
+    generated_code TEXT,
+    block_count INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL
+);
+
+-- App settings (API keys, etc.)
+CREATE TABLE settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at INTEGER NOT NULL
 );
 ```
 
-### 2. Server Management
-**Bundled Server Location:**
-```
-Tauri App Bundle:
-  resources/server/fabric-server-launcher.jar
-  resources/server/minecraft-server-1.21.1.jar
-  resources/server/fabric-api.jar
+## Development Commands
 
-Runtime Location (extracted on first run):
-  ~/.blockcraft/server/
-```
+### Starting Development
 
-**Server Start Process:**
-```rust
-#[tauri::command]
-async fn start_server() -> Result<(), String> {
-    let server_dir = app_data_dir().join("server");
-
-    // Copy bundled JARs if not already extracted
-    ensure_server_files(&server_dir)?;
-
-    // Start server process
-    let mut child = Command::new("java")
-        .arg("-Xmx2G")
-        .arg("-Xms1G")
-        .arg("-jar")
-        .arg("fabric-server-launcher.jar")
-        .arg("nogui")
-        .current_dir(&server_dir)
-        .stdout(Stdio::piped())
-        .spawn()?;
-
-    // Stream logs to frontend via events
-    spawn_log_reader(child.stdout);
-
-    Ok(())
-}
+**Recommended (auto-starts everything):**
+```bash
+npm start              # Linux/Mac: Vite dev server + Python API
+npm run start:tauri    # Tauri app + auto-starts Python API
+npm run start:windows  # Windows: both servers
 ```
 
-### 3. Fabric Client Auto-Installation
-**Detection:**
-```rust
-fn detect_minecraft_folder() -> Option<PathBuf> {
-    #[cfg(windows)]
-    let base = env::var("APPDATA").ok()?.into();
-
-    #[cfg(target_os = "macos")]
-    let base = dirs::home_dir()?.join("Library/Application Support");
-
-    #[cfg(target_os = "linux")]
-    let base = dirs::home_dir()?;
-
-    let minecraft = base.join(".minecraft");
-    minecraft.exists().then(|| minecraft)
-}
+**Manual start:**
+```bash
+npm run dev            # Vite dev server only (port 1420)
+npm run tauri:dev      # Tauri app (auto-starts Python API)
+python3 deploy_java_api.py  # Python API only (port 8585)
 ```
 
-**Installation:**
-1. Check if Fabric already installed
-2. If not: Download and run Fabric installer JAR
-3. Create launcher profile "BlockCraft Fabric"
-4. Copy Fabric API to `.minecraft/mods/`
-5. Copy user's mod to `.minecraft/mods/`
+### Building
 
-### 4. AI Texture Generation (GPT Image 1)
-**API Call:**
-```typescript
-const response = await fetch('https://api.openai.com/v1/images/generations', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${apiKey}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    model: 'gpt-image-1-mini',
-    prompt: `16x16 pixel art minecraft ${description} on transparent background`,
-    background: 'transparent',  // KEY: Enables transparency
-    size: '1024x1024',
-    output_format: 'png',
-    quality: 'low'  // Cheapest, fine for pixel art
-  })
-});
-
-const data = await response.json();
-const base64Image = data.data[0].b64_json;  // NOT a URL!
-
-// Resize to 16x16 and save
-const img = await loadImageFromBase64(base64Image);
-const resized = resizeImage(img, 16, 16);
+```bash
+npm run build          # Build frontend only
+npm run tauri:build    # Build desktop app installers
 ```
 
-**See:** `GPT_IMAGE_API.md` for complete documentation
+### Testing
 
----
+No automated tests currently. Manual testing workflow:
+1. Create project with blocks
+2. Click "Compile" (validates code generation)
+3. Click "Deploy Mod" (builds JAR + deploys to server)
+4. Test in Minecraft
 
-## Common Tasks
+## Project Structure
 
-### Adding a New Blockly Block
-1. Create block definition in `src/blocks/*.ts`
-2. Add code generator in `src/generators/*_java.ts`
-3. Register in Blockly toolbox configuration
-4. Add corresponding Java template if needed
+**IMPORTANT:** Generators are JavaScript files in `/generators`, NOT TypeScript in `/src/generators`!
+
+```
+blockcraft/
+├── src/                           # React frontend
+│   ├── components/
+│   │   ├── BlocklyEditor/         # Main workspace component
+│   │   ├── ExamplesPanel/         # Project browser + examples
+│   │   ├── AIModelsPanel/         # AI model library
+│   │   ├── MediaLibrary/          # Texture/model upload
+│   │   ├── Header/                # Top navigation
+│   │   ├── SettingsModal/         # API keys, platform settings
+│   │   └── Modal/                 # Reusable modal dialogs
+│   ├── blocks/                    # Blockly block definitions (TypeScript)
+│   │   ├── basic_blocks.ts        # Logic, loops, math
+│   │   ├── events_actions.ts      # Minecraft events (commands, right-click, etc.)
+│   │   ├── custom_items.ts        # Custom item blocks
+│   │   ├── custom_mobs.ts         # Custom mob blocks
+│   │   ├── ai_model_advanced.ts   # AI model spawning blocks
+│   │   └── block_display.ts       # Block display entity blocks
+│   ├── utils/
+│   │   ├── blockly-generator.ts   # Routes to /generators/java.js
+│   │   ├── database.ts            # Tauri DB command wrappers
+│   │   └── startup-examples.ts    # 20+ example projects
+│   ├── App.tsx                    # Main app component
+│   └── main.tsx                   # React entry point
+│
+├── src-tauri/                     # Rust backend
+│   ├── src/
+│   │   ├── main.rs                # Tauri entry + auto-starts Python API
+│   │   ├── db.rs                  # SQLite schema + migrations
+│   │   └── commands/
+│   │       ├── mod.rs             # Mod compilation commands
+│   │       ├── db_commands.rs     # Database CRUD
+│   │       ├── openai.rs          # Texture generation (GPT Image 1)
+│   │       └── openai_codegen.rs  # 3D model generation (Codegen)
+│   ├── Cargo.toml                 # Rust dependencies
+│   └── tauri.conf.json            # Tauri app configuration
+│
+├── generators/                    # ⚠️ JAVASCRIPT (not TypeScript!)
+│   ├── java.js                    # Main Fabric code generator (34KB)
+│   ├── custom_items_java.js       # Custom item codegen
+│   ├── custom_mobs_java.js        # Custom mob codegen
+│   └── datapack.js                # Datapack generation (unused)
+│
+├── blocklycraft-loader/           # Fabric mod with auto-update
+│   ├── src/main/java/
+│   │   └── com/blockcraft/loader/
+│   │       ├── BlocklyCraftLoader.java  # Fabric mod entrypoint
+│   │       └── ModDownloader.java       # HTTP mod fetcher
+│   └── build.gradle               # Gradle 8.8 config
+│
+├── http-installer/                # Client installer scripts
+│   ├── install-blocklycraft.sh    # Linux/Mac installer
+│   ├── install-blocklycraft.bat   # Windows installer
+│   └── install-blocklycraft.command  # Mac double-click
+│
+├── deploy_java_api.py             # Flask API (port 8585)
+├── texture_generator.py           # Texture helpers
+├── resource_pack_generator.py     # Resource pack builder
+├── recipe_generator.py            # Crafting recipes
+├── mod-template/                  # Fabric mod template
+├── public/
+│   ├── categories/                # Category icons
+│   └── minecraft-textures/        # 2000+ vanilla textures
+├── package.json                   # npm scripts
+├── vite.config.ts                 # Vite config (port 1420)
+├── tsconfig.json                  # TypeScript config
+├── tailwind.config.js             # Tailwind config
+└── MULTI_PLATFORM_PLAN.md         # Multi-platform roadmap
+
+```
+
+## Code Generation Flow
+
+This is the **core workflow** of BlocklyCraft:
+
+```
+1. User drags Blockly blocks in React UI
+        ↓
+2. BlocklyEditor serializes to workspace XML
+        ↓
+3. blockly-generator.ts imports /generators/java.js
+        ↓
+4. java.js generates Java source code + Fabric mod structure
+        ↓
+5. Frontend calls Tauri command compile_mod() with generated code
+        ↓
+6. Tauri command calls Python API POST /api/deploy
+        ↓
+7. Python API:
+   - Copies mod-template/ to /tmp/blockcraft-build/
+   - Injects generated Java code
+   - Runs Gradle build
+   - Copies JAR to ~/minecraft-fabric-1.21.1-cobblemon/mods/
+        ↓
+8. Server detects new mod and hot-reloads (Fabric)
+```
+
+## Multi-Platform Support (In Progress)
+
+See `MULTI_PLATFORM_PLAN.md` for full details.
+
+**Goal:** Support Fabric, Bukkit/Paper, and Bedrock Edition from one codebase.
+
+**Current Status:**
+- ✅ Database schema updated (platform/edition/version columns)
+- ⚠️ UI needs platform selection in project creation
+- ⚠️ Need separate generators: `bukkit.js`, `bedrock.js`
+- ⚠️ Block compatibility filtering not implemented
+
+**Platform Field Values:**
+- `platform`: 'fabric' | 'bukkit' | 'bedrock'
+- `edition`: 'java' | 'bedrock'
+- `minecraft_version`: '1.21.1', '1.20.4', etc.
+
+## Adding New Features
+
+### Adding a Blockly Block
+
+1. **Define block in TypeScript** - `src/blocks/*.ts`
+   ```typescript
+   Blockly.Blocks['my_block'] = {
+     init: function() {
+       this.appendDummyInput()
+         .appendField("My Block");
+       this.setPreviousStatement(true, null);
+       this.setNextStatement(true, null);
+       this.setColour(230);
+     }
+   };
+   ```
+
+2. **Add code generator in JavaScript** - `generators/java.js`
+   ```javascript
+   Blockly.JavaScript['my_block'] = function(block) {
+     return 'System.out.println("Hello from my block");';
+   };
+   ```
+
+3. **Register in toolbox** - `src/components/BlocklyEditor/BlocklyEditor.tsx`
 
 ### Adding a Tauri Command
-1. Define command in `src-tauri/src/commands/*.rs`
-2. Add `#[tauri::command]` attribute
-3. Register in `main.rs`: `.invoke_handler(tauri::generate_handler![...])`
-4. Create TypeScript wrapper in `src/lib/tauri.ts`
-5. Use in React component via `invoke()`
+
+1. **Define in Rust** - `src-tauri/src/commands/*.rs`
+   ```rust
+   #[tauri::command]
+   pub async fn my_command(param: String) -> Result<String, String> {
+       Ok(format!("Received: {}", param))
+   }
+   ```
+
+2. **Register in main.rs**
+   ```rust
+   .invoke_handler(tauri::generate_handler![
+       my_command,
+       // ... other commands
+   ])
+   ```
+
+3. **Call from frontend**
+   ```typescript
+   import { invoke } from '@tauri-apps/api/core';
+   const result = await invoke<string>('my_command', { param: 'test' });
+   ```
 
 ### Updating Database Schema
-1. Modify `src-tauri/src/database/schema.sql`
-2. Add migration logic in `src-tauri/src/database/migrations.rs`
-3. Update models in `src-tauri/src/database/models.rs`
-4. Bump schema version
 
-### Building for Production
-```bash
-# Development
-npm run tauri dev
+1. **Add migration in `src-tauri/src/db.rs`**
+   ```rust
+   self.conn.execute(
+       "ALTER TABLE projects ADD COLUMN new_field TEXT DEFAULT 'value'",
+       [],
+   ).ok(); // .ok() ignores error if column exists
+   ```
 
-# Production build
-npm run tauri build
+2. **Update TypeScript interface in `src/utils/database.ts`**
 
-# Output:
-# - Windows: target/release/bundle/nsis/blockcraft_1.0.0_x64-setup.exe
-# - macOS: target/release/bundle/dmg/blockcraft_1.0.0_aarch64.dmg
-# - Linux: target/release/bundle/appimage/blockcraft_1.0.0_amd64.AppImage
+## Key Files to Know
+
+### Configuration
+- `src-tauri/tauri.conf.json` - Tauri app config (window size, bundle settings)
+- `vite.config.ts` - Dev server (port 1420), path aliases
+- `package.json` - npm scripts (start, build, tauri commands)
+
+### State Management
+- `src/App.tsx` - Main app state (workspace, current project)
+- `src/components/BlocklyEditor/BlocklyEditor.tsx` - Blockly workspace initialization
+
+### Python API Endpoints
+- `POST /api/deploy` - Compile and deploy mod
+  - Body: `{ projectId, projectName, commands, customItems, customMobs, aiModels }`
+  - Returns: `{ success, jarPath, errors }`
+
+### Hardcoded Paths (Linux-specific)
+- Minecraft server: `/home/jordan/minecraft-fabric-1.21.1-cobblemon/`
+- Build directory: `/tmp/blockcraft-build/`
+- Mod template: `./mod-template/`
+
+⚠️ **TODO:** Make paths configurable for cross-platform support
+
+## Important Patterns
+
+### Texture Handling
+
+Textures are stored in the media library and referenced by filename:
+
+```typescript
+// Block saves media filename, not base64
+block.setFieldValue('my_texture.png', 'MEDIA_TEXTURE');
+
+// Frontend fetches from Tauri filesystem
+const mediaPath = await invoke('get_media_path', { fileName: 'my_texture.png' });
 ```
 
----
+### AI Model Generation
 
-## Critical Dependencies
+Two AI systems:
+1. **GPT Image 1** (`openai.rs`) - Item textures (16x16 PNG)
+2. **Codegen** (`openai_codegen.rs`) - 3D models (block display entities)
 
-### Must Be Installed on User's Machine
-- **Java 21** - Required to run Minecraft and Gradle
-  - Future: Consider bundling Java runtime (adds ~200 MB)
-- **Minecraft Java Edition** - Cannot be bundled (legal restrictions)
+Both store API keys in settings table and generate code/models on-demand.
 
-### Bundled in Tauri App
-- Fabric server JAR
-- Minecraft server JAR
-- Fabric API mod
-- Gradle wrapper
-- Java code templates
+### Python API Auto-Start
 
-### Frontend Dependencies (npm)
-- `react` + `react-dom`
-- `@tauri-apps/api` + `@tauri-apps/cli`
-- `blockly`
-- `tailwindcss`
-- `zustand`
-- `react-query`
+Tauri automatically starts Python API in development:
 
-### Backend Dependencies (Cargo)
-- `tauri` (framework)
-- `serde` + `serde_json` (serialization)
-- `rusqlite` (SQLite bindings)
-- `tokio` (async runtime)
-- `reqwest` (HTTP client for OpenAI API)
+```rust
+// src-tauri/src/main.rs
+fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
+    // Kills existing process on port 8585
+    kill_process_on_port(8585);
 
----
-
-## Known Issues & Limitations
-
-### Current MVP Issues (Being Fixed in Migration)
-1. ❌ Monolithic `index.html` - hard to maintain
-2. ❌ Hardcoded file paths - breaks on different systems
-3. ❌ localStorage as database - no querying, limited storage
-4. ❌ Manual Fabric client setup - user must install themselves
-5. ❌ No error recovery - if Gradle fails, unclear why
-6. ❌ Texture generator uses old DALL-E API (no transparency)
-
-### Platform-Specific Challenges
-1. **Windows:** Path separators, antivirus false positives
-2. **macOS:** Gatekeeper security, unsigned apps warning
-3. **Linux:** Different distros, Java installation varies
-
-### Performance Considerations
-1. **Gradle first build:** ~30s (downloads dependencies)
-2. **Subsequent builds:** ~10-15s
-3. **Server startup:** ~10s
-4. **App bundle size:** ~230 MB (with server) or ~10 MB (lite version)
-
----
-
-## Testing Strategy
-
-### Unit Tests
-- Block definitions (TypeScript)
-- Code generators (verify Java output)
-- Tauri commands (Rust)
-
-### Integration Tests
-- Full compile workflow (blocks → Java → JAR)
-- Server start/stop
-- Fabric installation
-- Database operations
-
-### E2E Tests
-1. Create new project
-2. Add custom item block
-3. Upload texture
-4. Build mod
-5. Start server
-6. Verify mod loaded
-7. Test in-game
-
-### Cross-Platform Testing
-- Test on: Windows 11, macOS Sonoma, Ubuntu 22.04
-- Verify: Installation, compilation, server start, client install
-
----
-
-## Security Considerations
-
-1. **API Keys:** Encrypt OpenAI key in SQLite, never log
-2. **File Access:** Tauri restricts to allowed directories only
-3. **Network:** Only allow OpenAI API and localhost
-4. **Code Execution:** Gradle runs in subprocess, sandboxed
-5. **Updates:** Use Tauri signed updates (prevents MITM)
-6. **Installers:** Code sign all production builds
-
----
-
-## Resources & Documentation
-
-### Official Documentation
-- Tauri: https://tauri.app/
-- React: https://react.dev/
-- Blockly: https://developers.google.com/blockly
-- Fabric: https://fabricmc.net/wiki/
-
-### Internal Documentation
-- `ARCHITECTURE_PLAN.md` - Full migration roadmap
-- `GPT_IMAGE_API.md` - OpenAI texture generation guide
-- `README.md` - User-facing documentation
-
-### Example Code
-- Current blocks: `blocks/custom_items.js`, `blocks/custom_mobs.js`
-- Current generators: `generators/custom_items_java.js`
-- Current Python API: `deploy_java_api.py`
-
----
-
-## Development Workflow
-
-### Starting Development (Current MVP)
-```bash
-cd /home/jordan/blockcraft
-./start.sh  # Starts both Flask API and Minecraft server
-# Open http://localhost:3457 in browser
+    // Starts python3 deploy_java_api.py
+    Command::new("python3")
+        .arg("deploy_java_api.py")
+        .spawn()
+}
 ```
 
-### Starting Development (Future Tauri)
-```bash
-cd /home/jordan/blockcraft
-npm install
-npm run tauri dev
-# Tauri window opens automatically
-```
+## Common Development Tasks
 
-### Git Workflow
-- Main branch: `master` (MVP snapshot committed)
-- Development: Create `tauri-migration` branch
-- Commit regularly with descriptive messages
-- Use conventional commits: `feat:`, `fix:`, `refactor:`, etc.
+### Changing Minecraft Version
+
+1. Update `MULTI_PLATFORM_PLAN.md` version references
+2. Update Fabric loader version in `blocklycraft-loader/build.gradle`
+3. Update default in `src-tauri/src/db.rs`: `minecraft_version TEXT NOT NULL DEFAULT '1.21.1'`
+4. Test compilation with new version
+
+### Adding Example Project
+
+1. Define project data in `src/utils/startup-examples.ts`
+2. Use existing block types (events_actions, custom_items, etc.)
+3. Test by loading example in Examples Panel
+
+### Debugging Compilation Errors
+
+1. Check browser console for frontend errors
+2. Check Python API console output (Gradle errors)
+3. Inspect `/tmp/blockcraft-build/` for generated Java code
+4. Run Gradle manually: `cd /tmp/blockcraft-build && gradle build`
+
+## Dependencies
+
+### Required on User Machine
+- **Java 21** - Minecraft + Gradle
+- **Node.js 18+** - Frontend build
+- **Python 3.8+** - Flask API
+- **Rust** - Tauri compilation (dev only)
+
+### npm Dependencies
+- `react@18.3.1` + `react-dom`
+- `@tauri-apps/api@2.2.0` + `@tauri-apps/cli@2.2.0`
+- `blockly@11.1.1`
+- `tailwindcss@3.4.17`
+- `zustand@5.0.2`
+- `three@0.181.1` (3D model preview)
+
+### Cargo Dependencies
+- `tauri@2.2` + plugins (dialog, fs, opener)
+- `rusqlite@0.32`
+- `reqwest@0.12`
+- `serde@1.0` + `serde_json@1.0`
+- `tokio@1` (async runtime)
+
+### Python Dependencies
+- `flask` + `flask-cors`
+- `Pillow` (image processing)
+- None required for basic operation (texture/recipe generators optional)
+
+## Known Issues
+
+### Platform-Specific
+- **Linux only:** Hardcoded paths to `/home/jordan/minecraft-fabric-1.21.1-cobblemon/`
+- **Windows:** Path separators need testing
+- **macOS:** Untested
+
+### Performance
+- First Gradle build: ~30s (downloads Fabric dependencies)
+- Subsequent builds: ~10-15s
+- Large projects (50+ blocks): Blockly can lag
+
+### Technical Debt
+- Generators are still JavaScript (should migrate to TypeScript)
+- No automated tests
+- No error recovery if Gradle fails mid-build
+- API keys stored in plaintext (should encrypt)
+
+## Code Conventions
+
+### File Naming
+- React components: `PascalCase.tsx`
+- Utilities: `camelCase.ts`
+- Rust files: `snake_case.rs`
+- Generators: `kebab-case.js` (legacy)
+
+### Block Naming
+- Block type: `category_action` (e.g., `custom_item_define`)
+- Generator function: Same as block type (e.g., `Blockly.JavaScript['custom_item_define']`)
+
+### Database Timestamps
+- All timestamps are Unix epoch in **seconds** (not milliseconds)
+- Created/updated with: `Date.now() / 1000 | 0`
+
+## Git Workflow
+
+- **Main branch:** `main` (production-ready)
+- **Commit style:** Conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`)
+- **Current work:** Multi-platform support (see `MULTI_PLATFORM_PLAN.md`)
+
+## Resources
+
+- [Blockly Developer Docs](https://developers.google.com/blockly)
+- [Fabric Wiki](https://fabricmc.net/wiki/)
+- [Tauri Docs](https://tauri.app/)
+- [React 18 Docs](https://react.dev/)
 
 ---
 
-## AI Assistant Guidelines
-
-When helping with BlockCraft development:
-
-1. **Understand the migration context** - We're moving FROM vanilla JS TO React + Tauri
-2. **Preserve functionality** - Don't remove working features during migration
-3. **Follow the plan** - Reference `ARCHITECTURE_PLAN.md` for structure
-4. **TypeScript first** - All new code should be TypeScript
-5. **Test cross-platform** - Consider Windows, macOS, Linux differences
-6. **Security aware** - Never expose API keys, sanitize file paths
-7. **Performance matters** - Keep builds fast, minimize bundle size
-8. **Document changes** - Update this file when architecture changes
-
-### Code Examples Should:
-- Use TypeScript (not JavaScript)
-- Use React hooks (not class components)
-- Use Tauri commands (not direct Python calls)
-- Handle errors properly (Result types in Rust, try/catch in TS)
-- Include type definitions
-- Be cross-platform compatible
-
-### When Suggesting Changes:
-- Explain WHY, not just HOW
-- Reference the migration plan
-- Consider backwards compatibility
-- Provide migration path for existing data
-
----
-
-## Questions? Start Here:
-
-1. **"How do I..."** → Check this file first, then `ARCHITECTURE_PLAN.md`
-2. **"Where is X implemented?"** → See Project Structure section above
-3. **"Why did you choose Y?"** → See Key Decisions in `ARCHITECTURE_PLAN.md`
-4. **"Can I change Z?"** → Yes, but document in this file and update plan
-
----
-
-**Last Updated:** November 18, 2025
-**Status:** ✅ Production-Ready Desktop App
-**Version:** 1.0.0
-**Latest Commit:** `ddb80f3` - Mod template backup + placement mode fixes
+**Last Updated:** 2025-11-18
+**Status:** Production-ready with multi-platform support in development

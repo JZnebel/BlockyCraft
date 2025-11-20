@@ -186,3 +186,85 @@ export async function generateItemTexture(
     throw error;
   }
 }
+
+// ========== Server Management Commands ==========
+
+export interface ServerStatus {
+  server_id: string;
+  running: boolean;
+  port: number;
+  pid: number | null;
+}
+
+/**
+ * Start a deployment server (fabric, bukkit, or bedrock)
+ */
+export async function startServer(serverId: 'fabric' | 'bukkit' | 'bedrock'): Promise<string> {
+  try {
+    const result = await invoke<string>('start_server', {
+      serverId
+    });
+    return result;
+  } catch (error) {
+    console.error(`Error starting ${serverId} server:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Stop a deployment server
+ */
+export async function stopServer(serverId: 'fabric' | 'bukkit' | 'bedrock'): Promise<string> {
+  try {
+    const result = await invoke<string>('stop_server', {
+      serverId
+    });
+    return result;
+  } catch (error) {
+    console.error(`Error stopping ${serverId} server:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Get status of a specific server
+ */
+export async function getServerStatus(serverId: 'fabric' | 'bukkit' | 'bedrock'): Promise<ServerStatus> {
+  try {
+    const result = await invoke<ServerStatus>('get_server_status', {
+      serverId
+    });
+    return result;
+  } catch (error) {
+    console.error(`Error getting ${serverId} server status:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Get status of all servers
+ */
+export async function getAllServerStatus(): Promise<ServerStatus[]> {
+  try {
+    const result = await invoke<ServerStatus[]>('get_all_server_status');
+    return result;
+  } catch (error) {
+    console.error('Error getting all server status:', error);
+    throw error;
+  }
+}
+
+/**
+ * Check if a server is healthy (responding on its port)
+ */
+export async function checkServerHealth(serverId: 'fabric' | 'bukkit' | 'bedrock'): Promise<boolean> {
+  try {
+    const result = await invoke<boolean>('check_server_health', {
+      serverId
+    });
+    return result;
+  } catch (error) {
+    console.error(`Error checking ${serverId} server health:`, error);
+    return false;
+  }
+}

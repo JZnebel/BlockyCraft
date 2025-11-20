@@ -9,6 +9,9 @@ pub struct Project {
     pub id: Option<i64>,
     pub name: String,
     pub workspace_xml: String,
+    pub platform: String,
+    pub edition: String,
+    pub minecraft_version: String,
     pub created_at: i64,
     pub updated_at: i64,
 }
@@ -34,6 +37,9 @@ pub fn db_save_project(
     db: State<Mutex<Database>>,
     name: String,
     workspace_xml: String,
+    platform: String,
+    edition: String,
+    minecraft_version: String,
 ) -> Result<i64, String> {
     let db = db.lock().unwrap();
     let conn = db.get_connection();
@@ -42,8 +48,8 @@ pub fn db_save_project(
     // Try to update first
     let updated = conn
         .execute(
-            "UPDATE projects SET workspace_xml = ?1, updated_at = ?2 WHERE name = ?3",
-            (& workspace_xml, now, &name),
+            "UPDATE projects SET workspace_xml = ?1, platform = ?2, edition = ?3, minecraft_version = ?4, updated_at = ?5 WHERE name = ?6",
+            (& workspace_xml, &platform, &edition, &minecraft_version, now, &name),
         )
         .map_err(|e| e.to_string())?;
 
@@ -56,8 +62,8 @@ pub fn db_save_project(
     } else {
         // Insert new project
         conn.execute(
-            "INSERT INTO projects (name, workspace_xml, created_at, updated_at) VALUES (?1, ?2, ?3, ?4)",
-            (&name, &workspace_xml, now, now),
+            "INSERT INTO projects (name, workspace_xml, platform, edition, minecraft_version, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            (&name, &workspace_xml, &platform, &edition, &minecraft_version, now, now),
         )
         .map_err(|e| e.to_string())?;
 
@@ -71,7 +77,7 @@ pub fn db_get_projects(db: State<Mutex<Database>>) -> Result<Vec<Project>, Strin
     let conn = db.get_connection();
 
     let mut stmt = conn
-        .prepare("SELECT id, name, workspace_xml, created_at, updated_at FROM projects ORDER BY updated_at DESC")
+        .prepare("SELECT id, name, workspace_xml, platform, edition, minecraft_version, created_at, updated_at FROM projects ORDER BY updated_at DESC")
         .map_err(|e| e.to_string())?;
 
     let projects = stmt
@@ -80,8 +86,11 @@ pub fn db_get_projects(db: State<Mutex<Database>>) -> Result<Vec<Project>, Strin
                 id: row.get(0)?,
                 name: row.get(1)?,
                 workspace_xml: row.get(2)?,
-                created_at: row.get(3)?,
-                updated_at: row.get(4)?,
+                platform: row.get(3)?,
+                edition: row.get(4)?,
+                minecraft_version: row.get(5)?,
+                created_at: row.get(6)?,
+                updated_at: row.get(7)?,
             })
         })
         .map_err(|e| e.to_string())?

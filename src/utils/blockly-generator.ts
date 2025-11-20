@@ -1,8 +1,12 @@
 import * as Blockly from 'blockly';
 
-// Import the Java code generator
+// Import code generators
 // @ts-ignore - JavaScript file
 import { generateJavaCode } from '../../generators/java.js';
+// @ts-ignore - JavaScript file
+import { generateBukkitCode } from '../../generators/bukkit.js';
+// @ts-ignore - JavaScript file
+import { generateBedrockCode } from '../../generators/bedrock.js';
 import { dbGetAiModels, dbGetAiModelBlocks } from './database';
 
 // Type definitions for our mod data structures
@@ -89,7 +93,10 @@ function extractCustomMob(block: Blockly.Block): CustomMob | null {
 /**
  * Generate mod data from Blockly workspace
  */
-export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<ModData> {
+export async function generateModData(
+  workspace: Blockly.WorkspaceSvg,
+  platform: 'fabric' | 'bukkit' | 'bedrock' = 'fabric'
+): Promise<ModData> {
   const modData: ModData = {
     customItems: [],
     customMobs: [],
@@ -190,27 +197,44 @@ export async function generateModData(workspace: Blockly.WorkspaceSvg): Promise<
     console.log('[Generator] Model variants:', modData.modelVariants);
   }
 
-  // Generate Java code from blocks using the JavaScript generator
+  // Generate code from blocks using the platform-specific generator
   try {
-    const javaData = generateJavaCode(workspace);
-    modData.commands = javaData.commands;
-    modData.events = javaData.events;
+    let codeData;
 
-    // Build the complete Java code from commands and events
+    // Route to the correct generator based on platform
+    switch (platform) {
+      case 'fabric':
+        codeData = generateJavaCode(workspace);
+        break;
+      case 'bukkit':
+        codeData = generateBukkitCode(workspace);
+        break;
+      case 'bedrock':
+        codeData = generateBedrockCode(workspace);
+        break;
+      default:
+        throw new Error(`Unknown platform: ${platform}`);
+    }
+
+    modData.commands = codeData.commands;
+    modData.events = codeData.events;
+
+    // Build the complete code from commands and events
     let javaCode = '';
-    if (javaData.commands && javaData.commands.length > 0) {
-      for (const cmd of javaData.commands) {
+    if (codeData.commands && codeData.commands.length > 0) {
+      for (const cmd of codeData.commands) {
         javaCode += cmd.code + '\n';
       }
     }
-    if (javaData.events && javaData.events.length > 0) {
-      for (const evt of javaData.events) {
+    if (codeData.events && codeData.events.length > 0) {
+      for (const evt of codeData.events) {
         javaCode += evt.code + '\n';
       }
     }
     modData.javaCode = javaCode;
   } catch (error) {
-    console.error('Error generating Java code:', error);
+    console.error(`Error generating ${platform} code:`, error);
+    throw error;
   }
 
   return modData;

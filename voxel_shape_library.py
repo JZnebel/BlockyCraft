@@ -1172,6 +1172,171 @@ def add_glow(blocks, brightness_sky=15, brightness_block=15):
         block["brightness"] = {"sky": brightness_sky, "block": brightness_block}
     return blocks
 
+def rotate_blocks_x(blocks, degrees):
+    """
+    Rotate blocks around X axis (pitch/tilt)
+    Uses exact 90-degree rotations with integer coordinate swapping
+
+    Args:
+        blocks: List of block dictionaries to rotate (modified in place)
+        degrees: Rotation angle (90, -90, 180, or -180)
+
+    Returns:
+        blocks (modified in place)
+
+    Use for:
+        - Tilting objects up/down
+        - Rotating shells/domes to face forward/backward
+        - Angling wings or fins
+    """
+    if degrees not in [90, -90, 180, -180]:
+        print(f"Warning: rotate_blocks_x only supports 90-degree increments, got {degrees}")
+        return blocks
+
+    if not blocks:
+        return blocks
+
+    # Find bounding box to rotate around center
+    min_y = min(block["y"] for block in blocks)
+    max_y = max(block["y"] for block in blocks)
+    min_z = min(block["z"] for block in blocks)
+    max_z = max(block["z"] for block in blocks)
+
+    for block in blocks:
+        # Translate to origin (use min corner as pivot)
+        y = block["y"] - min_y
+        z = block["z"] - min_z
+
+        # Apply rotation (coordinate swapping for exact 90-degree rotations)
+        if degrees == 90:
+            # Rotate 90° around X: Y→Z, Z→-Y
+            new_y = (max_z - min_z) - z
+            new_z = y
+        elif degrees == -90:
+            # Rotate -90° around X: Y→-Z, Z→Y
+            new_y = z
+            new_z = (max_y - min_y) - y
+        elif degrees == 180 or degrees == -180:
+            # Rotate 180° around X: Y→-Y, Z→-Z
+            new_y = (max_y - min_y) - y
+            new_z = (max_z - min_z) - z
+
+        # Translate back
+        block["y"] = new_y + min_y
+        block["z"] = new_z + min_z
+
+    return blocks
+
+def rotate_blocks_y(blocks, degrees):
+    """
+    Rotate blocks around Y axis (yaw/turn)
+    Uses exact 90-degree rotations with integer coordinate swapping
+
+    Args:
+        blocks: List of block dictionaries to rotate (modified in place)
+        degrees: Rotation angle (90, -90, 180, or -180)
+
+    Returns:
+        blocks (modified in place)
+
+    Use for:
+        - Turning objects left/right
+        - Changing facing direction
+        - Rotating limbs around vertical axis
+    """
+    if degrees not in [90, -90, 180, -180]:
+        print(f"Warning: rotate_blocks_y only supports 90-degree increments, got {degrees}")
+        return blocks
+
+    if not blocks:
+        return blocks
+
+    # Find bounding box
+    min_x = min(block["x"] for block in blocks)
+    max_x = max(block["x"] for block in blocks)
+    min_z = min(block["z"] for block in blocks)
+    max_z = max(block["z"] for block in blocks)
+
+    for block in blocks:
+        # Translate to origin
+        x = block["x"] - min_x
+        z = block["z"] - min_z
+
+        # Apply rotation
+        if degrees == 90:
+            # Rotate 90° around Y: X→-Z, Z→X
+            new_x = (max_z - min_z) - z
+            new_z = x
+        elif degrees == -90:
+            # Rotate -90° around Y: X→Z, Z→-X
+            new_x = z
+            new_z = (max_x - min_x) - x
+        elif degrees == 180 or degrees == -180:
+            # Rotate 180° around Y: X→-X, Z→-Z
+            new_x = (max_x - min_x) - x
+            new_z = (max_z - min_z) - z
+
+        # Translate back
+        block["x"] = new_x + min_x
+        block["z"] = new_z + min_z
+
+    return blocks
+
+def rotate_blocks_z(blocks, degrees):
+    """
+    Rotate blocks around Z axis (roll)
+    Uses exact 90-degree rotations with integer coordinate swapping
+
+    Args:
+        blocks: List of block dictionaries to rotate (modified in place)
+        degrees: Rotation angle (90, -90, 180, or -180)
+
+    Returns:
+        blocks (modified in place)
+
+    Use for:
+        - Rolling objects to the side
+        - Tilting wings or surfaces
+        - Rotating flat objects
+    """
+    if degrees not in [90, -90, 180, -180]:
+        print(f"Warning: rotate_blocks_z only supports 90-degree increments, got {degrees}")
+        return blocks
+
+    if not blocks:
+        return blocks
+
+    # Find bounding box
+    min_x = min(block["x"] for block in blocks)
+    max_x = max(block["x"] for block in blocks)
+    min_y = min(block["y"] for block in blocks)
+    max_y = max(block["y"] for block in blocks)
+
+    for block in blocks:
+        # Translate to origin
+        x = block["x"] - min_x
+        y = block["y"] - min_y
+
+        # Apply rotation
+        if degrees == 90:
+            # Rotate 90° around Z: X→Y, Y→-X
+            new_x = (max_y - min_y) - y
+            new_y = x
+        elif degrees == -90:
+            # Rotate -90° around Z: X→-Y, Y→X
+            new_x = y
+            new_y = (max_x - min_x) - x
+        elif degrees == 180 or degrees == -180:
+            # Rotate 180° around Z: X→-X, Y→-Y
+            new_x = (max_x - min_x) - x
+            new_y = (max_y - min_y) - y
+
+        # Translate back
+        block["x"] = new_x + min_x
+        block["y"] = new_y + min_y
+
+    return blocks
+
 # Example usage
 if __name__ == "__main__":
     # Test sphere

@@ -92,6 +92,22 @@ impl Database {
             [],
         ).ok(); // Ignore error if column already exists
 
+        // Migration: Add platform columns to projects table
+        self.conn.execute(
+            "ALTER TABLE projects ADD COLUMN platform TEXT NOT NULL DEFAULT 'fabric'",
+            [],
+        ).ok(); // Ignore error if column already exists
+
+        self.conn.execute(
+            "ALTER TABLE projects ADD COLUMN edition TEXT NOT NULL DEFAULT 'java'",
+            [],
+        ).ok(); // Ignore error if column already exists
+
+        self.conn.execute(
+            "ALTER TABLE projects ADD COLUMN minecraft_version TEXT NOT NULL DEFAULT '1.21.1'",
+            [],
+        ).ok(); // Ignore error if column already exists
+
         Ok(())
     }
 

@@ -1,6 +1,7 @@
 pub mod openai;
 pub mod openai_codegen;
 pub mod db_commands;
+pub mod server_commands;
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;

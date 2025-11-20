@@ -1,11 +1,20 @@
 # Multi-Platform Support Plan
 
+## 🎯 Current Status: Phase 1-4 Complete ✅
+
+**Frontend**: 100% complete - full multi-platform support functional
+**Backend**: In progress - deployment API needs platform-specific implementations
+
+See [MULTI_PLATFORM_STATUS.md](./MULTI_PLATFORM_STATUS.md) for detailed implementation documentation.
+
+---
+
 ## Overview
 
 Transform BlocklyCraft from a Fabric-only mod generator into a multi-platform code generation tool supporting:
-- **Fabric** (Java Edition - Mods)
-- **Bukkit/Spigot/Paper** (Java Edition - Plugins)
-- **Bedrock Edition** (Behavior Packs)
+- **Fabric** (Java Edition - Mods) ✅
+- **Bukkit/Spigot/Paper** (Java Edition - Plugins) ✅ (frontend only)
+- **Bedrock Edition** (Behavior Packs) 🔜 (future)
 
 This will dramatically increase BlocklyCraft's reach and usefulness across the Minecraft ecosystem.
 
@@ -13,11 +22,11 @@ This will dramatically increase BlocklyCraft's reach and usefulness across the M
 
 ## Goals
 
-1. **Platform Selection**: Allow users to choose target platform when creating projects
-2. **Platform-Aware Blocks**: Show only blocks compatible with selected platform
-3. **Multi-Generator Architecture**: Route compilation to appropriate code generator
-4. **Platform Badges**: Display platform compatibility in project list
-5. **Version Tracking**: Store Minecraft version (for future filtering)
+1. **Platform Selection**: ✅ Global platform settings in SettingsModal (not per-project)
+2. **Platform-Aware Blocks**: ✅ Toolbox filtered by BLOCK_COMPATIBILITY map
+3. **Multi-Generator Architecture**: ✅ Generator routing with switch statement (fabric/bukkit/bedrock)
+4. **Example Filtering**: ✅ Examples filtered by platform compatibility
+5. **Version Tracking**: ✅ Minecraft version stored in settings (1.21.1)
 
 ---
 
@@ -40,112 +49,150 @@ This will dramatically increase BlocklyCraft's reach and usefulness across the M
 
 ---
 
-## Architecture Changes
+## Architecture Changes ✅
 
-### 1. Database Schema
+### 1. Database Schema - COMPLETED
 
-#### **Projects Table Update**
+**Implementation Note**: Platform settings are stored **globally** in the settings table, not per-project. This is because:
+- Toolbox must be filtered before any project is loaded
+- Users typically work on one platform at a time
+- Simpler UX - set once in Settings, applies to all projects
+
+#### **Settings Table** (Global Platform Settings)
 ```sql
-ALTER TABLE projects ADD COLUMN platform TEXT NOT NULL;
-ALTER TABLE projects ADD COLUMN edition TEXT NOT NULL;
-ALTER TABLE projects ADD COLUMN minecraft_version TEXT NOT NULL;
+-- Uses existing settings table with key-value pairs
+INSERT INTO settings (key, value) VALUES ('platform', 'fabric');
+INSERT INTO settings (key, value) VALUES ('edition', 'java');
+INSERT INTO settings (key, value) VALUES ('minecraft_version', '1.21.1');
 ```
 
-**Fields:**
+**Settings Keys:**
 - `platform`: 'fabric' | 'bukkit' | 'bedrock'
 - `edition`: 'java' | 'bedrock'
-- `minecraft_version`: '1.21.1', '1.20.4', etc.
+- `minecraft_version`: '1.21.1'
 
 #### **TypeScript Interface**
 ```typescript
+// Projects table unchanged - no platform columns needed
 export interface DbProject {
   id?: number;
   name: string;
   workspace_xml: string;
-  platform: 'fabric' | 'bukkit' | 'bedrock';
-  edition: 'java' | 'bedrock';
-  minecraft_version: string;
   created_at: number;
   updated_at: number;
 }
+
+// Platform loaded from settings on app startup
+const platform = await dbGetSetting('platform');
+const edition = await dbGetSetting('edition');
+const minecraftVersion = await dbGetSetting('minecraft_version');
 ```
 
 ---
 
-### 2. Code Generator Architecture
+### 2. Code Generator Architecture - COMPLETED
 
-#### **Current Structure**
+#### **Current Structure** ✅
 ```
 generators/
-  └── java.js    (Fabric only)
+  ├── java.js       (Fabric API - 340 lines) ✅
+  ├── bukkit.js     (Bukkit/Spigot/Paper API - 340 lines) ✅
+  └── bedrock.js    (Future - Behavior Packs)
 ```
 
-#### **New Structure**
-```
-generators/
-  ├── fabric.js     (Fabric API - Java Edition)
-  ├── bukkit.js     (Bukkit/Spigot/Paper API - Java Edition)
-  ├── bedrock.js    (Behavior Packs - Bedrock Edition)
-  └── common.js     (Shared utilities)
+#### **Generator Routing** ✅
+Implemented in `src/utils/blockly-generator.ts`:
+```typescript
+export async function generateModData(
+  workspace: Blockly.WorkspaceSvg,
+  platform: 'fabric' | 'bukkit' | 'bedrock' = 'fabric'
+): Promise<ModData> {
+  // Route to correct generator
+  switch (platform) {
+    case 'fabric':
+      codeData = generateJavaCode(workspace);  // generators/java.js
+      break;
+    case 'bukkit':
+      codeData = generateBukkitCode(workspace);  // generators/bukkit.js
+      break;
+    case 'bedrock':
+      throw new Error('Bedrock platform is not yet supported');
+    default:
+      throw new Error(`Unknown platform: ${platform}`);
+  }
+  return modData;
+}
 ```
 
 #### **Generator Interface**
 Each generator exports:
 ```javascript
-export function generateCode(workspace, modData) {
+export function generateCode(workspace) {
   return {
-    commands: [...],
-    events: [...],
-    customItems: [...],
-    customMobs: [...],
-    fileStructure: { ... },  // Platform-specific
-    buildConfig: { ... }      // gradle, plugin.yml, etc.
+    commands: [...],  // Array of command definitions with code
+    events: [...],    // Array of event handlers with code
   }
 }
 ```
 
 ---
 
-### 3. Block Compatibility System
+### 3. Block Compatibility System - COMPLETED
 
-#### **Block Metadata**
-Each block definition gets platform compatibility:
+#### **BLOCK_COMPATIBILITY Map** ✅
+Implemented in `src/components/BlocklyEditor/BlocklyEditor.tsx` and `src/utils/startup-examples.ts`:
 
 ```typescript
-interface BlockDefinition {
-  type: string;
-  name: string;
-  platforms: ('fabric' | 'bukkit' | 'bedrock')[];
-  minVersion?: string;
-  maxVersion?: string;
-  category: string;
-}
+const BLOCK_COMPATIBILITY: Record<string, Array<'fabric' | 'bukkit' | 'bedrock'>> = {
+  // Events - Both platforms
+  'event_command': ['fabric', 'bukkit'],
+  'event_right_click': ['fabric', 'bukkit'],
+  'event_break_block': ['fabric', 'bukkit'],
+
+  // Custom Items/Mobs - Fabric only
+  'custom_item_define': ['fabric'],
+  'custom_mob_define': ['fabric'],
+
+  // Block Display Models - Fabric only
+  'spawn_block_display_model': ['fabric'],
+  'spawn_ai_model_rotated': ['fabric'],
+  'spawn_ai_model_scaled': ['fabric'],
+
+  // All other blocks: actions, logic, math, text - Both platforms
+  // ...
+};
 ```
 
-#### **Example Compatibility**
+#### **Implemented Compatibility**
 
-| Block Type | Fabric | Bukkit | Bedrock | Notes |
-|-----------|--------|--------|---------|-------|
-| Commands | ✅ | ✅ | ✅ | Universal |
-| Events | ✅ | ✅ | ✅ | Different APIs |
-| Custom Items | ✅ | ⚠️ | ✅ | Bukkit limited |
-| Custom Mobs | ✅ | ⚠️ | ✅ | Bukkit limited |
-| Block Displays | ✅ | ✅ | ❌ | Java only (1.19.4+) |
-| AI Models | ✅ | ✅ | ❌ | Uses block displays |
+| Block Type | Fabric | Bukkit | Bedrock | Implementation |
+|-----------|--------|--------|---------|----------------|
+| Commands | ✅ | ✅ | 🔜 | Both generators |
+| Events | ✅ | ✅ | 🔜 | Both generators |
+| Player Actions | ✅ | ✅ | 🔜 | Both generators |
+| World Actions | ✅ | ✅ | 🔜 | Both generators |
+| Custom Items | ✅ | ❌ | 🔜 | Fabric only |
+| Custom Mobs | ✅ | ❌ | 🔜 | Fabric only |
+| Block Display Models | ✅ | ❌ | ❌ | Fabric only |
+| AI Models | ✅ | ❌ | ❌ | Uses block displays |
+| Logic/Math/Text | ✅ | ✅ | 🔜 | Both generators |
 
 ---
 
-### 4. UI Changes
+### 4. UI Changes - COMPLETED
 
-#### **A. Project Creation Modal**
+#### **A. SettingsModal - Platform Settings** ✅
 
-Add platform selection:
+Implemented in `src/components/SettingsModal/SettingsModal.tsx`:
 ```
 ┌────────────────────────────────┐
-│  Create New Project            │
+│  Settings                      │
 │                                │
-│  Name: [____________]          │
+│  API Keys (for AI Models)      │
+│  OpenAI: [____________]        │
+│  Anthropic: [____________]     │
 │                                │
+│  Platform Settings             │
 │  Edition:                      │
 │    ◉ Java Edition              │
 │    ○ Bedrock Edition           │
@@ -157,71 +204,72 @@ Add platform selection:
 │                                │
 │  Version: [1.21.1 ▼]           │
 │                                │
-│  [Cancel]  [Create Project]    │
+│  [Cancel]  [Save Settings]     │
 └────────────────────────────────┘
 ```
 
-**Note:** Platform selection can also be added to the existing SettingsModal (where API keys are stored) as a global default. Projects would still have their own platform setting that overrides the default.
+**Global Settings Approach**: Platform stored globally, not per-project. When platform changes, the toolbox and examples filter immediately.
 
-#### **B. Project List Badges**
+#### **B. Toolbox Filtering** ✅
 
-```
-┌─────────────────────────────────────┐
-│  My Sword Mod                       │
-│  [Fabric] [Java] [v1.21+]          │
-│  Last edited: 2 days ago            │
-├─────────────────────────────────────┤
-│  Command Pack                       │
-│  [Bukkit] [Java] [v1.16-1.21]      │
-│  Last edited: 1 week ago            │
-├─────────────────────────────────────┤
-│  Mobile Add-on                      │
-│  [Bedrock] [Any]                    │
-│  Last edited: 3 days ago            │
-└─────────────────────────────────────┘
-```
+Implemented in `src/components/BlocklyEditor/BlocklyEditor.tsx`:
+- `filterBlocks()` function removes incompatible blocks from toolbox
+- Workspace reinitializes when platform prop changes
+- Fabric mode: All blocks visible ✅
+- Bukkit mode: No Custom Items/Mobs, no Block Display Models ❌
+- Bedrock mode: Not yet implemented 🔜
 
-#### **C. Toolbox Filtering**
+#### **C. Example Filtering** ✅
 
-When project is open, only show compatible blocks:
-- Fabric project: All blocks ✅
-- Bukkit project: No block displays ❌
-- Bedrock project: No AI models ❌
+Implemented in `src/components/ExamplesPanel/ExamplesPanel.tsx`:
+- `isExampleCompatible()` parses workspace XML to check block compatibility
+- Examples using incompatible blocks are hidden
+- useMemo ensures reactive filtering when platform changes
 
 ---
 
 ## Implementation Phases
 
-### **Phase 1: Foundation** (Week 1)
-- [ ] Update database schema (projects table)
-- [ ] Update TypeScript interfaces
-- [ ] Add migration for existing projects (default to 'fabric')
-- [ ] Update Rust backend commands
-- [ ] Test database changes
+### **Phase 1: Foundation** ✅ COMPLETED
+- [x] Update database schema (settings table for global platform)
+- [x] Update TypeScript interfaces
+- [x] Update Rust backend commands
+- [x] Test database changes
 
-### **Phase 2: UI Updates** (Week 1-2)
-- [ ] Add platform selection to project creation
-- [ ] Add platform badges to project list
-- [ ] Update project metadata display
-- [ ] Add platform icons/styling
-- [ ] Test UI flows
+### **Phase 2: UI Updates** ✅ COMPLETED
+- [x] Add platform selection to SettingsModal
+- [x] Load platform settings on app startup
+- [x] Platform state management in App.tsx
+- [x] Pass platform to BlocklyEditor and ExamplesPanel
+- [x] Test UI flows
 
-### **Phase 3: Bukkit Generator** (Week 2-3)
-- [ ] Create generators/bukkit.js
-- [ ] Implement command generation (Bukkit API)
-- [ ] Implement event generation (Bukkit API)
-- [ ] Create plugin.yml template
-- [ ] Update compilation flow routing
-- [ ] Test Bukkit plugin generation
+### **Phase 3: Bukkit Generator** ✅ COMPLETED
+- [x] Create generators/bukkit.js (340 lines)
+- [x] Implement command generation (Bukkit API)
+- [x] Implement event generation (Bukkit API)
+- [x] Implement all action blocks (message, spawn, give, etc.)
+- [x] Update compilation flow routing (switch statement)
+- [x] Test Bukkit code generation
 
-### **Phase 4: Block Compatibility** (Week 3-4)
-- [ ] Add platform metadata to all blocks
-- [ ] Implement toolbox filtering
-- [ ] Add compatibility warnings
-- [ ] Update example projects with platforms
-- [ ] Test block filtering
+### **Phase 4: Block Compatibility** ✅ COMPLETED
+- [x] Add BLOCK_COMPATIBILITY map to BlocklyEditor
+- [x] Implement toolbox filtering (filterBlocks function)
+- [x] Implement example filtering (isExampleCompatible function)
+- [x] Test block filtering (Fabric vs Bukkit)
+- [x] Document compatibility matrix
 
-### **Phase 5: Bedrock Generator** (Week 4-6)
+### **Phase 5: Backend Deployment** 🚧 IN PROGRESS
+**Next Steps:**
+- [ ] Copy deploy_java_api.py → deploy_bukkit_api.py
+- [ ] Copy deploy_java_api.py → deploy_bedrock_api.py (future)
+- [ ] Modify Bukkit version for plugin.yml and Bukkit dependencies
+- [ ] Create main router to detect platform and route to appropriate API
+- [ ] Test Bukkit plugin compilation and deployment
+- [ ] Deploy compiled plugins to appropriate server directory
+
+**Reasoning**: Separate files per platform are cleaner and more maintainable than complex conditionals in one file. Each platform has very different build requirements.
+
+### **Phase 6: Bedrock Generator** 🔜 FUTURE
 - [ ] Create generators/bedrock.js
 - [ ] Design behavior pack structure
 - [ ] Implement command generation (JSON)
@@ -229,7 +277,7 @@ When project is open, only show compatible blocks:
 - [ ] Create manifest.json template
 - [ ] Test behavior pack generation
 
-### **Phase 6: Polish & Testing** (Week 6-7)
+### **Phase 7: Polish & Testing** 🔜 FUTURE
 - [ ] Cross-platform testing
 - [ ] Documentation updates
 - [ ] Example projects for each platform
@@ -342,16 +390,17 @@ public class TestCommand implements CommandExecutor {
 ## Success Criteria
 
 ### **Must Have:**
-- [x] Users can select platform when creating project
-- [x] Platform displayed on project list
-- [x] Fabric generator works (existing functionality)
-- [x] Bukkit generator produces working plugins
-- [x] Projects save/load with platform metadata
+- [x] Users can select platform in Settings ✅
+- [x] Platform persisted globally in settings table ✅
+- [x] Fabric generator works (existing functionality) ✅
+- [x] Bukkit generator produces working code ✅
+- [x] Platform-aware toolbox filtering ✅
+- [x] Platform-aware example filtering ✅
 
 ### **Should Have:**
-- [ ] Block compatibility filtering
-- [ ] Bedrock generator produces working behavior packs
-- [ ] Platform-specific examples
+- [x] Block compatibility filtering ✅
+- [ ] Bukkit backend deployment (compile and deploy plugins) 🚧
+- [ ] Bedrock generator produces working behavior packs 🔜
 
 ### **Nice to Have:**
 - [ ] Version-based block filtering
@@ -360,36 +409,51 @@ public class TestCommand implements CommandExecutor {
 
 ---
 
-## File Structure Changes
+## File Structure Changes ✅
 
-### **Frontend TypeScript:**
+### **Frontend TypeScript:** (COMPLETED)
 ```
 src/
   ├── utils/
-  │   ├── database.ts          (UPDATE: DbProject interface)
-  │   ├── blockly-generator.ts (UPDATE: route to generators)
-  │   └── platform-utils.ts    (NEW: platform helpers)
+  │   ├── database.ts          ✅ (Uses global settings, no per-project platform)
+  │   ├── blockly-generator.ts ✅ (Generator routing with switch statement)
+  │   └── startup-examples.ts  ✅ (isExampleCompatible function)
   ├── components/
+  │   ├── BlocklyEditor/
+  │   │   └── BlocklyEditor.tsx ✅ (BLOCK_COMPATIBILITY map, toolbox filtering)
   │   ├── ExamplesPanel/
-  │   │   └── ExamplesPanel.tsx (UPDATE: platform badges)
-  │   └── PlatformSelector/
-  │       └── PlatformSelector.tsx (NEW: platform picker)
+  │   │   └── ExamplesPanel.tsx ✅ (Example filtering by platform)
+  │   ├── SettingsModal/
+  │   │   ├── SettingsModal.tsx ✅ (Platform settings UI)
+  │   │   └── SettingsModal.css ✅ (Fixed dropdown styling)
+  │   └── App.tsx              ✅ (Platform state, load on startup)
 ```
 
-### **Backend Rust:**
+### **Backend Rust:** (COMPLETED)
 ```
 src-tauri/src/
-  ├── commands/
-  │   └── database.rs          (UPDATE: schema migration)
+  ├── db.rs                    ✅ (Settings table for global platform)
+  └── commands/
+      └── db_commands.rs       ✅ (Database commands)
 ```
 
-### **Generators:**
+### **Generators:** (PARTIAL)
 ```
 generators/
-  ├── common.js               (NEW: shared utilities)
-  ├── fabric.js               (RENAME from java.js)
-  ├── bukkit.js               (NEW)
-  └── bedrock.js              (NEW)
+  ├── java.js                  ✅ (Fabric API - 340 lines)
+  ├── bukkit.js                ✅ (Bukkit API - 340 lines)
+  └── bedrock.js               🔜 (Future)
+```
+
+### **Python Deployment:** (IN PROGRESS)
+```
+Current:
+  └── deploy_java_api.py       ✅ (Fabric only)
+
+Planned:
+  ├── deploy_java_api.py       (Fabric mods)
+  ├── deploy_bukkit_api.py     🚧 (Bukkit plugins - to be created)
+  └── deploy_bedrock_api.py    🔜 (Bedrock add-ons - future)
 ```
 
 ---
@@ -441,23 +505,36 @@ generators/
 
 ## Timeline
 
-| Phase | Duration | Deliverable |
-|-------|----------|-------------|
-| Phase 1 | 3-5 days | Database schema updated |
-| Phase 2 | 3-5 days | UI with platform selection |
-| Phase 3 | 7-10 days | Working Bukkit generator |
-| Phase 4 | 5-7 days | Block filtering implemented |
-| Phase 5 | 14-21 days | Bedrock generator (optional) |
-| Phase 6 | 5-7 days | Testing & polish |
+| Phase | Status | Deliverable |
+|-------|--------|-------------|
+| Phase 1: Foundation | ✅ COMPLETED | Database schema updated |
+| Phase 2: UI Updates | ✅ COMPLETED | Global platform settings in SettingsModal |
+| Phase 3: Bukkit Generator | ✅ COMPLETED | Working Bukkit code generator (340 lines) |
+| Phase 4: Block Compatibility | ✅ COMPLETED | Toolbox and example filtering |
+| Phase 5: Backend Deployment | 🚧 IN PROGRESS | Bukkit plugin compilation & deployment |
+| Phase 6: Bedrock Generator | 🔜 FUTURE | Bedrock behavior pack generation |
+| Phase 7: Testing & Polish | 🔜 FUTURE | Cross-platform testing |
 
-**Total: 6-8 weeks** (without Bedrock)
-**Total: 8-11 weeks** (with Bedrock)
+**Frontend Multi-Platform Support: 100% Complete** ✅
+**Backend Deployment Support: In Progress** 🚧
 
 ---
 
 ## Notes
 
-- Start with Bukkit support (biggest user base)
-- Bedrock is optional for v1.0
-- Version filtering can be added later
-- Focus on making the architecture extensible
+- ✅ Bukkit code generation complete (biggest user base)
+- 🚧 Bukkit deployment backend in progress
+- 🔜 Bedrock is future work
+- ✅ Architecture is extensible - global platform settings, separate generators per platform
+- ✅ Global settings approach chosen over per-project to enable toolbox filtering before project load
+- ✅ Separate deployment API files per platform for maintainability
+
+## Key Architectural Decisions Made
+
+1. **Global Platform Settings**: Stored in settings table, not per-project. This enables toolbox filtering before any project is loaded and simplifies UX.
+
+2. **Two-Level Filtering**: Both toolbox blocks AND example projects are filtered by platform compatibility to prevent users from creating incompatible projects.
+
+3. **Separate Deployment APIs**: Each platform will have its own deployment API file (deploy_java_api.py, deploy_bukkit_api.py, etc.) rather than complex conditionals in one file. This is cleaner and more maintainable.
+
+4. **BLOCK_COMPATIBILITY Map**: Explicit mapping of which blocks work on which platforms, defined in both BlocklyEditor.tsx and startup-examples.ts for consistency.

@@ -5,6 +5,9 @@ export interface DbProject {
   id?: number;
   name: string;
   workspace_xml: string;
+  platform: 'fabric' | 'bukkit' | 'bedrock';
+  edition: 'java' | 'bedrock';
+  minecraft_version: string;
   created_at: number;
   updated_at: number;
 }
@@ -22,8 +25,14 @@ export interface DbSetting {
 }
 
 // Project operations
-export const dbSaveProject = async (name: string, workspaceXml: string): Promise<number> => {
-  return await invoke('db_save_project', { name, workspaceXml });
+export const dbSaveProject = async (
+  name: string,
+  workspaceXml: string,
+  platform: 'fabric' | 'bukkit' | 'bedrock' = 'fabric',
+  edition: 'java' | 'bedrock' = 'java',
+  minecraftVersion: string = '1.21.1'
+): Promise<number> => {
+  return await invoke('db_save_project', { name, workspaceXml, platform, edition, minecraftVersion });
 };
 
 export const dbGetProjects = async (): Promise<DbProject[]> => {

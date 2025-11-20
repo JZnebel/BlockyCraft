@@ -1,5 +1,54 @@
 import * as Blockly from 'blockly';
 
+// Platform compatibility for blocks (shared with BlocklyEditor)
+const BLOCK_COMPATIBILITY: Record<string, Array<'fabric' | 'bukkit' | 'bedrock'>> = {
+  // Events
+  'event_command': ['fabric', 'bukkit'],
+  'event_right_click': ['fabric', 'bukkit'],
+  'event_break_block': ['fabric', 'bukkit'],
+
+  // Block Display Models - Fabric only
+  'spawn_block_display_model': ['fabric'],
+  'spawn_ai_model_rotated': ['fabric'],
+  'spawn_ai_model_scaled': ['fabric'],
+
+  // Custom Items/Mobs - Fabric only
+  'custom_item_define': ['fabric'],
+  'custom_mob_define': ['fabric'],
+
+  // All other blocks are compatible with both Fabric and Bukkit
+};
+
+/**
+ * Check if an example is compatible with the current platform
+ */
+export function isExampleCompatible(workspaceXml: string, platform: 'fabric' | 'bukkit' | 'bedrock'): boolean {
+  try {
+    // Parse XML to extract block types
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(workspaceXml, 'text/xml');
+    const blocks = xmlDoc.getElementsByTagName('block');
+
+    // Check each block for compatibility
+    for (let i = 0; i < blocks.length; i++) {
+      const blockType = blocks[i].getAttribute('type');
+      if (blockType) {
+        const compatibility = BLOCK_COMPATIBILITY[blockType];
+        // If not in the list, assume compatible with all platforms
+        if (compatibility && !compatibility.includes(platform)) {
+          console.log(`[Example Filter] Block '${blockType}' not compatible with ${platform}`);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error checking example compatibility:', error);
+    return true; // If error parsing, show the example anyway
+  }
+}
+
 // Example projects to help kids learn (NO EMOJIS - using descriptive names only)
 export const EXAMPLE_PROJECTS = [
   // ========== BEGINNER TIER ==========

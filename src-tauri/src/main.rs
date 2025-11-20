@@ -8,87 +8,14 @@ use commands::greet;
 use commands::db_commands::*;
 use commands::openai::*;
 use commands::openai_codegen::*;
+use commands::server_commands::{ServerManager, start_server, stop_server, get_server_status, get_all_server_status, check_server_health};
 use commands::{
     save_project, load_project, compile_mod, build_mod,
     list_deployed_mods, undeploy_mod, open_folder, restart_minecraft_client
 };
 use db::Database;
 use std::sync::Mutex;
-use std::process::{Command, Child};
-use tauri::{Manager, AppHandle};
-
-fn kill_process_on_port(port: u16) {
-    #[cfg(target_os = "linux")]
-    {
-        // Try to find and kill any process using the port
-        let output = Command::new("sh")
-            .arg("-c")
-            .arg(format!("lsof -ti:{}", port))
-            .output();
-
-        if let Ok(output) = output {
-            if output.status.success() {
-                let pid = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                if !pid.is_empty() {
-                    println!("🔪 Killing existing process on port {}: PID {}", port, pid);
-                    let _ = Command::new("kill")
-                        .arg(&pid)
-                        .output();
-                    std::thread::sleep(std::time::Duration::from_millis(500));
-                }
-            }
-        }
-    }
-}
-
-fn start_python_api(_app_handle: &AppHandle) -> Option<Child> {
-    #[cfg(debug_assertions)]
-    {
-        // Kill any existing process on port 8585
-        kill_process_on_port(8585);
-
-        // In development, start Python API from project root
-        // Tauri runs from src-tauri, so go up one level to find deploy_java_api.py
-        let mut project_root = std::env::current_dir().ok()?;
-
-        // If we're in src-tauri, go up one level
-        if project_root.ends_with("src-tauri") {
-            project_root = project_root.parent()?.to_path_buf();
-        }
-
-        let python_script = project_root.join("deploy_java_api.py");
-
-        if !python_script.exists() {
-            eprintln!("❌ deploy_java_api.py not found at {:?}", python_script);
-            eprintln!("   Current dir: {:?}", std::env::current_dir().ok());
-            return None;
-        }
-
-        println!("🚀 Starting Python API server from {:?}", python_script);
-
-        match Command::new("python3")
-            .arg(&python_script)
-            .current_dir(&project_root)
-            .spawn()
-        {
-            Ok(child) => {
-                println!("✅ Python API server started (PID: {})", child.id());
-                Some(child)
-            }
-            Err(e) => {
-                eprintln!("❌ Failed to start Python API: {}", e);
-                None
-            }
-        }
-    }
-
-    #[cfg(not(debug_assertions))]
-    {
-        // In production, Python API should be bundled or run separately
-        // For now, attempt to start from app resources
-        None
-    }
-}
+use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
@@ -106,11 +33,9 @@ fn main() {
             let database = Database::new(db_path).expect("failed to initialize database");
             app.manage(Mutex::new(database));
 
-            // Start Python API server
-            if let Some(child) = start_python_api(app.app_handle()) {
-                // Store the process handle - it will be killed when app exits
-                app.manage(Mutex::new(Some(child)));
-            }
+            // Initialize server manager (no auto-start, launcher will control servers)
+            let server_manager = ServerManager::new();
+            app.manage(server_manager);
 
             Ok(())
         })
@@ -145,6 +70,12 @@ fn main() {
             // Deployment commands
             list_deployed_mods,
             undeploy_mod,
+            // Server management commands
+            start_server,
+            stop_server,
+            get_server_status,
+            get_all_server_status,
+            check_server_health,
             // Utility commands
             open_folder,
             restart_minecraft_client,

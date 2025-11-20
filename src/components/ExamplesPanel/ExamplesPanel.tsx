@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { EXAMPLE_PROJECTS } from '@/utils/startup-examples';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { EXAMPLE_PROJECTS, isExampleCompatible } from '@/utils/startup-examples';
 import {
   dbGetProjects,
   dbDeleteProject,
@@ -18,13 +18,18 @@ interface ExamplesPanelProps {
   onLoadProject: (workspaceXml: string, projectName: string) => void;
   deploymentRefreshKey: number;
   onDeploymentChange: () => void;
+  platform?: 'fabric' | 'bukkit' | 'bedrock';
 }
 
 // Use database types for projects and media
 export type SavedProject = DbProject & { dataUrl?: string };
 export type MediaFile = DbMediaFile & { dataUrl?: string };
 
-export default function ExamplesPanel({ onLoadExample, onLoadProject, deploymentRefreshKey, onDeploymentChange }: ExamplesPanelProps) {
+export default function ExamplesPanel({ onLoadExample, onLoadProject, deploymentRefreshKey, onDeploymentChange, platform = 'fabric' }: ExamplesPanelProps) {
+  // Filter examples based on platform compatibility
+  const filteredExamples = useMemo(() => {
+    return EXAMPLE_PROJECTS.filter(example => isExampleCompatible(example.workspace, platform));
+  }, [platform]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'examples' | 'projects' | 'media' | 'ai'>('projects');
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
@@ -637,8 +642,8 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
     setExpandedDifficulties(newExpanded);
   };
 
-  // Group examples by difficulty
-  const groupedExamples = EXAMPLE_PROJECTS.reduce((acc, example) => {
+  // Group filtered examples by difficulty
+  const groupedExamples = filteredExamples.reduce((acc, example) => {
     const difficulty = (example as any).difficulty || 'beginner';
     if (!acc[difficulty]) {
       acc[difficulty] = [];
@@ -831,7 +836,17 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                     >
                       <div className="example-name">{project.name}</div>
                       <div className="example-description">
-                        {new Date(project.updated_at * 1000).toLocaleDateString()}
+                        <div className="project-metadata">
+                          <span className={`platform-badge platform-${project.platform || 'fabric'}`}>
+                            {project.platform === 'bukkit' ? 'Bukkit' : project.platform === 'bedrock' ? 'Bedrock' : 'Fabric'}
+                          </span>
+                          <span className="edition-badge">
+                            {project.edition === 'bedrock' ? 'Bedrock' : 'Java'} {project.minecraft_version || '1.21.1'}
+                          </span>
+                        </div>
+                        <div className="project-date">
+                          {new Date(project.updated_at * 1000).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                     <div className="project-actions">
