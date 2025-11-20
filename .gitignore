@@ -52,3 +52,7 @@ CODEGEN_INTEGRATION_SUMMARY.md
 *_SUMMARY.md
 *.txt
 blocklycraft-loader/.gradle/
+
+# Web services (moved to separate private repo)
+blockcraft-api/
+my-astro-site/
