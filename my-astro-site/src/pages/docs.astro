@@ -1,0 +1,852 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Voxel Generator Documentation">
+  <div class="max-w-4xl mx-auto py-12 px-4">
+    <h1 class="text-5xl font-display font-bold text-navy mb-4">📚 Voxel Generator Documentation</h1>
+    <p class="text-xl text-gray-600 mb-8">Learn to create 3D voxel models with Python!</p>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-12">
+      <h2 class="text-2xl font-display font-bold text-blue-900 mb-4">📖 Table of Contents</h2>
+      <div class="space-y-3">
+        <!-- Main Sections -->
+        <div class="space-y-1">
+          <a href="#getting-started" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">1. Getting Started</a>
+          <a href="#components" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">2. Components</a>
+          <a href="#shapes" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">3. Shape Library</a>
+          <!-- Shape Library Sub-topics -->
+          <div class="ml-6 space-y-1 text-sm">
+            <a href="#positioning" class="block text-red-600 hover:text-red-800 hover:underline font-semibold">📍 Positioning with center_y (Important!)</a>
+            <a href="#shape-style" class="block text-blue-600 hover:text-blue-800 hover:underline">→ Circular vs Square Shapes</a>
+            <a href="#add-glow" class="block text-blue-600 hover:text-blue-800 hover:underline">→ Making Things Glow</a>
+            <a href="#moving-blocks" class="block text-blue-600 hover:text-blue-800 hover:underline">→ Moving & Transforming Blocks</a>
+            <a href="#advanced" class="block text-blue-600 hover:text-blue-800 hover:underline">→ Advanced Techniques</a>
+          </div>
+          <a href="#manual-blocks" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">4. Manual Blocks</a>
+          <a href="#rotation" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">5. Rotation</a>
+          <a href="#python-basics" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">6. Python Basics</a>
+          <a href="#examples" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">7. Full Examples</a>
+          <a href="#blocks-list" class="block text-blue-700 hover:text-blue-900 hover:underline font-semibold">8. Minecraft Blocks Reference</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: GETTING STARTED -->
+    <section id="getting-started" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🚀 Getting Started</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">The generate() Function</h3>
+        <p class="text-gray-700 mb-4">Every voxel model starts with a <code class="bg-gray-100 px-2 py-1 rounded">generate()</code> function. This is where you write your code!</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`def generate():
+    blocks = []        # List for individual blocks
+    components = []    # List for organized components
+
+    # Your code goes here!
+
+    return {
+        "blocks": blocks,
+        "components": components
+    }`}</code></pre>
+      </div>
+
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+        <p class="font-semibold text-yellow-900">💡 Important:</p>
+        <p class="text-yellow-800">Always return a dictionary with "blocks" and "components" keys!</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: COMPONENTS -->
+    <section id="components" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">📦 Components: Organize Your Model</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">Why Use Components?</h3>
+        <p class="text-gray-700 mb-4">Components let you organize blocks into groups that you can:</p>
+        <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+          <li>Move together in the 3D viewer</li>
+          <li>Rotate as a unit</li>
+          <li>Delete all at once</li>
+          <li>Keep your code organized</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold mb-3 mt-6">Creating a Component</h3>
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>{`# Step 1: Create blocks using a shape function
+tower_blocks = create_cylinder(
+    height=6,
+    radius=1.5,
+    scale=0.25,
+    block_id="stone_bricks"
+)
+
+# Step 2: Add blocks to main blocks list (IMPORTANT!)
+blocks.extend(tower_blocks)
+
+# Step 3: Add component to components list
+components.append({
+    "id": "tower",              # Unique name (no spaces!)
+    "type": "cylinder",         # Shape type
+    "blocks": tower_blocks,     # The blocks list
+    "description": "Main tower" # What it is (optional)
+})`}</code></pre>
+
+        <div class="bg-red-50 border-l-4 border-red-500 p-4">
+          <p class="font-semibold text-red-900">⚠️ Critical Step:</p>
+          <p class="text-red-800">Don't forget <code class="bg-red-100 px-2 py-1 rounded">blocks.extend(component_blocks)</code>! Without this, your component won't appear in the 3D viewer. The blocks need to be in BOTH the main blocks list AND the components list.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: SHAPE LIBRARY -->
+    <section id="shapes" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🎨 Shape Library Functions</h2>
+      <p class="text-gray-700 mb-6">These functions create blocks for you automatically! Much easier than making blocks one by one.</p>
+
+      <div class="space-y-6">
+        <!-- Sphere -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">⚪ create_sphere()</h3>
+          <p class="text-gray-600 mb-3">Creates a hollow sphere (like a ball)</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_sphere(
+    radius=3,           # How big (in blocks)
+    scale=0.25,         # Size of each voxel
+    block_id="glass",   # Block type
+    center_y=0          # Height of bottom
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Try this:</strong> Change radius to 5 for a bigger sphere!</p>
+        </div>
+
+        <!-- Cylinder -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🔵 create_cylinder()</h3>
+          <p class="text-gray-600 mb-3">Creates a hollow cylinder (like a tower or pipe)</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_cylinder(
+    height=10,               # How tall
+    radius=2,                # How wide
+    scale=0.25,              # Voxel size
+    block_id="stone",        # Block type
+    center_y=0,              # Height of bottom
+    use_square=False         # True for square shape
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Try this:</strong> Set use_square=True to make a square tower!</p>
+        </div>
+
+        <!-- Box -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">📦 create_box()</h3>
+          <p class="text-gray-600 mb-3">Creates a hollow box</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_box(
+    width=4,           # X dimension
+    height=3,          # Y dimension
+    depth=5,           # Z dimension
+    scale=0.25,        # Voxel size
+    block_id="oak_planks",
+    center=(0, 0, 0)   # Position (x, y, z)
+)`}</code></pre>
+        </div>
+
+        <!-- Cone/Pyramid -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🔺 create_cone() / create_pyramid()</h3>
+          <p class="text-gray-600 mb-3">Cone is circular, pyramid is square</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`# Cone (round)
+blocks = create_cone(
+    height=5,
+    base_radius=3,
+    scale=0.25,
+    block_id="gold_block"
+)
+
+# Pyramid (square)
+blocks = create_pyramid(
+    base_width=6,
+    height=4,
+    scale=0.25,
+    block_id="sandstone"
+)`}</code></pre>
+        </div>
+
+        <!-- Text -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">📝 create_text()</h3>
+          <p class="text-gray-600 mb-3">Write 3D text!</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_text(
+    text="HELLO",           # What to write
+    scale=0.25,             # Size
+    block_id="diamond_block",
+    position=(0, 0, 0),     # Starting position
+    char_spacing=1.0        # Space between letters
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Note:</strong> Only letters A-Z, numbers 0-9, and basic punctuation!</p>
+        </div>
+
+        <!-- Torus -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🍩 create_torus()</h3>
+          <p class="text-gray-600 mb-3">Creates a donut shape</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_torus(
+    major_radius=3,     # Radius from center to tube center
+    minor_radius=1,     # Radius of the tube itself
+    scale=0.25,         # Voxel size
+    block_id="glowstone",
+    center=(0, 0, 0)    # Position (x, y, z)
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Tip:</strong> Major radius controls overall size, minor radius controls tube thickness!</p>
+        </div>
+
+        <!-- Hemisphere -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🌙 create_hemisphere()</h3>
+          <p class="text-gray-600 mb-3">Creates half a sphere (dome)</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_hemisphere(
+    radius=4,           # How big the dome
+    scale=0.25,         # Voxel size
+    block_id="glass",   # Block type
+    center_y=0          # Height of bottom
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Use case:</strong> Perfect for igloos, planetarium domes, or observatory tops!</p>
+        </div>
+
+        <!-- Ellipsoid -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🥚 create_ellipsoid()</h3>
+          <p class="text-gray-600 mb-3">Creates a stretched sphere (egg or oval shape)</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_ellipsoid(
+    radius_x=2,         # Width (X axis)
+    radius_y=4,         # Height (Y axis)
+    radius_z=2,         # Depth (Z axis)
+    scale=0.25,         # Voxel size
+    block_id="quartz_block",
+    center=(0, 0, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Tip:</strong> Make radius_y bigger for a tall egg, or radius_x bigger for a wide oval!</p>
+        </div>
+
+        <!-- Plane -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">📏 create_plane()</h3>
+          <p class="text-gray-600 mb-3">Creates a flat rectangular surface</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_plane(
+    width=10,           # Width (X direction)
+    depth=8,            # Depth (Z direction)
+    scale=0.25,         # Voxel size
+    block_id="white_concrete",
+    center=(0, 0, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Use case:</strong> Great for floors, walls, roofs, or wings on airplanes!</p>
+        </div>
+
+        <!-- Wedge -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">📐 create_wedge()</h3>
+          <p class="text-gray-600 mb-3">Creates a ramp or triangle shape</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_wedge(
+    width=5,            # Width of base
+    height=3,           # Height of ramp
+    depth=6,            # Depth (length) of ramp
+    scale=0.25,         # Voxel size
+    block_id="smooth_stone",
+    center=(0, 0, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Use case:</strong> Build ramps, roofs, or triangular supports!</p>
+        </div>
+
+        <!-- Arch -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🏛️ create_arch()</h3>
+          <p class="text-gray-600 mb-3">Creates a doorway or window arch</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_arch(
+    width=4,            # Width of archway
+    height=6,           # Total height
+    depth=1,            # Thickness of arch
+    scale=0.25,         # Voxel size
+    block_id="stone_bricks",
+    center=(0, 0, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Use case:</strong> Perfect for castle gates, doorways, or bridge supports!</p>
+        </div>
+
+        <!-- Star -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">⭐ create_star()</h3>
+          <p class="text-gray-600 mb-3">Creates a star shape (2D, flat)</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_star(
+    outer_radius=3,     # Radius to star points
+    inner_radius=1.5,   # Radius to inner corners
+    points=5,           # Number of points (5 = classic star)
+    scale=0.25,         # Voxel size
+    block_id="yellow_concrete",
+    center=(0, 5, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Try this:</strong> Use points=6 for a Star of David, or points=8 for a compass rose!</p>
+        </div>
+
+        <!-- Ring -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">⭕ create_ring()</h3>
+          <p class="text-gray-600 mb-3">Creates a flat ring with a hole in the middle</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-3"><code>{`blocks = create_ring(
+    outer_radius=4,     # Outside radius
+    inner_radius=2,     # Inside radius (hole size)
+    scale=0.25,         # Voxel size
+    block_id="gold_block",
+    center=(0, 0, 0)    # Position
+)`}</code></pre>
+          <p class="text-sm text-gray-600"><strong>Use case:</strong> Make rings, halos, or circular platforms!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3B: IMPORTANT POSITIONING -->
+    <section id="positioning" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">📍 Critical: Positioning with center_y</h2>
+
+      <div class="bg-red-50 border-l-4 border-red-500 p-6 mb-6">
+        <p class="font-semibold text-red-900 mb-3">⚠️ ALWAYS specify center_y or center!</p>
+        <p class="text-red-800 mb-3">If you don't specify position, shapes appear at ground level (y=0) and overlap!</p>
+
+        <div class="bg-white rounded p-3 mt-3">
+          <p class="font-semibold text-red-900 mb-2">❌ WRONG - Everything at ground!</p>
+          <pre class="bg-gray-900 text-gray-100 p-3 rounded"><code>{`head = create_sphere(1, 0.2, "cyan_concrete")  # Missing center_y!
+body = create_cylinder(3, 0.8, 0.2, "blue_concrete")  # Also at y=0!
+# Both shapes overlap at ground level!`}</code></pre>
+        </div>
+
+        <div class="bg-white rounded p-3 mt-3">
+          <p class="font-semibold text-green-900 mb-2">✅ CORRECT - Stacked properly!</p>
+          <pre class="bg-gray-900 text-gray-100 p-3 rounded"><code>{`# Body: y=0 to y=3 (height=3)
+body = create_cylinder(3, 0.8, 0.2, "blue_concrete", center_y=0)
+
+# Head: y=3 to y=5 (radius=1, so height=2)
+head = create_sphere(1, 0.2, "cyan_concrete", center_y=3)
+
+# Stack formula: next_y = previous_y + previous_height`}</code></pre>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-soft p-6">
+        <h3 class="text-xl font-semibold mb-3">Understanding center_y</h3>
+        <p class="text-gray-700 mb-4"><code class="bg-gray-100 px-2 py-1 rounded">center_y</code> is the <strong>bottom</strong> of the shape, not the middle!</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Cylinder with center_y=5 and height=10
+# Shape goes from y=5 (bottom) to y=15 (top)
+pillar = create_cylinder(
+    height=10,
+    radius=1,
+    scale=0.2,
+    block_id="stone_bricks",
+    center_y=5  # Bottom of shape
+)
+
+# To stack another shape on top:
+roof_y = 5 + 10  # previous_y + previous_height = 15
+roof = create_cone(3, 1.5, 0.2, "red_concrete", center_y=15)`}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3C: CIRCULAR VS SQUARE SHAPES -->
+    <section id="shape-style" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🔲 Circular vs Square Shapes</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <p class="text-gray-700 mb-4">Cylinders, cones, and tapered shapes have a <code class="bg-gray-100 px-2 py-1 rounded">use_square</code> parameter!</p>
+
+        <h3 class="text-xl font-semibold mb-3 mt-6">When to use CIRCULAR (default):</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+          <li>Organic objects: people, animals, creatures</li>
+          <li>Natural features: trees, wheels, rounded shapes</li>
+          <li>Decorative elements: curved details, domes</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold mb-3">When to use SQUARE (use_square=True):</h3>
+        <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+          <li>Buildings: houses, towers, castles</li>
+          <li>Furniture: tables, chairs, beds</li>
+          <li>Vehicles: most cars and trucks (boxy bodies)</li>
+          <li>Architecture: columns, pillars, beams</li>
+        </ul>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mt-4"><code>{`# Round tower (organic, decorative)
+tower = create_cylinder(
+    height=10,
+    radius=2,
+    scale=0.3,
+    block_id="stone_bricks",
+    center_y=0,
+    use_square=False  # Default - circular
+)
+
+# Square building pillar (architectural)
+pillar = create_cylinder(
+    height=10,
+    radius=2,
+    scale=0.3,
+    block_id="stone_bricks",
+    center_y=0,
+    use_square=True  # Square for buildings!
+)
+
+# Pyramid roof (architectural)
+roof = create_cone(
+    height=5,
+    base_radius=3,
+    scale=0.3,
+    block_id="oak_planks",
+    center_y=10,
+    use_square=True  # Makes a pyramid!
+)`}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3D: ADD GLOW -->
+    <section id="add-glow" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">✨ Making Things Glow</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">add_glow() function</h3>
+        <p class="text-gray-700 mb-4">Make eyes, lights, fire, or magic effects glow!</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Create glowing eyes
+left_eye = create_sphere(0.15, 0.1, "yellow_concrete", center_y=6)
+# Move it to left side of face
+for block in left_eye:
+    block["x"] += -0.4
+    block["z"] += 1.0
+blocks.extend(left_eye)
+
+# Make it glow!
+add_glow(left_eye, brightness_block=12)
+
+# Create glowing lava core
+core = create_sphere(1, 0.2, "lava", center_y=5)
+blocks.extend(core)
+add_glow(core, brightness_block=15)  # Maximum glow!`}</code></pre>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+          <p class="font-semibold text-blue-900 mb-2">💡 Performance Tip:</p>
+          <p class="text-blue-800">Only pass specific shape variables to add_glow(), NOT all blocks! It modifies them in place.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3E: MOVING BLOCKS -->
+    <section id="moving-blocks" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🔄 Moving and Transforming Blocks</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <h3 class="text-xl font-semibold mb-3">Blocks are Dictionaries</h3>
+        <p class="text-gray-700 mb-4">Each block is a dictionary with "x", "y", "z" coordinates. You can modify them!</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>{`# Create a shape
+arm = create_cylinder(2, 0.3, 0.2, "brown_concrete", center_y=3)
+
+# Move it to the right side
+for block in arm:
+    block["x"] += 2.5  # Move right
+    block["z"] += 0.5  # Move forward slightly
+
+blocks.extend(arm)
+
+# Create left arm (mirror of right)
+arm_left = create_cylinder(2, 0.3, 0.2, "brown_concrete", center_y=3)
+for block in arm_left:
+    block["x"] += -2.5  # Move left (negative X)
+    block["z"] += 0.5
+
+blocks.extend(arm_left)`}</code></pre>
+
+        <h3 class="text-xl font-semibold mb-3 mt-6">Creating Symmetry</h3>
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Wings on both sides
+for side in [-1, 1]:  # Left and right
+    wing = create_plane(3, 1.5, 0.15, "brown_terracotta", center=(0,3,0))
+    for block in wing:
+        block["x"] += side * 2.5  # Mirror on both sides
+    blocks.extend(wing)`}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3F: ADVANCED TECHNIQUES -->
+    <section id="advanced" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🎯 Advanced Techniques</h2>
+
+      <div class="space-y-6">
+        <!-- Eyes -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">👁️ Creating Eyes (Critical!)</h3>
+          <p class="text-gray-600 mb-3">Every creature MUST have eyes - they bring models to life!</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Head at y=5 to y=7
+head = create_sphere(1.0, 0.2, "cyan_concrete", center_y=5)
+blocks.extend(head)
+
+# Eyes in UPPER part of head (around y=6.2)
+eye_height = 6.2
+
+# Left eye
+left_eye = create_sphere(0.15, 0.1, "white_concrete", center_y=eye_height)
+for block in left_eye:
+    block["x"] += -0.4  # Left side
+    block["z"] += 1.0   # Front of face
+blocks.extend(left_eye)
+
+# Pupil with glow
+pupil = create_sphere(0.08, 0.08, "black_concrete", center_y=eye_height)
+for block in pupil:
+    block["x"] += -0.4
+    block["z"] += 1.1  # Slightly forward
+blocks.extend(pupil)
+add_glow(pupil, brightness_block=10)`}</code></pre>
+        </div>
+
+        <!-- Thin Surfaces -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🪽 Thin Surfaces (Wings, Fins, Sails)</h3>
+          <p class="text-gray-600 mb-3">Use create_box() with one small dimension!</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Wings extending to sides (X), with height (Y), thin (Z)
+for i in range(6):  # Wing segments
+    x_offset = i * 0.5
+    width = 0.8 - (i * 0.1)  # Taper
+    height = 1.2 - (i * 0.15)
+
+    # Right wing
+    blocks.extend(create_box(
+        width, height, 0.12,  # THIN in Z!
+        0.2, "brown_terracotta",
+        center=(2 + x_offset, 3, 0)
+    ))
+
+    # Left wing (mirror)
+    blocks.extend(create_box(
+        width, height, 0.12,
+        0.2, "brown_terracotta",
+        center=(-2 - x_offset, 3, 0)
+    ))`}</code></pre>
+        </div>
+
+        <!-- Tapered Shapes -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🎯 Tapered Shapes (Tails, Limbs)</h3>
+          <p class="text-gray-600 mb-3">Use loops with decreasing size!</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Dragon tail - tapers from thick to thin
+for i in range(10):
+    radius = 0.8 - (i * 0.07)  # Gets smaller
+    y_pos = 1 + (i * 0.4)       # Goes up
+    z_pos = -1 - (i * 0.5)      # Goes backward
+
+    segment = create_sphere(radius, 0.2, "green", center_y=y_pos)
+    for block in segment:
+        block["z"] += z_pos
+    blocks.extend(segment)`}</code></pre>
+        </div>
+
+        <!-- Repeated Patterns -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-2">🕷️ Repeated Elements (Legs, Spikes)</h3>
+          <p class="text-gray-600 mb-3">Use loops with angles for symmetry!</p>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import math
+
+# 8 spider legs around body
+for leg_num in range(8):
+    angle = (leg_num * 2 * math.pi) / 8
+
+    for segment in range(3):  # 3 segments per leg
+        x = math.cos(angle) * (segment * 0.7)
+        z = math.sin(angle) * (segment * 0.7)
+
+        leg_part = create_cylinder(
+            0.5, 0.12, 0.15, "black_concrete",
+            center_y=1 - (segment * 0.2)
+        )
+        for block in leg_part:
+            block["x"] += x
+            block["z"] += z
+        blocks.extend(leg_part)`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: MANUAL BLOCKS -->
+    <section id="manual-blocks" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🧱 Creating Blocks Manually</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <p class="text-gray-700 mb-4">Sometimes you want full control! Here's how to create blocks one at a time:</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>{`blocks.append({
+    "block": "diamond_block",            # Block type
+    "x": 0,                              # X position
+    "y": 5,                              # Y position (height)
+    "z": 0,                              # Z position
+    "scale": [0.25, 0.25, 0.25],         # Size (x, y, z)
+    "brightness": {"sky": 15, "block": 0} # Lighting
+})`}</code></pre>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+          <p class="font-semibold text-blue-900 mb-2">📐 Understanding Coordinates:</p>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li><strong>X:</strong> Left (-) to Right (+)</li>
+            <li><strong>Y:</strong> Down (-) to Up (+)</li>
+            <li><strong>Z:</strong> Back (-) to Forward (+)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-soft p-6">
+        <h3 class="text-xl font-semibold mb-3">Using Loops to Create Patterns</h3>
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`# Create a line of blocks
+for x in range(10):
+    blocks.append({
+        "block": "gold_block",
+        "x": x,
+        "y": 0,
+        "z": 0,
+        "scale": [1, 1, 1],
+        "brightness": {"sky": 15, "block": 0}
+    })
+
+# Create a floor (2D grid)
+for x in range(-5, 5):
+    for z in range(-5, 5):
+        blocks.append({
+            "block": "stone",
+            "x": x,
+            "y": 0,
+            "z": z,
+            "scale": [1, 1, 1],
+            "brightness": {"sky": 15, "block": 0}
+        })`}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 5: ROTATION -->
+    <section id="rotation" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🔄 Rotating Blocks</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+        <p class="text-gray-700 mb-4">You can rotate blocks around different axes:</p>
+
+        <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>{`# Create a shape
+wing = create_plane(width=5, depth=2, scale=0.25, block_id="white_concrete")
+
+# Rotate it
+rotate_blocks_x(wing, 90)   # Tilt up/down
+rotate_blocks_y(wing, -90)  # Turn left/right
+rotate_blocks_z(wing, 180)  # Roll sideways`}</code></pre>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+          <p class="font-semibold text-yellow-900">⚠️ Important:</p>
+          <p class="text-yellow-800">Only use these angles: 90, -90, 180, -180</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: PYTHON BASICS -->
+    <section id="python-basics" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🐍 Python Basics You'll Need</h2>
+
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-3">Lists</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`my_list = []              # Create empty list
+my_list.append("item")    # Add to list
+len(my_list)              # How many items?`}</code></pre>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-3">Loops</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`for i in range(10):       # 0, 1, 2, ... 9
+    print(i)
+
+for i in range(5, 10):    # 5, 6, 7, 8, 9
+    print(i)
+
+for i in range(-5, 5):    # -5, -4, ... 3, 4
+    print(i)`}</code></pre>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-3">Math Functions</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import math
+
+math.cos(angle)    # Cosine (for circles)
+math.sin(angle)    # Sine (for circles)
+math.sqrt(number)  # Square root
+math.pi            # The number π (3.14159...)`}</code></pre>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-xl font-semibold mb-3">Random Numbers</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`import random
+
+random.random()        # Random 0.0 to 1.0
+random.randint(1, 10)  # Random integer 1-10
+random.choice([1,2,3]) # Pick random from list`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: FULL EXAMPLES -->
+    <section id="examples" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">📝 Complete Examples</h2>
+
+      <div class="space-y-6">
+        <!-- Example 1: Simple House -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-2xl font-semibold mb-3">Example 1: Castle Tower</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`def generate():
+    blocks = []
+    components = []
+
+    # Tower base (cylinder)
+    tower = create_cylinder(
+        height=8,
+        radius=2,
+        scale=0.25,
+        block_id="stone_bricks",
+        use_square=True  # Square tower
+    )
+    blocks.extend(tower)  # Add blocks to main list!
+    components.append({
+        "id": "tower_base",
+        "type": "cylinder",
+        "blocks": tower
+    })
+
+    # Roof (cone)
+    roof = create_cone(
+        height=3,
+        base_radius=2.5,
+        scale=0.25,
+        block_id="red_concrete",
+        center_y=8  # On top of tower
+    )
+    blocks.extend(roof)  # Add blocks to main list!
+    components.append({
+        "id": "roof",
+        "type": "cone",
+        "blocks": roof
+    })
+
+    # Flag on top
+    blocks.append({
+        "block": "white_banner",
+        "x": 0,
+        "y": 11,
+        "z": 0,
+        "scale": [0.1, 0.5, 0.1],
+        "brightness": {"sky": 15, "block": 0}
+    })
+
+    return {"blocks": blocks, "components": components}`}</code></pre>
+        </div>
+
+        <!-- Example 2: Snowman -->
+        <div class="bg-white rounded-xl shadow-soft p-6">
+          <h3 class="text-2xl font-semibold mb-3">Example 2: Snowman</h3>
+          <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`def generate():
+    blocks = []
+    components = []
+
+    # Bottom sphere
+    bottom = create_sphere(
+        radius=2,
+        scale=0.25,
+        block_id="snow_block"
+    )
+    blocks.extend(bottom)  # Add blocks to main list!
+    components.append({
+        "id": "bottom",
+        "type": "sphere",
+        "blocks": bottom
+    })
+
+    # Middle sphere
+    middle = create_sphere(
+        radius=1.5,
+        scale=0.25,
+        block_id="snow_block",
+        center_y=4  # Stack on top
+    )
+    blocks.extend(middle)  # Add blocks to main list!
+    components.append({
+        "id": "middle",
+        "type": "sphere",
+        "blocks": middle
+    })
+
+    # Head
+    head = create_sphere(
+        radius=1,
+        scale=0.25,
+        block_id="snow_block",
+        center_y=7  # Stack higher
+    )
+    blocks.extend(head)  # Add blocks to main list!
+    components.append({
+        "id": "head",
+        "type": "sphere",
+        "blocks": head
+    })
+
+    return {"blocks": blocks, "components": components}`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: BLOCK TYPES -->
+    <section id="blocks-list" class="mb-16">
+      <h2 class="text-3xl font-display font-bold text-navy mb-4">🎨 Common Minecraft Blocks</h2>
+
+      <div class="bg-white rounded-xl shadow-soft p-6">
+        <p class="text-gray-700 mb-4">All blocks must be prefixed with <code class="bg-gray-100 px-2 py-1 rounded">minecraft:</code></p>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div><code class="bg-gray-100 px-2 py-1 rounded">stone</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">cobblestone</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">stone_bricks</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">oak_planks</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">oak_log</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">glass</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">gold_block</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">diamond_block</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">iron_block</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">red_concrete</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">blue_wool</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">white_concrete</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">sandstone</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">brick</code></div>
+          <div><code class="bg-gray-100 px-2 py-1 rounded">obsidian</code></div>
+        </div>
+
+        <p class="text-sm text-gray-600 mt-4">And many more! See Minecraft wiki for full list.</p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl p-8 text-center">
+      <h3 class="text-2xl font-bold mb-4">Ready to Create?</h3>
+      <p class="mb-6">Head back to the generator and start building!</p>
+      <a href="/voxel-generator" class="inline-block bg-white text-purple-700 font-bold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+        Go to Generator →
+      </a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  pre code {
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+
+  section {
+    scroll-margin-top: 80px;
+  }
+</style>

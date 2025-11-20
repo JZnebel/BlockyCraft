@@ -1,0 +1,28 @@
+{
+  "name": "my-astro-site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "NODE_OPTIONS='--max-old-space-size=8192' astro dev",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/three": "^0.181.0",
+    "astro": "^5.15.9",
+    "minecraft-data": "^3.100.0",
+    "mineflayer": "^4.25.0",
+    "prismarine-block": "^1.22.0",
+    "prismarine-chunk": "^1.39.0",
+    "prismarine-viewer": "^1.33.0",
+    "pyodide": "^0.29.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.181.1"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "tailwindcss": "^3.4.18"
+  }
+}
