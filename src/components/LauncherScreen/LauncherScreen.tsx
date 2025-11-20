@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './LauncherScreen.css';
 
 interface ServerConfig {
@@ -38,6 +39,7 @@ interface LauncherScreenProps {
 }
 
 export default function LauncherScreen({ onLaunch }: LauncherScreenProps) {
+  const { t } = useTranslation();
   const [selectedServers, setSelectedServers] = useState<Set<string>>(new Set());
   const [localMode, setLocalMode] = useState(false);
   const [rememberChoice, setRememberChoice] = useState(true);
@@ -102,24 +104,49 @@ export default function LauncherScreen({ onLaunch }: LauncherScreenProps) {
       <div className="launcher-screen">
         <div className="launcher-loading">
           <div className="spinner"></div>
-          <p>Loading...</p>
+          <p>{t('launcher.loading')}</p>
         </div>
       </div>
     );
   }
+
+  // Get translations for server configs
+  const serverConfigs: ServerConfig[] = [
+    {
+      id: 'fabric',
+      name: t('launcher.fabricTitle'),
+      port: 8585,
+      description: t('launcher.fabricDescription'),
+      color: '#8B5CF6',
+    },
+    {
+      id: 'bukkit',
+      name: t('launcher.bukkitTitle'),
+      port: 8586,
+      description: t('launcher.bukkitDescription'),
+      color: '#F59E0B',
+    },
+    {
+      id: 'bedrock',
+      name: t('launcher.bedrockTitle'),
+      port: 8587,
+      description: t('launcher.bedrockDescription'),
+      color: '#10B981',
+    },
+  ];
 
   return (
     <div className="launcher-screen">
       <div className="launcher-container">
         <div className="launcher-header">
           <img src="/logo.png" alt="BlocklyCraft" className="launcher-logo" />
-          <h1>BlocklyCraft Launcher</h1>
-          <p className="launcher-subtitle">Choose which deployment servers to start</p>
+          <h1>{t('launcher.title')}</h1>
+          <p className="launcher-subtitle">{t('launcher.subtitle')}</p>
         </div>
 
         <div className="launcher-options">
           {/* Server Options */}
-          {SERVERS.map((server) => (
+          {serverConfigs.map((server) => (
             <div
               key={server.id}
               className={`launcher-option ${
@@ -169,11 +196,11 @@ export default function LauncherScreen({ onLaunch }: LauncherScreenProps) {
             </div>
             <div className="option-content">
               <div className="option-header">
-                <h3>Local Mode Only</h3>
+                <h3>{t('launcher.localMode')}</h3>
                 <span className="option-badge">No Servers</span>
               </div>
               <p className="option-description">
-                Build and edit mods without starting deployment servers
+                {t('launcher.localModeDescription')}
               </p>
             </div>
           </div>
@@ -187,7 +214,7 @@ export default function LauncherScreen({ onLaunch }: LauncherScreenProps) {
               checked={rememberChoice}
               onChange={(e) => setRememberChoice(e.target.checked)}
             />
-            <span>Remember my choice and auto-start next time</span>
+            <span>{t('launcher.rememberChoice')}</span>
           </label>
         </div>
 
@@ -197,16 +224,12 @@ export default function LauncherScreen({ onLaunch }: LauncherScreenProps) {
           onClick={handleLaunch}
           disabled={!canLaunch}
         >
-          {localMode
-            ? 'Start BlocklyCraft (Local Mode)'
-            : `Start BlocklyCraft with ${selectedServers.size} server${
-                selectedServers.size !== 1 ? 's' : ''
-              }`}
+          {t('launcher.continueButton')}
         </button>
 
         {!canLaunch && (
           <p className="launcher-warning">
-            Please select at least one server or enable Local Mode
+            {t('launcher.selectServerWarning')}
           </p>
         )}
       </div>

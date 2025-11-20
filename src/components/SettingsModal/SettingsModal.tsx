@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '@/components/Modal/Modal';
 import { dbSaveSetting, dbGetSetting } from '@/utils/database';
 import { getAllServerStatus, startServer, stopServer, type ServerStatus } from '@/utils/tauri-commands';
@@ -10,6 +11,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const { t, i18n } = useTranslation();
   const [openaiKey, setOpenaiKey] = useState('');
   const [openaiImageKey, setOpenaiImageKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -23,6 +25,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // Server management
   const [serverStatuses, setServerStatuses] = useState<ServerStatus[]>([]);
   const [isLoadingServers, setIsLoadingServers] = useState(false);
+
+  // Language
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
 
   // Load existing API keys when modal opens
   useEffect(() => {
@@ -84,6 +89,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    i18n.changeLanguage(language);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -130,43 +140,43 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Settings"
+      title={t('settings.title')}
       actions={
         <>
           <button
             className="modal-btn modal-btn-secondary"
             onClick={onClose}
           >
-            Cancel
+            {t('settings.cancel')}
           </button>
           <button
             className="modal-btn modal-btn-success"
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isSaving ? t('settings.saving') : t('settings.save')}
           </button>
         </>
       }
     >
       <div className="settings-content">
         <div className="settings-section">
-          <h3>OpenAI API Keys</h3>
+          <h3>{t('settings.apiKeys.title')}</h3>
           <p className="settings-description">
-            Enter your OpenAI API keys to enable AI features like block display generation and custom item textures.
+            {t('settings.apiKeys.description')}
           </p>
 
           <div className="settings-field">
             <label htmlFor="openai-key">
-              GPT-5.1 API Key
-              <span className="settings-hint">(for AI block display models)</span>
+              {t('settings.apiKeys.gptKeyLabel')}
+              <span className="settings-hint">{t('settings.apiKeys.gptKeyHint')}</span>
             </label>
             <div className="api-key-input-group">
               <input
                 id="openai-key"
                 type={showKeys ? 'text' : 'password'}
                 className="settings-input"
-                placeholder="sk-proj-..."
+                placeholder={t('settings.apiKeys.placeholder')}
                 value={openaiKey}
                 onChange={(e) => setOpenaiKey(e.target.value)}
               />
@@ -178,15 +188,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
           <div className="settings-field">
             <label htmlFor="openai-image-key">
-              GPT Image 1 API Key
-              <span className="settings-hint">(for custom item textures)</span>
+              {t('settings.apiKeys.imageKeyLabel')}
+              <span className="settings-hint">{t('settings.apiKeys.imageKeyHint')}</span>
             </label>
             <div className="api-key-input-group">
               <input
                 id="openai-image-key"
                 type={showKeys ? 'text' : 'password'}
                 className="settings-input"
-                placeholder="sk-proj-..."
+                placeholder={t('settings.apiKeys.placeholder')}
                 value={openaiImageKey}
                 onChange={(e) => setOpenaiImageKey(e.target.value)}
               />
@@ -203,21 +213,21 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 checked={showKeys}
                 onChange={(e) => setShowKeys(e.target.checked)}
               />
-              Show API keys
+              {t('settings.apiKeys.showKeys')}
             </label>
           </div>
         </div>
 
         <div className="settings-section">
-          <h3>Platform Settings</h3>
+          <h3>{t('settings.platform.title')}</h3>
           <p className="settings-description">
-            Configure the Minecraft platform and version you're developing for. This determines which blocks are available and how code is generated.
+            {t('settings.platform.description')}
           </p>
 
           <div className="settings-field">
             <label htmlFor="edition-select">
-              Edition
-              <span className="settings-hint">(Java or Bedrock)</span>
+              {t('settings.platform.editionLabel')}
+              <span className="settings-hint">{t('settings.platform.editionHint')}</span>
             </label>
             <select
               id="edition-select"
@@ -225,15 +235,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               value={edition}
               onChange={(e) => handleEditionChange(e.target.value as 'java' | 'bedrock')}
             >
-              <option value="java">Java Edition</option>
-              <option value="bedrock">Bedrock Edition</option>
+              <option value="java">{t('settings.platform.editionJava')}</option>
+              <option value="bedrock">{t('settings.platform.editionBedrock')}</option>
             </select>
           </div>
 
           <div className="settings-field">
             <label htmlFor="platform-select">
-              Platform
-              <span className="settings-hint">(mod loader or server type)</span>
+              {t('settings.platform.platformLabel')}
+              <span className="settings-hint">{t('settings.platform.platformHint')}</span>
             </label>
             <select
               id="platform-select"
@@ -244,19 +254,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             >
               {edition === 'java' ? (
                 <>
-                  <option value="fabric">Fabric (Mods)</option>
-                  <option value="bukkit">Bukkit/Paper (Plugins)</option>
+                  <option value="fabric">{t('settings.platform.platformFabric')}</option>
+                  <option value="bukkit">{t('settings.platform.platformBukkit')}</option>
                 </>
               ) : (
-                <option value="bedrock">Bedrock (Add-ons)</option>
+                <option value="bedrock">{t('settings.platform.platformBedrock')}</option>
               )}
             </select>
           </div>
 
           <div className="settings-field">
             <label htmlFor="version-select">
-              Minecraft Version
-              <span className="settings-hint">(currently only 1.21.1 supported)</span>
+              {t('settings.platform.versionLabel')}
+              <span className="settings-hint">{t('settings.platform.versionHint')}</span>
             </label>
             <select
               id="version-select"
@@ -270,14 +280,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </div>
 
         <div className="settings-section">
-          <h3>Deployment Servers</h3>
+          <h3>{t('settings.servers.title')}</h3>
           <p className="settings-description">
-            Manage which deployment servers are running. These servers are used to deploy your mods to Minecraft.
+            {t('settings.servers.description')}
           </p>
 
           {isLoadingServers ? (
             <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
-              Loading server status...
+              {t('settings.servers.loading')}
             </div>
           ) : (
             <div className="server-status-list">
@@ -285,16 +295,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <div key={server.server_id} className="server-status-row">
                   <div className="server-info">
                     <div className="server-name">
-                      {server.server_id === 'fabric' && '🟦 Fabric (Java)'}
-                      {server.server_id === 'bukkit' && '🟨 Bukkit (Java)'}
-                      {server.server_id === 'bedrock' && '🟩 Bedrock'}
+                      {server.server_id === 'fabric' && t('settings.servers.fabricName')}
+                      {server.server_id === 'bukkit' && t('settings.servers.bukkitName')}
+                      {server.server_id === 'bedrock' && t('settings.servers.bedrockName')}
                     </div>
                     <div className="server-details">
                       <span className={`server-status ${server.running ? 'running' : 'stopped'}`}>
-                        {server.running ? '🟢 Running' : '⚪ Stopped'}
+                        {server.running ? t('settings.servers.running') : t('settings.servers.stopped')}
                       </span>
-                      <span className="server-port">Port: {server.port}</span>
-                      {server.pid && <span className="server-pid">PID: {server.pid}</span>}
+                      <span className="server-port">{t('settings.servers.port')}: {server.port}</span>
+                      {server.pid && <span className="server-pid">{t('settings.servers.pid')}: {server.pid}</span>}
                     </div>
                   </div>
                   <div className="server-actions">
@@ -303,14 +313,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         className="server-btn server-btn-stop"
                         onClick={() => handleStopServer(server.server_id as 'fabric' | 'bukkit' | 'bedrock')}
                       >
-                        Stop
+                        {t('settings.servers.stop')}
                       </button>
                     ) : (
                       <button
                         className="server-btn server-btn-start"
                         onClick={() => handleStartServer(server.server_id as 'fabric' | 'bukkit' | 'bedrock')}
                       >
-                        Start
+                        {t('settings.servers.start')}
                       </button>
                     )}
                   </div>
@@ -318,6 +328,32 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="settings-section">
+          <h3>{t('settings.language.title')}</h3>
+          <p className="settings-description">
+            {t('settings.language.description')}
+          </p>
+
+          <div className="settings-field">
+            <label htmlFor="language-select">
+              {t('settings.language.label')}
+              <span className="settings-hint">{t('settings.language.hint')}</span>
+            </label>
+            <select
+              id="language-select"
+              className="settings-input"
+              value={selectedLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+            >
+              <option value="en">{t('languages.en')}</option>
+              <option value="es">{t('languages.es')}</option>
+              <option value="fr">{t('languages.fr')}</option>
+              <option value="de">{t('languages.de')}</option>
+              <option value="zh">{t('languages.zh')}</option>
+            </select>
+          </div>
         </div>
       </div>
     </Modal>

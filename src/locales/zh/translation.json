@@ -1,0 +1,190 @@
+{
+  "header": {
+    "projectName": "项目名称",
+    "new": "新建项目",
+    "save": "保存",
+    "compile": "构建模组",
+    "deploy": "部署模组",
+    "settings": "设置"
+  },
+  "launcher": {
+    "title": "欢迎使用 BlocklyCraft",
+    "subtitle": "选择您要启动的部署服务器",
+    "description": "选择您想要用于部署模组的服务器类型。您可以启动多个服务器或跳过此步骤进行本地开发。",
+    "loading": "加载中...",
+    "fabricTitle": "Fabric (Java 版)",
+    "fabricDescription": "Java 版现代模组加载器",
+    "bukkitTitle": "Bukkit/Paper (Java 版)",
+    "bukkitDescription": "Java 服务器插件 API",
+    "bedrockTitle": "基岩版",
+    "bedrockDescription": "跨平台基岩版扩展",
+    "localMode": "仅本地模式",
+    "localModeDescription": "跳过服务器设置并在本地工作",
+    "rememberChoice": "记住我的选择",
+    "continueButton": "继续使用 BlocklyCraft",
+    "selectServerWarning": "请至少选择一个服务器或启用本地模式"
+  },
+  "settings": {
+    "title": "设置",
+    "cancel": "取消",
+    "save": "保存设置",
+    "saving": "保存中...",
+    "apiKeys": {
+      "title": "OpenAI API 密钥",
+      "description": "输入您的 OpenAI API 密钥以启用 AI 功能，如方块模型生成和自定义物品纹理。",
+      "gptKeyLabel": "GPT-5.1 API 密钥",
+      "gptKeyHint": "(用于 AI 方块模型)",
+      "imageKeyLabel": "GPT Image 1 API 密钥",
+      "imageKeyHint": "(用于自定义物品纹理)",
+      "showKeys": "显示 API 密钥",
+      "placeholder": "sk-proj-..."
+    },
+    "platform": {
+      "title": "平台设置",
+      "description": "配置您正在开发的 Minecraft 平台和版本。这决定了哪些方块可用以及如何生成代码。",
+      "editionLabel": "版本",
+      "editionHint": "(Java 或基岩版)",
+      "editionJava": "Java 版",
+      "editionBedrock": "基岩版",
+      "platformLabel": "平台",
+      "platformHint": "(模组加载器或服务器类型)",
+      "platformFabric": "Fabric (模组)",
+      "platformBukkit": "Bukkit/Paper (插件)",
+      "platformBedrock": "基岩版 (扩展)",
+      "versionLabel": "Minecraft 版本",
+      "versionHint": "(目前仅支持 1.21.1)"
+    },
+    "servers": {
+      "title": "部署服务器",
+      "description": "管理正在运行的部署服务器。这些服务器用于将您的模组部署到 Minecraft。",
+      "loading": "加载服务器状态...",
+      "fabricName": "🟦 Fabric (Java)",
+      "bukkitName": "🟨 Bukkit (Java)",
+      "bedrockName": "🟩 基岩版",
+      "running": "🟢 运行中",
+      "stopped": "⚪ 已停止",
+      "port": "端口",
+      "pid": "进程ID",
+      "start": "启动",
+      "stop": "停止"
+    },
+    "language": {
+      "title": "语言",
+      "description": "选择您首选的用户界面和 Blockly 方块语言。",
+      "label": "界面语言",
+      "hint": "(需要重启应用)"
+    }
+  },
+  "modals": {
+    "newProject": {
+      "title": "新建项目",
+      "message": "您确定要创建新项目吗？未保存的更改将丢失。",
+      "cancel": "取消",
+      "confirm": "创建新项目"
+    },
+    "renameProject": {
+      "title": "重命名项目",
+      "label": "项目名称：",
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "saveProject": {
+      "title": "保存项目",
+      "label": "项目名称：",
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "deleteTexture": {
+      "title": "删除纹理",
+      "message": "您确定要删除 \"{name}\" 吗？此操作无法撤消。",
+      "confirm": "删除"
+    },
+    "deleteProject": {
+      "title": "删除项目",
+      "message": "您确定要删除 \"{name}\" 吗？",
+      "messageDeployed": "您确定要删除 \"{name}\" 吗？此项目当前已部署且将被移除。此操作无法撤消。",
+      "confirm": "删除"
+    },
+    "undeployMod": {
+      "title": "移除模组",
+      "message": "您确定要移除 \"{name}\" 吗？这将从 Minecraft 中删除它。",
+      "confirm": "移除"
+    },
+    "message": {
+      "ok": "确定",
+      "copyHint": "点击上方文本以选择和复制"
+    }
+  },
+  "examples": {
+    "title": "示例与项目",
+    "examplesTab": "示例",
+    "projectsTab": "项目",
+    "mediaTab": "媒体",
+    "aiTab": "AI 模型",
+    "deploymentsTab": "部署",
+    "noExamples": "暂无可用示例",
+    "noProjects": "还没有保存的项目。创建一些精彩的内容并点击标题中的\"保存\"！",
+    "noDeployments": "暂无已部署的模组",
+    "noTextures": "还没有上传纹理。将图片拖放到上方！",
+    "loadButton": "加载",
+    "deleteButton": "删除",
+    "undeployButton": "移除",
+    "lastModified": "最后修改",
+    "deployedAt": "已部署",
+    "deployed": "🎮 已部署",
+    "collapse": "折叠",
+    "expand": "展开",
+    "mediaLibrary": "媒体库",
+    "uploadImages": "上传图片",
+    "uploadImagesHint": "点击选择 PNG、JPG、GIF 文件",
+    "generateWithAI": "使用 AI 生成",
+    "aiTexturePrompt": "描述您想要的纹理（例如：\"一把发光的紫色剑，带有闪电\"）",
+    "generating": "生成中...",
+    "generateTexture": "生成纹理",
+    "deleteTexture": "删除纹理",
+    "deleteProject": "删除项目",
+    "undeployMod": "移除模组",
+    "difficulty": {
+      "beginner": "初级",
+      "intermediate": "中级",
+      "advanced": "高级",
+      "expert": "专家"
+    }
+  },
+  "messages": {
+    "saveRequired": "需要保存",
+    "saveBeforeCompile": "编译前请使用适当的名称保存您的项目。",
+    "saveBeforeDeploy": "部署前请使用适当的名称保存您的项目。",
+    "buildSuccessful": "构建成功",
+    "buildSuccessMessage": "构建成功！使用\"部署模组\"将其部署到服务器。",
+    "validationErrors": "验证错误",
+    "compileError": "编译错误",
+    "deploymentSuccess": "成功",
+    "deploymentSuccessMessage": "模组部署成功！",
+    "deploymentFailed": "部署失败",
+    "deploymentError": "部署错误",
+    "error": "错误",
+    "success": "成功",
+    "projectSavedSuccessfully": "项目保存成功！",
+    "workspaceNotInitialized": "工作区未初始化",
+    "noWorkspaceToSave": "没有可保存的工作区",
+    "errorLoadingExample": "加载示例时出错：",
+    "errorLoadingProject": "加载项目时出错：",
+    "errorSavingProject": "保存项目时出错：",
+    "enterTextureDescription": "请输入纹理的描述",
+    "setAPIKeyFirst": "请先在设置中配置您的 OpenAI API 密钥",
+    "textureGeneratedSuccessfully": "纹理生成成功！",
+    "failedToGenerateTexture": "生成纹理失败：",
+    "failedToDeleteTexture": "删除纹理失败：",
+    "warningUndeployFailed": "警告：无法完全移除模组：",
+    "failedToDeleteProject": "删除项目失败：",
+    "errorUndeployingMod": "移除模组时出错："
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "zh": "中文"
+  }
+}

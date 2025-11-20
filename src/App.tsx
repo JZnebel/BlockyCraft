@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/Header/Header';
 import BlocklyEditor from '@/components/BlocklyEditor/BlocklyEditor';
 import ExamplesPanel from '@/components/ExamplesPanel/ExamplesPanel';
@@ -17,6 +18,7 @@ import { startServer } from '@/utils/tauri-commands';
 import './App.css';
 
 function App() {
+  const { t } = useTranslation();
   const [projectName, setProjectName] = useState('Untitled Project');
   const [deploymentRefreshKey, setDeploymentRefreshKey] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
@@ -93,11 +95,11 @@ function App() {
         console.log('[App] Example loaded successfully');
       } catch (error) {
         console.error('[App] Error loading example:', error);
-        showMessage('Error', 'Error loading example: ' + error);
+        showMessage(t('messages.error'), t('messages.errorLoadingExample') + error);
       }
     } else {
       console.error('[App] No workspace reference!');
-      showMessage('Error', 'Workspace not initialized');
+      showMessage(t('messages.error'), t('messages.workspaceNotInitialized'));
     }
   };
 
@@ -109,7 +111,7 @@ function App() {
         console.log('Project loaded:', name);
       } catch (error) {
         console.error('Error loading project:', error);
-        showMessage('Error', 'Error loading project: ' + error);
+        showMessage(t('messages.error'), t('messages.errorLoadingProject') + error);
       }
     }
   };
@@ -129,7 +131,7 @@ function App() {
 
   const handleSave = async () => {
     if (!workspaceRef.current) {
-      showMessage('Error', 'No workspace to save');
+      showMessage(t('messages.error'), t('messages.noWorkspaceToSave'));
       return;
     }
 
@@ -147,10 +149,10 @@ function App() {
       await dbSaveProject(tempProjectName.trim(), xmlText, platform, edition, minecraftVersion);
       setProjectName(tempProjectName.trim());
       setShowSaveModal(false);
-      showMessage('Success', 'Project saved successfully!');
+      showMessage(t('messages.success'), t('messages.projectSavedSuccessfully'));
     } catch (error) {
       console.error('Save error:', error);
-      showMessage('Error', 'Error saving project: ' + error);
+      showMessage(t('messages.error'), t('messages.errorSavingProject') + error);
     }
   };
 
@@ -163,7 +165,7 @@ function App() {
     if (projectName.toLowerCase().trim() === 'untitled project') {
       setTempProjectName(projectName);
       setShowSaveModal(true);
-      showMessage('Save Required', 'Please save your project with a proper name before compiling.');
+      showMessage(t('messages.saveRequired'), t('messages.saveBeforeCompile'));
       return;
     }
 
@@ -175,14 +177,14 @@ function App() {
       // Validate mod data
       const errors = validateModData(modData);
       if (errors.length > 0) {
-        showMessage('Validation Errors', errors.join('\n'));
+        showMessage(t('messages.validationErrors'), errors.join('\n'));
         return;
       }
 
-      showMessage('Build Successful', 'Build successful! Use "Deploy Mod" to deploy to the server.');
+      showMessage(t('messages.buildSuccessful'), t('messages.buildSuccessMessage'));
     } catch (error) {
       console.error('Compile error:', error);
-      showMessage('Compile Error', String(error));
+      showMessage(t('messages.compileError'), String(error));
     } finally {
       setIsCompiling(false);
     }
@@ -197,7 +199,7 @@ function App() {
     if (projectName.toLowerCase().trim() === 'untitled project') {
       setTempProjectName(projectName);
       setShowSaveModal(true);
-      showMessage('Save Required', 'Please save your project with a proper name before deploying.');
+      showMessage(t('messages.saveRequired'), t('messages.saveBeforeDeploy'));
       return;
     }
 
@@ -209,7 +211,7 @@ function App() {
       // Validate mod data
       const errors = validateModData(modData);
       if (errors.length > 0) {
-        showMessage('Validation Errors', errors.join('\n'));
+        showMessage(t('messages.validationErrors'), errors.join('\n'));
         return;
       }
 
@@ -234,7 +236,7 @@ function App() {
       const result = await response.json();
 
       if (result.success) {
-        showMessage('Success', 'Mod deployed successfully!\n\n' + result.message);
+        showMessage(t('messages.deploymentSuccess'), t('messages.deploymentSuccessMessage') + '\n\n' + result.message);
         // Store deployment in localStorage
         const deployments = JSON.parse(localStorage.getItem('blocklycraft_deployments') || '[]');
         if (!deployments.find((d: any) => d.projectName === projectName)) {
@@ -247,11 +249,11 @@ function App() {
         // Trigger refresh of deployment status
         setDeploymentRefreshKey(prev => prev + 1);
       } else {
-        showMessage('Deployment Failed', result.error || 'Unknown error');
+        showMessage(t('messages.deploymentFailed'), result.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Deploy error:', error);
-      showMessage('Deployment Error', String(error));
+      showMessage(t('messages.deploymentError'), String(error));
     } finally {
       setIsDeploying(false);
     }
@@ -371,27 +373,27 @@ function App() {
       <Modal
         isOpen={showRenameModal}
         onClose={() => setShowRenameModal(false)}
-        title="Rename Project"
+        title={t('modals.renameProject.title')}
         actions={
           <>
             <button
               className="modal-btn modal-btn-secondary"
               onClick={() => setShowRenameModal(false)}
             >
-              Cancel
+              {t('modals.renameProject.cancel')}
             </button>
             <button
               className="modal-btn modal-btn-primary"
               onClick={handleRenameConfirm}
             >
-              Save
+              {t('modals.renameProject.save')}
             </button>
           </>
         }
       >
         <div style={{ padding: '1rem' }}>
           <label htmlFor="project-name-input" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Project Name:
+            {t('modals.renameProject.label')}
           </label>
           <input
             id="project-name-input"
@@ -415,54 +417,54 @@ function App() {
       <Modal
         isOpen={showNewProjectModal}
         onClose={() => setShowNewProjectModal(false)}
-        title="New Project"
+        title={t('modals.newProject.title')}
         actions={
           <>
             <button
               className="modal-btn modal-btn-secondary"
               onClick={() => setShowNewProjectModal(false)}
             >
-              Cancel
+              {t('modals.newProject.cancel')}
             </button>
             <button
               className="modal-btn modal-btn-primary"
               onClick={handleNewConfirm}
             >
-              Create New Project
+              {t('modals.newProject.confirm')}
             </button>
           </>
         }
       >
         <div style={{ padding: '1rem' }}>
           <p style={{ margin: 0, lineHeight: 1.6 }}>
-            Are you sure you want to create a new project? Unsaved changes will be lost.
+            {t('modals.newProject.message')}
           </p>
         </div>
       </Modal>
       <Modal
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}
-        title="Save Project"
+        title={t('modals.saveProject.title')}
         actions={
           <>
             <button
               className="modal-btn modal-btn-secondary"
               onClick={() => setShowSaveModal(false)}
             >
-              Cancel
+              {t('modals.saveProject.cancel')}
             </button>
             <button
               className="modal-btn modal-btn-success"
               onClick={handleSaveConfirm}
             >
-              Save
+              {t('modals.saveProject.save')}
             </button>
           </>
         }
       >
         <div style={{ padding: '1rem' }}>
           <label htmlFor="save-project-name-input" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Project Name:
+            {t('modals.saveProject.label')}
           </label>
           <input
             id="save-project-name-input"
@@ -492,7 +494,7 @@ function App() {
             className="modal-btn modal-btn-primary"
             onClick={() => setShowMessageModal(false)}
           >
-            OK
+            {t('modals.message.ok')}
           </button>
         }
       >
@@ -515,7 +517,7 @@ function App() {
             onClick={(e) => e.currentTarget.select()}
           />
           <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.875rem', color: '#666' }}>
-            Click the text above to select and copy
+            {t('modals.message.copyHint')}
           </p>
         </div>
       </Modal>

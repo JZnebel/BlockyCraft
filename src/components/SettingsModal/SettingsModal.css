@@ -47,10 +47,10 @@
 .settings-input {
   flex: 1;
   padding: 0.625rem 0.875rem;
-  background: #F5F7FB;
+  background: #FFFFFF !important;
   border: 2px solid #E4E8EF;
   border-radius: 6px;
-  color: #1A1A1A;
+  color: #1A1A1A !important;
   font-size: 0.9rem;
   font-family: 'Courier New', monospace;
   transition: all 0.2s;
@@ -59,7 +59,7 @@
 .settings-input:focus {
   outline: none;
   border-color: #2D7FF9;
-  background: #FFFFFF;
+  background: #FFFFFF !important;
 }
 
 .settings-input::placeholder {
@@ -90,23 +90,23 @@
   cursor: pointer;
 }
 
-/* Ensure select dropdowns have light background */
+/* Ensure select dropdowns have white background */
 .settings-input[type="text"],
 .settings-input[type="password"],
 select.settings-input {
-  background: #F5F7FB;
-  color: #1A1A1A;
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
 }
 
 select.settings-input:disabled {
-  background: #E4E8EF;
-  color: #999999;
+  background: #E4E8EF !important;
+  color: #999999 !important;
   cursor: not-allowed;
 }
 
 select.settings-input option {
-  background: #FFFFFF;
-  color: #1A1A1A;
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
 }
 
 /* Server Management Styles */

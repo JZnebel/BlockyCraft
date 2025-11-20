@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EXAMPLE_PROJECTS, isExampleCompatible } from '@/utils/startup-examples';
 import {
   dbGetProjects,
@@ -26,6 +27,8 @@ export type SavedProject = DbProject & { dataUrl?: string };
 export type MediaFile = DbMediaFile & { dataUrl?: string };
 
 export default function ExamplesPanel({ onLoadExample, onLoadProject, deploymentRefreshKey, onDeploymentChange, platform = 'fabric' }: ExamplesPanelProps) {
+  const { t } = useTranslation();
+
   // Filter examples based on platform compatibility
   const filteredExamples = useMemo(() => {
     return EXAMPLE_PROJECTS.filter(example => isExampleCompatible(example.workspace, platform));
@@ -413,8 +416,8 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
     setConfirmModal({
       isOpen: true,
-      title: 'Delete Texture',
-      message: `Are you sure you want to delete "${media.name}"? This action cannot be undone.`,
+      title: t('modals.deleteTexture.title'),
+      message: t('modals.deleteTexture.message', { name: media.name }),
       type: 'danger',
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -440,7 +443,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
           setMediaFiles(updated);
         } catch (error) {
           console.error('[MEDIA] Error deleting file:', error);
-          alert(`Failed to delete texture: ${error}`);
+          alert(t('messages.failedToDeleteTexture') + error);
         }
       }
     });
@@ -448,7 +451,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
   const generateAITexture = async () => {
     if (!aiTextureDescription.trim()) {
-      alert('Please enter a description for the texture');
+      alert(t('messages.enterTextureDescription'));
       return;
     }
 
@@ -460,7 +463,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
       const apiKey = await dbGetSetting('openai_api_key');
 
       if (!apiKey) {
-        alert('Please set your OpenAI API key in Settings first');
+        alert(t('messages.setAPIKeyFirst'));
         setIsGeneratingTexture(false);
         return;
       }
@@ -518,11 +521,11 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
       // Clear input
       setAiTextureDescription('');
-      alert('Texture generated successfully!');
+      alert(t('messages.textureGeneratedSuccessfully'));
 
     } catch (error) {
       console.error('[AI TEXTURE] Error:', error);
-      alert(`Failed to generate texture: ${error}`);
+      alert(t('messages.failedToGenerateTexture') + error);
     } finally {
       setIsGeneratingTexture(false);
     }
@@ -536,8 +539,10 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
     setConfirmModal({
       isOpen: true,
-      title: 'Delete Project',
-      message: `Are you sure you want to delete "${project.name}"?${isDeployed ? ' This project is currently deployed and will be undeployed.' : ''} This action cannot be undone.`,
+      title: t('modals.deleteProject.title'),
+      message: isDeployed
+        ? t('modals.deleteProject.messageDeployed', { name: project.name })
+        : t('modals.deleteProject.message', { name: project.name }),
       type: 'danger',
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -564,7 +569,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
               onDeploymentChange();
             } catch (error) {
               console.error('Error undeploying during delete:', error);
-              alert(`Warning: Could not fully undeploy mod: ${error}`);
+              alert(t('messages.warningUndeployFailed') + error);
             }
           }
 
@@ -579,7 +584,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
           setSavedProjects(updatedProjects);
         } catch (error) {
           console.error('[DB] Error deleting project:', error);
-          alert(`Failed to delete project: ${error}`);
+          alert(t('messages.failedToDeleteProject') + error);
         }
       }
     });
@@ -590,8 +595,8 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
 
     setConfirmModal({
       isOpen: true,
-      title: 'Undeploy Mod',
-      message: `Are you sure you want to undeploy "${projectName}"? This will remove it from Minecraft.`,
+      title: t('modals.undeployMod.title'),
+      message: t('modals.undeployMod.message', { name: projectName }),
       type: 'warning',
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -617,7 +622,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
           console.log(`Successfully undeployed ${projectName}`);
         } catch (error) {
           console.error('Undeploy error:', error);
-          alert(`Error undeploying mod: ${error}`);
+          alert(t('messages.errorUndeployingMod') + error);
         }
       }
     });
@@ -653,12 +658,6 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
   }, {} as Record<string, typeof EXAMPLE_PROJECTS>);
 
   const difficultyOrder = ['beginner', 'intermediate', 'advanced', 'expert'];
-  const difficultyLabels: Record<string, string> = {
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced',
-    expert: 'Expert'
-  };
 
   const difficultyColors: Record<string, string> = {
     beginner: '#4CAF50',
@@ -671,11 +670,11 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
     <>
       <div className={`examples-panel ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="panel-header">
-          <h2>{activeTab === 'examples' ? 'Examples' : activeTab === 'media' ? 'Media Library' : 'Projects'}</h2>
+          <h2>{activeTab === 'examples' ? t('examples.examplesTab') : activeTab === 'media' ? t('examples.mediaLibrary') : t('examples.projectsTab')}</h2>
           <button
             className="collapse-btn"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            title="Collapse"
+            title={t('examples.collapse')}
           >
             ◀
           </button>
@@ -688,25 +687,25 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
               className={`tab ${activeTab === 'projects' ? 'active' : ''}`}
               onClick={() => setActiveTab('projects')}
             >
-              Projects
+              {t('examples.projectsTab')}
             </button>
             <button
               className={`tab ${activeTab === 'media' ? 'active' : ''}`}
               onClick={() => setActiveTab('media')}
             >
-              Media
+              {t('examples.mediaTab')}
             </button>
             <button
               className={`tab ${activeTab === 'examples' ? 'active' : ''}`}
               onClick={() => setActiveTab('examples')}
             >
-              Examples
+              {t('examples.examplesTab')}
             </button>
             <button
               className={`tab ${activeTab === 'ai' ? 'active' : ''}`}
               onClick={() => setActiveTab('ai')}
             >
-              AI Models
+              {t('examples.aiTab')}
             </button>
           </div>
 
@@ -729,20 +728,20 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                 />
                 <label htmlFor="media-upload" className="media-upload-button">
                   <div className="upload-icon">📁</div>
-                  <div className="upload-text">Upload Images</div>
-                  <div className="upload-subtext">Click to select PNG, JPG, GIF files</div>
+                  <div className="upload-text">{t('examples.uploadImages')}</div>
+                  <div className="upload-subtext">{t('examples.uploadImagesHint')}</div>
                 </label>
               </div>
 
               <div className="ai-texture-section">
                 <div className="ai-texture-header">
                   <div className="upload-icon">✨</div>
-                  <div className="upload-text">Generate with AI</div>
+                  <div className="upload-text">{t('examples.generateWithAI')}</div>
                 </div>
                 <input
                   type="text"
                   className="ai-texture-input"
-                  placeholder="Describe the texture you want (e.g., 'A glowing purple sword with lightning')"
+                  placeholder={t('examples.aiTexturePrompt')}
                   value={aiTextureDescription}
                   onChange={(e) => setAiTextureDescription(e.target.value)}
                   disabled={isGeneratingTexture}
@@ -752,13 +751,13 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                   onClick={generateAITexture}
                   disabled={isGeneratingTexture || !aiTextureDescription.trim()}
                 >
-                  {isGeneratingTexture ? 'Generating...' : 'Generate Texture'}
+                  {isGeneratingTexture ? t('examples.generating') : t('examples.generateTexture')}
                 </button>
               </div>
 
               {mediaFiles.length === 0 ? (
                 <div className="empty-state">
-                  No textures uploaded yet. Drag and drop images above!
+                  {t('examples.noTextures')}
                 </div>
               ) : (
                 <div className="media-grid">
@@ -770,7 +769,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                         <button
                           className="delete-btn"
                           onClick={(e) => deleteMedia(index, e)}
-                          title="Delete texture"
+                          title={t('examples.deleteTexture')}
                         >
                           ×
                         </button>
@@ -795,7 +794,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                       style={{ borderLeft: `4px solid ${difficultyColors[difficulty]}` }}
                     >
                       <span className="difficulty-label">
-                        {difficultyLabels[difficulty]} ({examples.length})
+                        {t(`examples.difficulty.${difficulty}`)} ({examples.length})
                       </span>
                       <span className="collapse-icon">{isExpanded ? '▼' : '▶'}</span>
                     </div>
@@ -822,7 +821,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
             <div className="examples-list">
               {savedProjects.length === 0 ? (
                 <div className="empty-state">
-                  No saved projects yet. Create something awesome and click "Save" in the header!
+                  {t('examples.noProjects')}
                 </div>
               ) : (
                 savedProjects.map((project, index) => (
@@ -851,22 +850,22 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
                     </div>
                     <div className="project-actions">
                       {deployedMods.has(project.name) && (
-                        <span className="deploy-badge">🎮 Deployed</span>
+                        <span className="deploy-badge">{t('examples.deployed')}</span>
                       )}
                       <div className="button-row">
                         {deployedMods.has(project.name) && (
                           <button
                             className="undeploy-btn"
                             onClick={(e) => undeployMod(project.name, e)}
-                            title="Undeploy mod"
+                            title={t('examples.undeployMod')}
                           >
-                            Undeploy
+                            {t('examples.undeployButton')}
                           </button>
                         )}
                         <button
                           className="delete-btn"
                           onClick={(e) => deleteProject(index, e)}
-                          title="Delete project"
+                          title={t('examples.deleteProject')}
                         >
                           ×
                         </button>
@@ -885,7 +884,7 @@ export default function ExamplesPanel({ onLoadExample, onLoadProject, deployment
         <button
           className="expand-btn"
           onClick={() => setIsCollapsed(false)}
-          title="Expand"
+          title={t('examples.expand')}
         >
           ▶
         </button>

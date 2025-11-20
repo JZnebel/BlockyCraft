@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFile,
@@ -31,6 +32,7 @@ export default function Header({
   isCompiling = false,
   isDeploying = false,
 }: HeaderProps) {
+  const { t } = useTranslation();
   return (
     <header className="blocklycraft-header">
       <div className="header-left">
@@ -49,36 +51,36 @@ export default function Header({
       </div>
 
       <div className="header-right">
-        <button className="header-btn" onClick={onNew} title="New Project">
+        <button className="header-btn" onClick={onNew} title={t('header.new')}>
           <FontAwesomeIcon icon={faFile} />
-          <span className="btn-text">New</span>
+          <span className="btn-text">{t('header.new')}</span>
         </button>
-        <button className="header-btn" onClick={onSave} title="Save Project">
+        <button className="header-btn" onClick={onSave} title={t('header.save')}>
           <FontAwesomeIcon icon={faSave} />
-          <span className="btn-text">Save</span>
+          <span className="btn-text">{t('header.save')}</span>
         </button>
         <button
           className="header-btn"
           onClick={onCompile}
-          title="Compile Mod"
+          title={t('header.compile')}
           disabled={isCompiling || isDeploying}
         >
           <FontAwesomeIcon icon={isCompiling ? faSpinner : faHammer} spin={isCompiling} />
-          <span className="btn-text">{isCompiling ? 'Compiling...' : 'Compile'}</span>
+          <span className="btn-text">{t('header.compile')}</span>
         </button>
         <button
           className="header-btn deploy-btn"
           onClick={onDeploy}
-          title="Deploy Mod"
+          title={t('header.deploy')}
           disabled={isCompiling || isDeploying}
         >
           <FontAwesomeIcon icon={isDeploying ? faSpinner : faHammer} spin={isDeploying} />
-          <span className="btn-text">{isDeploying ? 'Deploying...' : 'Deploy Mod'}</span>
+          <span className="btn-text">{t('header.deploy')}</span>
         </button>
         <button
           className="header-btn"
           onClick={onSettings}
-          title="Settings"
+          title={t('header.settings')}
         >
           <FontAwesomeIcon icon={faCog} />
         </button>

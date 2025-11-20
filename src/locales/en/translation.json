@@ -1,0 +1,190 @@
+{
+  "header": {
+    "projectName": "Project Name",
+    "new": "New Project",
+    "save": "Save",
+    "compile": "Build Mod",
+    "deploy": "Deploy Mod",
+    "settings": "Settings"
+  },
+  "launcher": {
+    "title": "Welcome to BlocklyCraft",
+    "subtitle": "Select the deployment servers you want to start",
+    "description": "Choose which server types you'd like to use for deploying your mods. You can start multiple servers or skip this step for local-only development.",
+    "loading": "Loading...",
+    "fabricTitle": "Fabric (Java Edition)",
+    "fabricDescription": "Modern mod loader for Java Edition",
+    "bukkitTitle": "Bukkit/Paper (Java Edition)",
+    "bukkitDescription": "Plugin API for Java servers",
+    "bedrockTitle": "Bedrock Edition",
+    "bedrockDescription": "Cross-platform Bedrock add-ons",
+    "localMode": "Local Mode Only",
+    "localModeDescription": "Skip server setup and work locally",
+    "rememberChoice": "Remember my choice",
+    "continueButton": "Continue to BlocklyCraft",
+    "selectServerWarning": "Please select at least one server or enable Local Mode"
+  },
+  "settings": {
+    "title": "Settings",
+    "cancel": "Cancel",
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "apiKeys": {
+      "title": "OpenAI API Keys",
+      "description": "Enter your OpenAI API keys to enable AI features like block display generation and custom item textures.",
+      "gptKeyLabel": "GPT-5.1 API Key",
+      "gptKeyHint": "(for AI block display models)",
+      "imageKeyLabel": "GPT Image 1 API Key",
+      "imageKeyHint": "(for custom item textures)",
+      "showKeys": "Show API keys",
+      "placeholder": "sk-proj-..."
+    },
+    "platform": {
+      "title": "Platform Settings",
+      "description": "Configure the Minecraft platform and version you're developing for. This determines which blocks are available and how code is generated.",
+      "editionLabel": "Edition",
+      "editionHint": "(Java or Bedrock)",
+      "editionJava": "Java Edition",
+      "editionBedrock": "Bedrock Edition",
+      "platformLabel": "Platform",
+      "platformHint": "(mod loader or server type)",
+      "platformFabric": "Fabric (Mods)",
+      "platformBukkit": "Bukkit/Paper (Plugins)",
+      "platformBedrock": "Bedrock (Add-ons)",
+      "versionLabel": "Minecraft Version",
+      "versionHint": "(currently only 1.21.1 supported)"
+    },
+    "servers": {
+      "title": "Deployment Servers",
+      "description": "Manage which deployment servers are running. These servers are used to deploy your mods to Minecraft.",
+      "loading": "Loading server status...",
+      "fabricName": "🟦 Fabric (Java)",
+      "bukkitName": "🟨 Bukkit (Java)",
+      "bedrockName": "🟩 Bedrock",
+      "running": "🟢 Running",
+      "stopped": "⚪ Stopped",
+      "port": "Port",
+      "pid": "PID",
+      "start": "Start",
+      "stop": "Stop"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language for the user interface and Blockly blocks.",
+      "label": "Interface Language",
+      "hint": "(requires app restart)"
+    }
+  },
+  "modals": {
+    "newProject": {
+      "title": "New Project",
+      "message": "Are you sure you want to create a new project? Unsaved changes will be lost.",
+      "cancel": "Cancel",
+      "confirm": "Create New Project"
+    },
+    "renameProject": {
+      "title": "Rename Project",
+      "label": "Project Name:",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "saveProject": {
+      "title": "Save Project",
+      "label": "Project Name:",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "deleteTexture": {
+      "title": "Delete Texture",
+      "message": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "deleteProject": {
+      "title": "Delete Project",
+      "message": "Are you sure you want to delete \"{name}\"?",
+      "messageDeployed": "Are you sure you want to delete \"{name}\"? This project is currently deployed and will be undeployed. This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "undeployMod": {
+      "title": "Undeploy Mod",
+      "message": "Are you sure you want to undeploy \"{name}\"? This will remove it from Minecraft.",
+      "confirm": "Undeploy"
+    },
+    "message": {
+      "ok": "OK",
+      "copyHint": "Click the text above to select and copy"
+    }
+  },
+  "examples": {
+    "title": "Examples & Projects",
+    "examplesTab": "Examples",
+    "projectsTab": "Projects",
+    "mediaTab": "Media",
+    "aiTab": "AI Models",
+    "deploymentsTab": "Deployments",
+    "noExamples": "No examples available",
+    "noProjects": "No saved projects yet. Create something awesome and click \"Save\" in the header!",
+    "noDeployments": "No deployed mods",
+    "noTextures": "No textures uploaded yet. Drag and drop images above!",
+    "loadButton": "Load",
+    "deleteButton": "Delete",
+    "undeployButton": "Undeploy",
+    "lastModified": "Last modified",
+    "deployedAt": "Deployed",
+    "deployed": "🎮 Deployed",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "mediaLibrary": "Media Library",
+    "uploadImages": "Upload Images",
+    "uploadImagesHint": "Click to select PNG, JPG, GIF files",
+    "generateWithAI": "Generate with AI",
+    "aiTexturePrompt": "Describe the texture you want (e.g., 'A glowing purple sword with lightning')",
+    "generating": "Generating...",
+    "generateTexture": "Generate Texture",
+    "deleteTexture": "Delete texture",
+    "deleteProject": "Delete project",
+    "undeployMod": "Undeploy mod",
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    }
+  },
+  "messages": {
+    "saveRequired": "Save Required",
+    "saveBeforeCompile": "Please save your project with a proper name before compiling.",
+    "saveBeforeDeploy": "Please save your project with a proper name before deploying.",
+    "buildSuccessful": "Build Successful",
+    "buildSuccessMessage": "Build successful! Use \"Deploy Mod\" to deploy to the server.",
+    "validationErrors": "Validation Errors",
+    "compileError": "Compile Error",
+    "deploymentSuccess": "Success",
+    "deploymentSuccessMessage": "Mod deployed successfully!",
+    "deploymentFailed": "Deployment Failed",
+    "deploymentError": "Deployment Error",
+    "error": "Error",
+    "success": "Success",
+    "projectSavedSuccessfully": "Project saved successfully!",
+    "workspaceNotInitialized": "Workspace not initialized",
+    "noWorkspaceToSave": "No workspace to save",
+    "errorLoadingExample": "Error loading example: ",
+    "errorLoadingProject": "Error loading project: ",
+    "errorSavingProject": "Error saving project: ",
+    "enterTextureDescription": "Please enter a description for the texture",
+    "setAPIKeyFirst": "Please set your OpenAI API key in Settings first",
+    "textureGeneratedSuccessfully": "Texture generated successfully!",
+    "failedToGenerateTexture": "Failed to generate texture: ",
+    "failedToDeleteTexture": "Failed to delete texture: ",
+    "warningUndeployFailed": "Warning: Could not fully undeploy mod: ",
+    "failedToDeleteProject": "Failed to delete project: ",
+    "errorUndeployingMod": "Error undeploying mod: "
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "zh": "中文"
+  }
+}

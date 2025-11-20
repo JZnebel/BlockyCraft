@@ -1,0 +1,190 @@
+{
+  "header": {
+    "projectName": "Nombre del Proyecto",
+    "new": "Nuevo Proyecto",
+    "save": "Guardar",
+    "compile": "Compilar Mod",
+    "deploy": "Desplegar Mod",
+    "settings": "Configuración"
+  },
+  "launcher": {
+    "title": "Bienvenido a BlocklyCraft",
+    "subtitle": "Selecciona los servidores de despliegue que deseas iniciar",
+    "description": "Elige qué tipos de servidor te gustaría usar para desplegar tus mods. Puedes iniciar múltiples servidores u omitir este paso para desarrollo solo local.",
+    "loading": "Cargando...",
+    "fabricTitle": "Fabric (Edición Java)",
+    "fabricDescription": "Cargador de mods moderno para Edición Java",
+    "bukkitTitle": "Bukkit/Paper (Edición Java)",
+    "bukkitDescription": "API de plugins para servidores Java",
+    "bedrockTitle": "Edición Bedrock",
+    "bedrockDescription": "Complementos multiplataforma para Bedrock",
+    "localMode": "Solo Modo Local",
+    "localModeDescription": "Omitir configuración de servidor y trabajar localmente",
+    "rememberChoice": "Recordar mi elección",
+    "continueButton": "Continuar a BlocklyCraft",
+    "selectServerWarning": "Por favor selecciona al menos un servidor o habilita el Modo Local"
+  },
+  "settings": {
+    "title": "Configuración",
+    "cancel": "Cancelar",
+    "save": "Guardar Configuración",
+    "saving": "Guardando...",
+    "apiKeys": {
+      "title": "Claves API de OpenAI",
+      "description": "Ingresa tus claves API de OpenAI para habilitar funciones de IA como generación de modelos de bloques y texturas de ítems personalizados.",
+      "gptKeyLabel": "Clave API GPT-5.1",
+      "gptKeyHint": "(para modelos de bloques de IA)",
+      "imageKeyLabel": "Clave API GPT Image 1",
+      "imageKeyHint": "(para texturas de ítems personalizados)",
+      "showKeys": "Mostrar claves API",
+      "placeholder": "sk-proj-..."
+    },
+    "platform": {
+      "title": "Configuración de Plataforma",
+      "description": "Configura la plataforma y versión de Minecraft para la que estás desarrollando. Esto determina qué bloques están disponibles y cómo se genera el código.",
+      "editionLabel": "Edición",
+      "editionHint": "(Java o Bedrock)",
+      "editionJava": "Edición Java",
+      "editionBedrock": "Edición Bedrock",
+      "platformLabel": "Plataforma",
+      "platformHint": "(cargador de mods o tipo de servidor)",
+      "platformFabric": "Fabric (Mods)",
+      "platformBukkit": "Bukkit/Paper (Plugins)",
+      "platformBedrock": "Bedrock (Complementos)",
+      "versionLabel": "Versión de Minecraft",
+      "versionHint": "(actualmente solo 1.21.1 soportado)"
+    },
+    "servers": {
+      "title": "Servidores de Despliegue",
+      "description": "Administra qué servidores de despliegue están en ejecución. Estos servidores se usan para desplegar tus mods a Minecraft.",
+      "loading": "Cargando estado del servidor...",
+      "fabricName": "🟦 Fabric (Java)",
+      "bukkitName": "🟨 Bukkit (Java)",
+      "bedrockName": "🟩 Bedrock",
+      "running": "🟢 En ejecución",
+      "stopped": "⚪ Detenido",
+      "port": "Puerto",
+      "pid": "PID",
+      "start": "Iniciar",
+      "stop": "Detener"
+    },
+    "language": {
+      "title": "Idioma",
+      "description": "Selecciona tu idioma preferido para la interfaz de usuario y los bloques de Blockly.",
+      "label": "Idioma de la Interfaz",
+      "hint": "(requiere reinicio de la aplicación)"
+    }
+  },
+  "modals": {
+    "newProject": {
+      "title": "Nuevo Proyecto",
+      "message": "¿Estás seguro de que deseas crear un nuevo proyecto? Los cambios no guardados se perderán.",
+      "cancel": "Cancelar",
+      "confirm": "Crear Nuevo Proyecto"
+    },
+    "renameProject": {
+      "title": "Renombrar Proyecto",
+      "label": "Nombre del Proyecto:",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "saveProject": {
+      "title": "Guardar Proyecto",
+      "label": "Nombre del Proyecto:",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "deleteTexture": {
+      "title": "Eliminar Textura",
+      "message": "¿Estás seguro de que deseas eliminar \"{name}\"? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "deleteProject": {
+      "title": "Eliminar Proyecto",
+      "message": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+      "messageDeployed": "¿Estás seguro de que deseas eliminar \"{name}\"? Este proyecto está actualmente desplegado y será retirado. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "undeployMod": {
+      "title": "Quitar Mod",
+      "message": "¿Estás seguro de que deseas quitar \"{name}\"? Esto lo eliminará de Minecraft.",
+      "confirm": "Quitar"
+    },
+    "message": {
+      "ok": "Aceptar",
+      "copyHint": "Haz clic en el texto de arriba para seleccionar y copiar"
+    }
+  },
+  "examples": {
+    "title": "Ejemplos y Proyectos",
+    "examplesTab": "Ejemplos",
+    "projectsTab": "Proyectos",
+    "mediaTab": "Medios",
+    "aiTab": "Modelos IA",
+    "deploymentsTab": "Despliegues",
+    "noExamples": "No hay ejemplos disponibles",
+    "noProjects": "No hay proyectos guardados aún. ¡Crea algo increíble y haz clic en \"Guardar\" en el encabezado!",
+    "noDeployments": "No hay mods desplegados",
+    "noTextures": "No hay texturas subidas aún. ¡Arrastra y suelta imágenes arriba!",
+    "loadButton": "Cargar",
+    "deleteButton": "Eliminar",
+    "undeployButton": "Quitar",
+    "lastModified": "Última modificación",
+    "deployedAt": "Desplegado",
+    "deployed": "🎮 Desplegado",
+    "collapse": "Contraer",
+    "expand": "Expandir",
+    "mediaLibrary": "Biblioteca de Medios",
+    "uploadImages": "Subir Imágenes",
+    "uploadImagesHint": "Haz clic para seleccionar archivos PNG, JPG, GIF",
+    "generateWithAI": "Generar con IA",
+    "aiTexturePrompt": "Describe la textura que deseas (ej. 'Una espada púrpura brillante con rayos')",
+    "generating": "Generando...",
+    "generateTexture": "Generar Textura",
+    "deleteTexture": "Eliminar textura",
+    "deleteProject": "Eliminar proyecto",
+    "undeployMod": "Quitar mod",
+    "difficulty": {
+      "beginner": "Principiante",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "expert": "Experto"
+    }
+  },
+  "messages": {
+    "saveRequired": "Guardar Requerido",
+    "saveBeforeCompile": "Por favor guarda tu proyecto con un nombre apropiado antes de compilar.",
+    "saveBeforeDeploy": "Por favor guarda tu proyecto con un nombre apropiado antes de desplegar.",
+    "buildSuccessful": "Compilación Exitosa",
+    "buildSuccessMessage": "¡Compilación exitosa! Usa \"Desplegar Mod\" para desplegar al servidor.",
+    "validationErrors": "Errores de Validación",
+    "compileError": "Error de Compilación",
+    "deploymentSuccess": "Éxito",
+    "deploymentSuccessMessage": "¡Mod desplegado exitosamente!",
+    "deploymentFailed": "Despliegue Fallido",
+    "deploymentError": "Error de Despliegue",
+    "error": "Error",
+    "success": "Éxito",
+    "projectSavedSuccessfully": "¡Proyecto guardado exitosamente!",
+    "workspaceNotInitialized": "Espacio de trabajo no inicializado",
+    "noWorkspaceToSave": "No hay espacio de trabajo para guardar",
+    "errorLoadingExample": "Error al cargar ejemplo: ",
+    "errorLoadingProject": "Error al cargar proyecto: ",
+    "errorSavingProject": "Error al guardar proyecto: ",
+    "enterTextureDescription": "Por favor ingresa una descripción para la textura",
+    "setAPIKeyFirst": "Por favor configura tu clave API de OpenAI en Configuración primero",
+    "textureGeneratedSuccessfully": "¡Textura generada exitosamente!",
+    "failedToGenerateTexture": "Error al generar textura: ",
+    "failedToDeleteTexture": "Error al eliminar textura: ",
+    "warningUndeployFailed": "Advertencia: No se pudo quitar completamente el mod: ",
+    "failedToDeleteProject": "Error al eliminar proyecto: ",
+    "errorUndeployingMod": "Error al quitar mod: "
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "zh": "中文"
+  }
+}

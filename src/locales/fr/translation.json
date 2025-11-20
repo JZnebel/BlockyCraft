@@ -1,0 +1,190 @@
+{
+  "header": {
+    "projectName": "Nom du Projet",
+    "new": "Nouveau Projet",
+    "save": "Enregistrer",
+    "compile": "Compiler le Mod",
+    "deploy": "Déployer le Mod",
+    "settings": "Paramètres"
+  },
+  "launcher": {
+    "title": "Bienvenue dans BlocklyCraft",
+    "subtitle": "Sélectionnez les serveurs de déploiement que vous souhaitez démarrer",
+    "description": "Choisissez les types de serveurs que vous souhaitez utiliser pour déployer vos mods. Vous pouvez démarrer plusieurs serveurs ou ignorer cette étape pour un développement local uniquement.",
+    "loading": "Chargement...",
+    "fabricTitle": "Fabric (Édition Java)",
+    "fabricDescription": "Chargeur de mods moderne pour l'Édition Java",
+    "bukkitTitle": "Bukkit/Paper (Édition Java)",
+    "bukkitDescription": "API de plugins pour les serveurs Java",
+    "bedrockTitle": "Édition Bedrock",
+    "bedrockDescription": "Extensions multiplateformes Bedrock",
+    "localMode": "Mode Local Uniquement",
+    "localModeDescription": "Ignorer la configuration du serveur et travailler localement",
+    "rememberChoice": "Mémoriser mon choix",
+    "continueButton": "Continuer vers BlocklyCraft",
+    "selectServerWarning": "Veuillez sélectionner au moins un serveur ou activer le Mode Local"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "cancel": "Annuler",
+    "save": "Enregistrer les Paramètres",
+    "saving": "Enregistrement...",
+    "apiKeys": {
+      "title": "Clés API OpenAI",
+      "description": "Entrez vos clés API OpenAI pour activer les fonctionnalités IA comme la génération de modèles de blocs et les textures d'objets personnalisés.",
+      "gptKeyLabel": "Clé API GPT-5.1",
+      "gptKeyHint": "(pour les modèles de blocs IA)",
+      "imageKeyLabel": "Clé API GPT Image 1",
+      "imageKeyHint": "(pour les textures d'objets personnalisés)",
+      "showKeys": "Afficher les clés API",
+      "placeholder": "sk-proj-..."
+    },
+    "platform": {
+      "title": "Paramètres de Plateforme",
+      "description": "Configurez la plateforme et la version de Minecraft pour laquelle vous développez. Cela détermine quels blocs sont disponibles et comment le code est généré.",
+      "editionLabel": "Édition",
+      "editionHint": "(Java ou Bedrock)",
+      "editionJava": "Édition Java",
+      "editionBedrock": "Édition Bedrock",
+      "platformLabel": "Plateforme",
+      "platformHint": "(chargeur de mods ou type de serveur)",
+      "platformFabric": "Fabric (Mods)",
+      "platformBukkit": "Bukkit/Paper (Plugins)",
+      "platformBedrock": "Bedrock (Extensions)",
+      "versionLabel": "Version de Minecraft",
+      "versionHint": "(actuellement seul 1.21.1 est pris en charge)"
+    },
+    "servers": {
+      "title": "Serveurs de Déploiement",
+      "description": "Gérez les serveurs de déploiement en cours d'exécution. Ces serveurs sont utilisés pour déployer vos mods sur Minecraft.",
+      "loading": "Chargement de l'état du serveur...",
+      "fabricName": "🟦 Fabric (Java)",
+      "bukkitName": "🟨 Bukkit (Java)",
+      "bedrockName": "🟩 Bedrock",
+      "running": "🟢 En cours",
+      "stopped": "⚪ Arrêté",
+      "port": "Port",
+      "pid": "PID",
+      "start": "Démarrer",
+      "stop": "Arrêter"
+    },
+    "language": {
+      "title": "Langue",
+      "description": "Sélectionnez votre langue préférée pour l'interface utilisateur et les blocs Blockly.",
+      "label": "Langue de l'Interface",
+      "hint": "(nécessite un redémarrage de l'application)"
+    }
+  },
+  "modals": {
+    "newProject": {
+      "title": "Nouveau Projet",
+      "message": "Êtes-vous sûr de vouloir créer un nouveau projet ? Les modifications non enregistrées seront perdues.",
+      "cancel": "Annuler",
+      "confirm": "Créer un Nouveau Projet"
+    },
+    "renameProject": {
+      "title": "Renommer le Projet",
+      "label": "Nom du Projet :",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "saveProject": {
+      "title": "Enregistrer le Projet",
+      "label": "Nom du Projet :",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "deleteTexture": {
+      "title": "Supprimer la Texture",
+      "message": "Êtes-vous sûr de vouloir supprimer \"{name}\" ? Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer"
+    },
+    "deleteProject": {
+      "title": "Supprimer le Projet",
+      "message": "Êtes-vous sûr de vouloir supprimer \"{name}\" ?",
+      "messageDeployed": "Êtes-vous sûr de vouloir supprimer \"{name}\" ? Ce projet est actuellement déployé et sera retiré. Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer"
+    },
+    "undeployMod": {
+      "title": "Retirer le Mod",
+      "message": "Êtes-vous sûr de vouloir retirer \"{name}\" ? Cela le supprimera de Minecraft.",
+      "confirm": "Retirer"
+    },
+    "message": {
+      "ok": "OK",
+      "copyHint": "Cliquez sur le texte ci-dessus pour sélectionner et copier"
+    }
+  },
+  "examples": {
+    "title": "Exemples et Projets",
+    "examplesTab": "Exemples",
+    "projectsTab": "Projets",
+    "mediaTab": "Médias",
+    "aiTab": "Modèles IA",
+    "deploymentsTab": "Déploiements",
+    "noExamples": "Aucun exemple disponible",
+    "noProjects": "Aucun projet enregistré pour le moment. Créez quelque chose d'incroyable et cliquez sur \"Enregistrer\" dans l'en-tête !",
+    "noDeployments": "Aucun mod déployé",
+    "noTextures": "Aucune texture téléchargée pour le moment. Glissez-déposez des images ci-dessus !",
+    "loadButton": "Charger",
+    "deleteButton": "Supprimer",
+    "undeployButton": "Retirer",
+    "lastModified": "Dernière modification",
+    "deployedAt": "Déployé",
+    "deployed": "🎮 Déployé",
+    "collapse": "Réduire",
+    "expand": "Développer",
+    "mediaLibrary": "Bibliothèque de Médias",
+    "uploadImages": "Télécharger des Images",
+    "uploadImagesHint": "Cliquez pour sélectionner des fichiers PNG, JPG, GIF",
+    "generateWithAI": "Générer avec l'IA",
+    "aiTexturePrompt": "Décrivez la texture que vous souhaitez (ex. 'Une épée violette lumineuse avec des éclairs')",
+    "generating": "Génération...",
+    "generateTexture": "Générer la Texture",
+    "deleteTexture": "Supprimer la texture",
+    "deleteProject": "Supprimer le projet",
+    "undeployMod": "Retirer le mod",
+    "difficulty": {
+      "beginner": "Débutant",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé",
+      "expert": "Expert"
+    }
+  },
+  "messages": {
+    "saveRequired": "Enregistrement Requis",
+    "saveBeforeCompile": "Veuillez enregistrer votre projet avec un nom approprié avant de compiler.",
+    "saveBeforeDeploy": "Veuillez enregistrer votre projet avec un nom approprié avant de déployer.",
+    "buildSuccessful": "Compilation Réussie",
+    "buildSuccessMessage": "Compilation réussie ! Utilisez \"Déployer le Mod\" pour déployer sur le serveur.",
+    "validationErrors": "Erreurs de Validation",
+    "compileError": "Erreur de Compilation",
+    "deploymentSuccess": "Succès",
+    "deploymentSuccessMessage": "Mod déployé avec succès !",
+    "deploymentFailed": "Déploiement Échoué",
+    "deploymentError": "Erreur de Déploiement",
+    "error": "Erreur",
+    "success": "Succès",
+    "projectSavedSuccessfully": "Projet enregistré avec succès !",
+    "workspaceNotInitialized": "Espace de travail non initialisé",
+    "noWorkspaceToSave": "Aucun espace de travail à enregistrer",
+    "errorLoadingExample": "Erreur lors du chargement de l'exemple : ",
+    "errorLoadingProject": "Erreur lors du chargement du projet : ",
+    "errorSavingProject": "Erreur lors de l'enregistrement du projet : ",
+    "enterTextureDescription": "Veuillez entrer une description pour la texture",
+    "setAPIKeyFirst": "Veuillez d'abord configurer votre clé API OpenAI dans les Paramètres",
+    "textureGeneratedSuccessfully": "Texture générée avec succès !",
+    "failedToGenerateTexture": "Échec de la génération de la texture : ",
+    "failedToDeleteTexture": "Échec de la suppression de la texture : ",
+    "warningUndeployFailed": "Attention : Impossible de retirer complètement le mod : ",
+    "failedToDeleteProject": "Échec de la suppression du projet : ",
+    "errorUndeployingMod": "Erreur lors du retrait du mod : "
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "zh": "中文"
+  }
+}
